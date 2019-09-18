@@ -10,4 +10,5 @@ export const ETH_MIN_LIKECOIN_AMOUNT = '1000000000000000000' // 1e18 wei === 1 L
 
 export const COSMOS_ENDPOINT = 'http://LIGHT_CLIENT_ENDPOINT/'
 export const COSMOS_CHAIN_ID = 'CHAIN_ID'
+export const COSMOS_GAS_PRICE = 1000.0
 export const COSMOS_DENOM = 'nanolike'
