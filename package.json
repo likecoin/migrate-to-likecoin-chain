@@ -5,7 +5,7 @@
   "author": "Chung Wu",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server --exec babel-node",
+    "dev": "cross-env IS_TESTNET=TRUE NODE_ENV=development nodemon server/index.js --watch server --exec babel-node",
     "build": "nuxt build",
     "start": "cross-env NODE_ENV=production babel-node server/index.js",
     "generate": "nuxt generate",

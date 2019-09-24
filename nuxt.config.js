@@ -4,6 +4,10 @@ module.exports = {
     port: process.env.PORT,
     host: process.env.HOST,
   },
+  env: {
+    IS_TESTNET: process.env.IS_TESTNET,
+    CI: process.env.CI,
+  },
   /*
   ** Headers of the page
   */
