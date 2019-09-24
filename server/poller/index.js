@@ -1,9 +1,9 @@
 import {
   init as cosmosInit, createSigner, sendCoin, Coin,
-} from '../lib/cosmos';
-import { subscriptMigrationEthTxConfirm, startPoller } from '../lib/database';
-import { getTransfersFromReceipt } from '../lib/eth';
-import * as config from '../config';
+} from '../util/cosmos';
+import { subscriptMigrationEthTxConfirm, startPoller } from '../util/database';
+import { getTransfersFromReceipt } from '../util/eth';
+import * as config from '../../config/config';
 import { COSMOS_PRIVATE_KEY } from './secret';
 
 cosmosInit(config.COSMOS_ENDPOINT);

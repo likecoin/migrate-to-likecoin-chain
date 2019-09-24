@@ -1,6 +1,6 @@
 import proxy from 'express-http-proxy';
 import { Router } from 'express';
-import { COSMOS_ENDPOINT } from '../config';
+import { COSMOS_ENDPOINT } from '../config/config';
 
 import migrate from './migrate';
 

@@ -1,3 +1,5 @@
+export const FIRESTORE_TX_ROOT = '';
+
 export const ETH_ENDPOINT = 'https://mainnet.infura.io/v3/PROJECT_ID';
 export const ETH_CONFIRMATION_NEEDED = 12;
 export const ETH_CONTRACT_ADDRESS = '0x1111111111111111111111111111111111111111';

@@ -1,5 +1,9 @@
 module.exports = {
   mode: 'spa',
+  server: {
+    port: process.env.PORT,
+    host: process.env.HOST,
+  },
   /*
   ** Headers of the page
   */
