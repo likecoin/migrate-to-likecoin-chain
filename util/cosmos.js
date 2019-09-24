@@ -4,7 +4,7 @@ import secp256k1 from 'secp256k1';
 import bech32 from 'bech32';
 import jsonStringify from 'fast-json-stable-stringify';
 
-import * as config from '../config';
+import * as config from '../config/config';
 
 let api = null;
 

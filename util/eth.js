@@ -1,12 +1,12 @@
-import * as config from '../config';
-import { abi } from './contract.json';
+import { ETH_LOCK_ADDRESS } from '../config/config';
+import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
 
 let web3 = null;
 let LikeCoin = null;
 
 export function initWeb3(newWeb3) {
   web3 = newWeb3;
-  LikeCoin = new web3.eth.Contract(abi, config.ETH_CONTRACT_ADDRESS);
+  LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
 }
 
 export function getLikeCoinInstance() {
@@ -15,22 +15,6 @@ export function getLikeCoinInstance() {
 
 export function getLikeCoinBalance(address) {
   return LikeCoin.methods.balanceOf(address).call();
-}
-
-export async function getTransactionReceipt(txHash) {
-  const currentBlock = await web3.eth.getBlockNumber();
-  const receipt = await web3.eth.getTransactionReceipt(txHash);
-  if (!receipt || currentBlock < receipt.blockNumber + config.ETH_CONFIRMATION_NEEDED) {
-    return null;
-  }
-  return receipt;
-}
-
-export function getTransfersFromReceipt(receipt) {
-  const { inputs } = abi.filter((entity) => entity.name === 'Transfer' && entity.type === 'event')[0];
-  return receipt.logs
-    .filter((log) => log.address.toLowerCase() === config.ETH_CONTRACT_ADDRESS.toLowerCase())
-    .map((log) => web3.eth.abi.decodeLog(inputs, log.data, log.topics.slice(1)));
 }
 
 export async function getFromAddr() {
@@ -54,8 +38,8 @@ function signTyped(msg, from) {
 }
 
 export async function signMigration(from, value) {
-  const contract = config.ETH_CONTRACT_ADDRESS;
-  const to = config.ETH_LOCK_ADDRESS;
+  const contract = LIKE_COIN_ADDRESS;
+  const to = ETH_LOCK_ADDRESS;
   const nonce = web3.utils.randomHex(32);
   const maxReward = '0';
   const msg = [
