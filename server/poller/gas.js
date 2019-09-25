@@ -1,6 +1,4 @@
-const {
-  configCollection: configRef,
-} = require('../util/firebase');
+import { configCollection as configRef } from '../util/firebase';
 
 let gasPrice = 10000000000; // 10gwei
 let unsubscribeGasPrice;

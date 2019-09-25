@@ -27,6 +27,7 @@ export async function addMigrationEthTx(payload) {
       type: 'transferDelegated',
       status: 'pending',
       ts: Date.now(),
+      cosmosMigrationTxHash: '',
       ...payload,
     });
   } catch (err) {

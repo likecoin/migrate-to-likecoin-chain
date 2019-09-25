@@ -2,7 +2,10 @@ import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../../constant/contract/likecoin';
 import { ETH_PRIVATE_KEY } from '../config/secret';
-import { ETH_ENDPOINT } from '../config/config';
+import {
+  ETH_ENDPOINT,
+  ETH_CONFIRMATION_NEEDED,
+} from '../config/config';
 // import { PUBSUB_TOPIC_MISC } from '../../constant';
 // import publisher from '../gcloudPub';
 import { getGasPrice } from '../poller/gas';
@@ -32,6 +35,38 @@ export async function prepareWeb3Payload({
     methodCall,
     gas,
   };
+}
+
+function isStatusSuccess(status) {
+  if (typeof status === 'string') {
+    switch (status) {
+      case '0x1':
+      case '1':
+      case 'true':
+        return true;
+      default:
+        return false;
+    }
+  } else {
+    return !!status;
+  }
+}
+
+export async function getTransactionReceipt(txHash) {
+  const currentBlock = await web3.eth.getBlockNumber();
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  if (!receipt || currentBlock < receipt.blockNumber + ETH_CONFIRMATION_NEEDED) {
+    return null;
+  }
+  receipt.isSuccess = isStatusSuccess(receipt.status);
+  return receipt;
+}
+
+export function getTransfersFromReceipt(receipt) {
+  const { inputs } = LIKE_COIN_ABI.filter((entity) => entity.name === 'Transfer' && entity.type === 'event')[0];
+  return receipt.logs
+    .filter((log) => log.address.toLowerCase() === LIKE_COIN_ADDRESS.toLowerCase())
+    .map((log) => web3.eth.abi.decodeLog(inputs, log.data, log.topics.slice(1)));
 }
 
 export function sendTransaction(tx) {
