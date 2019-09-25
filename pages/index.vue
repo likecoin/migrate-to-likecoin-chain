@@ -76,7 +76,8 @@ export default {
       this.ethBalance = await eth.getLikeCoinBalance(this.ethAddr);
     },
     async getCosmosBalance() {
-      this.cosmosBalance = await apiGetCosmosBalance(this.cosmosAddr);
+      const { data } = await apiGetCosmosBalance(this.cosmosAddr);
+      if (data.value !== undefined) this.cosmosBalance = data.value;
     },
     async send() {
       const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
