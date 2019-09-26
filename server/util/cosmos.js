@@ -76,8 +76,8 @@ export async function getAccountInfo(address) {
 
 function signTransaction({
   signer,
-  accNum, stdTx:
-  inputStdTx,
+  accNum,
+  stdTx: inputStdTx,
   sequence,
 }) {
   const stdTx = { ...inputStdTx };
@@ -86,14 +86,14 @@ function signTransaction({
     msgs: stdTx.msg,
     chain_id: COSMOS_CHAIN_ID,
     account_number: accNum,
-    sequence,
+    sequence: sequence.toString(),
     memo: stdTx.memo,
   });
   const { signature, publicKey } = signer.sign(Buffer.from(signMessage, 'utf-8'));
   stdTx.signatures = [{
     signature: signature.toString('base64'),
     account_number: accNum,
-    sequence,
+    sequence: sequence.toString(),
     pub_key: {
       type: 'tendermint/PubKeySecp256k1',
       value: publicKey.toString('base64'),
@@ -108,8 +108,13 @@ async function sendTransaction(signedTx) {
       tx: signedTx,
       mode: 'sync',
     });
+    console.log(res);
+    if (res.data.code) {
+      throw new Error(res);
+    }
     return res.data.txhash;
   } catch (err) {
+    console.error(err);
     if (err && err.data) {
       if (err.data.includes('Tx already exists')) {
         console.error(err);
@@ -157,7 +162,7 @@ export async function sendCoins(signer, targets) {
   let pendingCount = await db.runTransaction(async (t) => {
     const d = await t.get(counterRef);
     if (!d.data()) {
-      const count = Number(sequence) + 1;
+      const count = Number(sequence);
       await t.create(counterRef, { value: count + 1 });
       return count;
     }
@@ -179,7 +184,7 @@ export async function sendCoins(signer, targets) {
       txHash = await sendTransaction(signedTx);
     } catch (err) {
       console.error(err);
-      if (err.code === 3) {
+      if (err.code === 3 || err.code === 4) {
         console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
       } else {
         retry = true;
@@ -190,7 +195,8 @@ export async function sendCoins(signer, targets) {
   } while (retry && retryCount < RETRY_LIMIT);
   try {
     while (!txHash) {
-      ({ sequence: pendingCount } = await getAccountInfo(signer.cosmosAddress));
+      const { sequence: seq } = await getAccountInfo(signer.cosmosAddress);
+      pendingCount = Number(seq);
       signedTx = signTransaction({
         signer,
         accNum,
@@ -227,6 +233,7 @@ export async function sendCoins(signer, targets) {
     tx: signedTx,
     txHash,
     gasAmount: feeAmount,
+    delegatorAddress: signer.cosmosAddress,
     pendingCount,
   };
 }

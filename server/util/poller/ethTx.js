@@ -37,16 +37,14 @@ async function sendCosmosCoin(cosmosAddress, ercValue, { txHash: ethMigrationTxH
   const cosmosValue = toBN(ercValue).div(toBN(1e9)).toNumber().toFixed(0);
   const amount = { amount: cosmosValue, denom: COSMOS_DENOM };
   const {
+    tx,
     txHash,
     pendingCount,
-    tx,
+    delegatorAddress,
   } = await sendCoin(cosmosAddress, amount);
   await logCosmosTx({
-    type: 'cosmosTransfer',
-    status: 'pending',
-    ts: Date.now(),
     txHash,
-    from: ETH_LOCK_ADDRESS,
+    from: delegatorAddress,
     to: cosmosAddress,
     amount,
     nonce: pendingCount,
