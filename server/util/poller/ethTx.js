@@ -61,16 +61,16 @@ export async function handleEthMigrateCosmos(doc) {
     const dbData = await db.runTransaction(async (t) => {
       const txDoc = await t.get(doc.ref);
       const {
-        isMigirating,
+        isMigrating,
         cosmosMigrationTxHash,
         value,
         status,
         cosmosAddress,
       } = txDoc.data();
-      if (isMigirating) throw new Error(`already handling ${txHash}`);
+      if (isMigrating) throw new Error(`already handling ${txHash}`);
       if (cosmosMigrationTxHash) throw new Error(`${txHash} already sent in ${cosmosMigrationTxHash}`);
       if (status !== 'success') throw new Error(`tx ${txHash} not success`);
-      docRef.update({ isMigirating: true });
+      docRef.update({ isMigrating: true });
       return {
         cosmosAddress,
         value,
@@ -88,10 +88,10 @@ export async function handleEthMigrateCosmos(doc) {
       const cosmosTxHash = await sendCosmosCoin(cosmosAddress, value, { txHash });
       await docRef.update({
         cosmosMigrationTxHash: cosmosTxHash,
-        isMigirating: false,
+        isMigrating: false,
       });
     } finally {
-      // await docRef.update({ isMigirating: false });
+      // await docRef.update({ isMigrating: false });
       // TODO: handle error case
     }
   } catch (err) {
