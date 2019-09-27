@@ -1,28 +1,43 @@
 <template>
   <div id="app">
-    <div>
-      Ethereum address: {{ ethAddr }}
-      <button
-        v-if="!ethAddr"
-        @click="createWeb3"
-      >
-        Get Address
-      </button>
+    {{ state }}
+    <div v-if="state === 'ready'">
+      <div>
+        Ethereum address: {{ ethAddr }}
+        <button
+          v-if="!ethAddr"
+          @click="createWeb3"
+        >
+          Get Address
+        </button>
+      </div>
+      <div>
+        Ethereum balance: {{ ethBalance }}
+      </div>
+      <div>
+        Cosmos address: <input v-model="cosmosAddr" size="60">
+      </div>
+      <div>
+        Cosmos balance: {{ cosmosBalance }}
+      </div>
+      <div>
+        Amount: <input v-model="valueToSend" size="30">
+        <button @click="onSend">
+          Sign and send to cosmos
+        </button>
+      </div>
     </div>
-    <div>
-      Ethereum balance: {{ ethBalance }}
+    <div v-else-if="state === 'pendingEth'">
+      <div>Waiting for eth tx {{ processingEthTxHash }}</div>
+      <a target="_blank" :href="ethTxLink">{{ ethTxLink }}</a>
     </div>
-    <div>
-      Cosmos address: <input v-model="cosmosAddr" size="60">
+    <div v-else-if="state === 'pendingCosmos'">
+      <div>Waiting for cosmos tx {{ processingCosmosTxHash }}</div>
+      <a target="_blank" :href="cosmosTxLink">{{ cosmosTxLink }}</a>
     </div>
-    <div>
-      Cosmos balance: {{ cosmosBalance }}
-    </div>
-    <div>
-      Amount: <input v-model="valueToSend" size="30">
-      <button @click="send">
-        Sign and send to cosmos
-      </button>
+    <div v-else-if="state === 'done'">
+      <div>Migrated {{ valueToSend }}LIKE from {{ ethAddr }} to {{ cosmosAddr }}</div>
+      <div><button @click="onReset">Back</button></div>
     </div>
   </div>
 </template>
@@ -30,29 +45,60 @@
 <script>
 import Web3 from 'web3';
 import * as eth from '../util/eth';
+import * as cosmos from '../util/cosmos';
 import {
   apiPostMigration,
-  apiGetPendingMigration,
+  apiGetPendingEthMigration,
+  apiGetPendingCosmosMigration,
   apiGetCosmosBalance,
 } from '../util/api';
+import {
+  ETHERSCAN_HOST,
+  BIGDIPPER_HOST,
+} from '../constant';
+import { timeout } from '../util/misc';
 
 export default {
   data: () => ({
+    state: 'ready',
     web3: null,
     ethAddr: null,
     ethBalance: '0',
     cosmosAddr: '',
     cosmosBalance: '0nanolike',
     valueToSend: '0',
+    pendingEthTxs: [],
+    pendingCosmosTx: [],
+    processingEthTxHash: '',
+    processingCosmosTxHash: '',
   }),
+  computed: {
+    ethTxLink() {
+      return `${ETHERSCAN_HOST}/tx/${this.processingEthTxHash}`;
+    },
+    cosmosTxLink() {
+      return `${BIGDIPPER_HOST}/transactions/${this.processingCosmosTxHash}`;
+    },
+  },
   watch: {
     async ethAddr(ethAddr) {
       this.getEthBalance();
-      this.pendingEthTx = await apiGetPendingMigration(ethAddr);
+      this.pendingEthTxs = await apiGetPendingEthMigration(ethAddr);
     },
-    async cosmosAddr() {
+    async cosmosAddr(cosmosAddr) {
       await this.getCosmosBalance();
+      this.pendingCosmosTx = await apiGetPendingCosmosMigration(cosmosAddr);
     },
+  },
+  mounted() {
+    if (window.localStorage) {
+      try {
+        window.localStorage.getItem('pendingEthTx');
+        window.localStorage.getItem('pendingCosmosTx');
+      } catch (err) {
+        // no op
+      }
+    }
   },
   methods: {
     async createWeb3() {
@@ -74,16 +120,43 @@ export default {
         await this.createWeb3();
       }
       this.ethBalance = await eth.getLikeCoinBalance(this.ethAddr);
+      if (!this.valueToSend || this.valueToSend === '0') this.valueToSend = this.ethBalance;
     },
     async getCosmosBalance() {
       const { data } = await apiGetCosmosBalance(this.cosmosAddr);
       if (data.value !== undefined) this.cosmosBalance = data.value;
     },
-    async send() {
+    async onSend() {
       const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
       migrationData.cosmosAddress = this.cosmosAddr;
-      console.log(migrationData);
-      await apiPostMigration(migrationData);
+      const { data } = await apiPostMigration(migrationData);
+      this.processingEthTxHash = data.txHash;
+      this.waitForEth();
+    },
+    async onReset() {
+      this.getEthBalance();
+      this.getCosmosBalance();
+      this.state = 'ready';
+    },
+    async waitForEth() {
+      this.state = 'pendingEth';
+      await eth.waitForTxToBeMined(this.processingEthTxHash);
+      while (!this.processingCosmosTxHash) {
+        /* eslint-disable no-await-in-loop */
+        await timeout(10000);
+        const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
+        if (data && data.list && data.list.length) {
+          const [targetTx] = data.list;
+          this.processingCosmosTxHash = targetTx.txHash;
+        }
+        /* eslint-enable no-await-in-loop */
+      }
+      this.state = 'pendingCosmos';
+      this.waitForCosmos();
+    },
+    async waitForCosmos() {
+      await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+      this.state = 'done';
     },
   },
 };

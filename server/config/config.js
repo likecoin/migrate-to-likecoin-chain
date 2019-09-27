@@ -1,9 +1,15 @@
 export const FIRESTORE_TX_ROOT = '';
 export const FIRESTORE_CONFIG_ROOT = '';
+import * as config from '../../config/config';
 
 export const ETH_ENDPOINT = 'https://mainnet.infura.io/v3/PROJECT_ID';
 export const ETH_CONFIRMATION_NEEDED = 12;
 export const ETH_CONTRACT_ADDRESS = '0x1111111111111111111111111111111111111111';
+export const {
+  ETH_LOCK_ADDRESS,
+  ETH_MIN_LIKECOIN_AMOUNT,
+  ETH_CONFIRMATION_NEEDED,
+} = config;
 
 // the address which locks the ERC-20 LikeCoin
 export const ETH_LOCK_ADDRESS = '0xc111111111111111111111111111111111111111';
