@@ -36,7 +36,11 @@
     </div>
     <div v-else-if="state === 'done'">
       <div>Migrated {{ resultValue }}LIKE from {{ ethAddr }} to {{ cosmosAddr }}</div>
-      <div><button @click="onReset">Back</button></div>
+      <div>
+        <button @click="onReset">
+          Back
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -56,6 +60,7 @@ import {
   BIGDIPPER_HOST,
 } from '../constant';
 import { timeout } from '../util/misc';
+import { trySetLocalStorage } from '../util/client';
 
 export default {
   data: () => ({
@@ -80,6 +85,7 @@ export default {
   },
   watch: {
     async ethAddr(ethAddr) {
+      if (ethAddr) trySetLocalStorage('ethAddr', ethAddr);
       await this.getEthBalance();
       if (!this.processingEthTxHash) {
         await this.updateEthProcessingTx();
@@ -87,6 +93,7 @@ export default {
       }
     },
     async cosmosAddr(cosmosAddr) {
+      if (cosmosAddr) trySetLocalStorage('cosmosAddr', cosmosAddr);
       await this.getCosmosBalance();
       if (!this.processingCosmosTxHash) {
         await this.updateCosmosProcessingTx({ checkPending: true });
@@ -97,8 +104,10 @@ export default {
   mounted() {
     if (window.localStorage) {
       try {
-        window.localStorage.getItem('pendingEthTx');
-        window.localStorage.getItem('pendingCosmosTx');
+        this.ethAddr = window.localStorage.getItem('ethAddr') || '';
+        this.cosmosAddr = window.localStorage.getItem('cosmosAddr') || '';
+        this.processingEthTxHash = window.localStorage.getItem('processingEthTxHash') || '';
+        this.processingCosmosTxHash = window.localStorage.getItem('processingCosmosTxHash') || '';
       } catch (err) {
         // no op
       }
@@ -145,14 +154,16 @@ export default {
       if (data && data.list && data.list.length) {
         const [targetTx] = data.list;
         this.processingEthTxHash = targetTx.txHash;
+        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
       }
     },
-    async updateCosmosProcessingTx({ checkPending = false }) {
+    async updateCosmosProcessingTx({ checkPending = false } = {}) {
       const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
       if (data && data.list && data.list.length) {
         const [targetTx] = data.list;
         if (checkPending && targetTx.status !== 'pending') return;
         this.processingCosmosTxHash = targetTx.txHash;
+        trySetLocalStorage('processingCosmosTxHash', this.processingCosmosTxHash);
       }
     },
     async onSend() {
@@ -160,6 +171,7 @@ export default {
       migrationData.cosmosAddress = this.cosmosAddr;
       const { data } = await apiPostMigration(migrationData);
       this.processingEthTxHash = data.txHash;
+      trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
       this.waitForEth();
     },
     async onReset() {
@@ -186,6 +198,14 @@ export default {
     },
     async postDoneCleanUp() {
       this.state = 'done';
+      if (window.localStorage) {
+        try {
+          window.localStorage.removeItem('processingEthTxHash');
+          window.localStorage.removeItem('processingCosmosTxHash');
+        } catch (err) {
+          // no op
+        }
+      }
     },
   },
 };
