@@ -14,6 +14,7 @@ import {
   txCollection as txLogRef,
 } from './firebase';
 import { timeout } from '../../util/misc';
+import { isStatusSuccess } from '../../util/eth';
 
 export const web3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
 export const LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
@@ -35,21 +36,6 @@ export async function prepareWeb3Payload({
     methodCall,
     gas,
   };
-}
-
-function isStatusSuccess(status) {
-  if (typeof status === 'string') {
-    switch (status) {
-      case '0x1':
-      case '1':
-      case 'true':
-        return true;
-      default:
-        return false;
-    }
-  } else {
-    return !!status;
-  }
 }
 
 export async function getTransactionReceipt(txHash) {

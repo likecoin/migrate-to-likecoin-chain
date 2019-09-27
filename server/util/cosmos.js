@@ -59,6 +59,10 @@ export function amountToLIKE(likecoin) {
   return -1;
 }
 
+export function getCosmosDelegatorAddress() {
+  return cosmosSigner.cosmosAddress;
+}
+
 export async function getCosmosAccountLIKE(address) {
   const { data } = await api.get(`/auth/accounts/${address}`);
   if (!data.value || !data.value.coins || !data.value.coins.length) return 0;
@@ -109,7 +113,7 @@ async function sendTransaction(signedTx) {
       mode: 'sync',
     });
     if (res.data.code) {
-      throw new Error(res);
+      throw new Error(res.data.raw_log);
     }
     return res.data.txhash;
   } catch (err) {
@@ -178,7 +182,7 @@ export async function sendCoins(signer, targets) {
     }
     const v = d.data().value + 1;
     await t.update(counterRef, { value: v });
-    return d.data().value;
+    return v - 1;
   });
 
   do {

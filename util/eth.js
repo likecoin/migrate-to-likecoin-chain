@@ -1,5 +1,6 @@
-import { ETH_LOCK_ADDRESS } from '../config/config';
+import { ETH_LOCK_ADDRESS, ETH_CONFIRMATION_NEEDED } from '../config/config';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
+import { timeout } from './misc';
 
 let web3 = null;
 let LikeCoin = null;
@@ -84,4 +85,35 @@ export async function signMigration(from, value) {
     nonce,
     sig,
   };
+}
+
+export function isStatusSuccess(status) {
+  if (typeof status === 'string') {
+    switch (status) {
+      case '0x1':
+      case '1':
+      case 'true':
+        return true;
+      default:
+        return false;
+    }
+  } else {
+    return !!status;
+  }
+}
+
+export async function waitForTxToBeMined(txHash) {
+  let done = false;
+  while (!done) {
+    /* eslint-disable no-await-in-loop */
+    await timeout(1000);
+    const [t, txReceipt, currentBlockNumber] = await Promise.all([
+      web3.eth.getTransaction(txHash),
+      web3.eth.getTransactionReceipt(txHash),
+      web3.eth.getBlockNumber(),
+    ]);
+    if (txReceipt && !isStatusSuccess(txReceipt.status)) throw new Error('Transaction failed');
+    done = t && txReceipt && currentBlockNumber && t.blockNumber
+      && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+  }
 }

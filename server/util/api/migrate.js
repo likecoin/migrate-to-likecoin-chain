@@ -1,6 +1,7 @@
 import { toBN } from 'web3-utils';
 import { txCollection as dbRef } from '../firebase';
 import { prepareWeb3Payload } from '../web3';
+import { getCosmosDelegatorAddress } from '../cosmos';
 import {
   ETH_LOCK_ADDRESS,
   ETH_MIN_LIKECOIN_AMOUNT,
@@ -40,9 +41,50 @@ export async function findMigrationEthTxLog({ from }) {
     .where('from', '==', from)
     .where('to', '==', ETH_LOCK_ADDRESS)
     .where('type', '==', 'transferDelegated')
+    .where('status', '==', 'pending')
+    .where('cosmosMigrationTxHash', '==', '')
+    .orderBy('ts', 'desc')
+    .limit(1)
     .get();
   return pending.docs.map((d) => {
-    const { status, value, ts } = d;
-    return { status, value, ts };
+    const {
+      status,
+      value,
+      ts,
+      competeTs,
+    } = d.data();
+    return {
+      txHash: d.id,
+      status,
+      value,
+      ts,
+      competeTs,
+    };
+  });
+}
+
+export async function findMigrationCosmosTxLog({ to }) {
+  const from = getCosmosDelegatorAddress();
+  const pending = await dbRef
+    .where('from', '==', from)
+    .where('to', '==', to)
+    .where('type', '==', 'cosmosTransfer')
+    .orderBy('ts', 'desc')
+    .limit(1)
+    .get();
+  return pending.docs.map((d) => {
+    const {
+      status,
+      amount,
+      ts,
+      competeTs,
+    } = d.data();
+    return {
+      txHash: d.id,
+      status,
+      amount,
+      ts,
+      competeTs,
+    };
   });
 }

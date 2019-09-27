@@ -4,6 +4,7 @@ import {
   verifyMigrationData,
   addMigrationEthTx,
   findMigrationEthTxLog,
+  findMigrationCosmosTxLog,
 } from '../util/api/migrate';
 import { sendTransactionWithLoop } from '../util/web3';
 import { getCosmosAccountLIKE } from '../util/cosmos';
@@ -11,10 +12,20 @@ import { getCosmosAccountLIKE } from '../util/cosmos';
 
 const router = Router();
 
-router.get('/pending/:ethWallet', async (req, res, next) => {
+router.get('/pending/eth/:ethWallet', async (req, res, next) => {
   try {
     const { ethWallet } = req.params;
     const list = await findMigrationEthTxLog({ from: ethWallet });
+    res.json({ list });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/pending/cosmos/:cosmosWallet', async (req, res, next) => {
+  try {
+    const { cosmosWallet } = req.params;
+    const list = await findMigrationCosmosTxLog({ to: cosmosWallet });
     res.json({ list });
   } catch (err) {
     next(err);
