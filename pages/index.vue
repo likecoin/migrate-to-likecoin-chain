@@ -5,10 +5,9 @@
       <div>
         Ethereum address: {{ ethAddr }}
         <button
-          v-if="!ethAddr"
           @click="createWeb3"
         >
-          Get Address
+          Get MetaMask Address
         </button>
       </div>
       <div>
@@ -36,7 +35,7 @@
       <a target="_blank" :href="cosmosTxLink">{{ cosmosTxLink }}</a>
     </div>
     <div v-else-if="state === 'done'">
-      <div>Migrated {{ valueToSend }}LIKE from {{ ethAddr }} to {{ cosmosAddr }}</div>
+      <div>Migrated {{ resultValue }}LIKE from {{ ethAddr }} to {{ cosmosAddr }}</div>
       <div><button @click="onReset">Back</button></div>
     </div>
   </div>
@@ -67,8 +66,7 @@ export default {
     cosmosAddr: '',
     cosmosBalance: '0nanolike',
     valueToSend: '0',
-    pendingEthTxs: [],
-    pendingCosmosTx: [],
+    resultValue: '0',
     processingEthTxHash: '',
     processingCosmosTxHash: '',
   }),
@@ -82,12 +80,18 @@ export default {
   },
   watch: {
     async ethAddr(ethAddr) {
-      this.getEthBalance();
-      this.pendingEthTxs = await apiGetPendingEthMigration(ethAddr);
+      await this.getEthBalance();
+      if (!this.processingEthTxHash) {
+        await this.updateEthProcessingTx();
+        this.refreshState();
+      }
     },
     async cosmosAddr(cosmosAddr) {
       await this.getCosmosBalance();
-      this.pendingCosmosTx = await apiGetPendingCosmosMigration(cosmosAddr);
+      if (!this.processingCosmosTxHash) {
+        await this.updateCosmosProcessingTx({ checkPending: true });
+        this.refreshState();
+      }
     },
   },
   mounted() {
@@ -115,6 +119,16 @@ export default {
       this.web3 = web3;
       this.ethAddr = await eth.getFromAddr();
     },
+    async refreshState() {
+      let state;
+      if (this.processingEthTxHash) state = 'pendingEth';
+      if (this.processingCosmosTxHash) state = 'pendingCosmos';
+      switch (state) {
+        case 'pendingEth': this.waitForEth(); break;
+        case 'pendingCosmos': this.waitForCosmos(); break;
+        default: break;
+      }
+    },
     async getEthBalance() {
       if (!this.web3) {
         await this.createWeb3();
@@ -125,6 +139,21 @@ export default {
     async getCosmosBalance() {
       const { data } = await apiGetCosmosBalance(this.cosmosAddr);
       if (data.value !== undefined) this.cosmosBalance = data.value;
+    },
+    async updateEthProcessingTx() {
+      const { data } = await apiGetPendingEthMigration(this.ethAddr);
+      if (data && data.list && data.list.length) {
+        const [targetTx] = data.list;
+        this.processingEthTxHash = targetTx.txHash;
+      }
+    },
+    async updateCosmosProcessingTx({ checkPending = false }) {
+      const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
+      if (data && data.list && data.list.length) {
+        const [targetTx] = data.list;
+        if (checkPending && targetTx.status !== 'pending') return;
+        this.processingCosmosTxHash = targetTx.txHash;
+      }
     },
     async onSend() {
       const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
@@ -144,18 +173,18 @@ export default {
       while (!this.processingCosmosTxHash) {
         /* eslint-disable no-await-in-loop */
         await timeout(10000);
-        const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
-        if (data && data.list && data.list.length) {
-          const [targetTx] = data.list;
-          this.processingCosmosTxHash = targetTx.txHash;
-        }
+        await this.updateCosmosProcessingTx();
         /* eslint-enable no-await-in-loop */
       }
-      this.state = 'pendingCosmos';
       this.waitForCosmos();
     },
     async waitForCosmos() {
-      await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+      this.state = 'pendingCosmos';
+      const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+      this.resultValue = tx.value.msg[0].value.amount.amount; // TODO: parse amount
+      this.postDoneCleanUp();
+    },
+    async postDoneCleanUp() {
       this.state = 'done';
     },
   },

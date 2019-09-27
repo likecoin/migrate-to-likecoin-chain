@@ -9,15 +9,15 @@ const api = axios.create({
 });
 
 export async function waitForTxToBeMined(txHash) {
-  let done = false;
-  while (!done) {
+  let tx;
+  while (!tx) {
     /* eslint-disable no-await-in-loop */
     await timeout(1000);
     try {
       const { data } = await api.get(`/${txHash}`);
       console.log(data);
       if (data && data.height) {
-        done = true;
+        ({ tx } = data);
         const {
           code,
           logs: [{ success = false } = {}] = [],
@@ -29,6 +29,7 @@ export async function waitForTxToBeMined(txHash) {
       console.error(err);
     }
   }
+  return tx;
 }
 
 export default waitForTxToBeMined;
