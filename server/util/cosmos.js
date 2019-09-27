@@ -108,7 +108,6 @@ async function sendTransaction(signedTx) {
       tx: signedTx,
       mode: 'sync',
     });
-    console.log(res);
     if (res.data.code) {
       throw new Error(res);
     }
@@ -117,9 +116,20 @@ async function sendTransaction(signedTx) {
     console.error(err);
     if (err && err.data) {
       if (err.data.includes('Tx already exists')) {
-        console.error(err);
-        // TODO: return txHash somehow
-        return '';
+        // return tx hash
+        try {
+          const { data } = await api.post('/txs/encode', {
+            tx: signedTx,
+          });
+          const sha256 = createHash('sha256');
+          const txHash = sha256
+            .update(data.tx, 'base64')
+            .digest('hex');
+          return txHash.toUpperCase();
+        } catch (e) {
+          console.error(e);
+          return '';
+        }
       }
       if (err.data.code) {
         console.error(err.data.raw_log);
