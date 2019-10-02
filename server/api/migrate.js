@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { toChecksumAddress } from 'web3-utils';
 import {
   verifyMigrationData,
+  verifyTransferMigrationData,
   addMigrationEthTx,
+  addMigrationTransferEthTx,
   findMigrationEthTxLog,
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
@@ -81,6 +83,34 @@ router.post('/', async (req, res, next) => {
     // publisher.publish(PUBSUB_TOPIC_MISC, req, dbTxRecord);
 
     await addMigrationEthTx(dbTxRecord);
+    res.send({ txHash });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/ledger', async (req, res, next) => {
+  try {
+    const {
+      from,
+      to,
+      value,
+      cosmosAddress,
+      txHash,
+    } = req.body;
+    verifyTransferMigrationData({
+      from, to, value,
+    });
+    const dbTxRecord = {
+      from,
+      to,
+      value,
+      txHash,
+      cosmosAddress,
+    };
+
+    // publisher.publish(PUBSUB_TOPIC_MISC, req, dbTxRecord);
+    await addMigrationTransferEthTx(dbTxRecord);
     res.send({ txHash });
   } catch (err) {
     next(err);

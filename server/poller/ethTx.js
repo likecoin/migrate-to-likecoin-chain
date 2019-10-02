@@ -9,7 +9,6 @@ function pollEthTx() {
   try {
     const watchRef = dbRef
       .where('to', '==', ETH_LOCK_ADDRESS)
-      .where('type', '==', 'transferDelegated')
       .where('status', '==', 'success')
       .where('cosmosMigrationTxHash', '==', '');
     const watch = () => {

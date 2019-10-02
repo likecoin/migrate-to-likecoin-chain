@@ -8,6 +8,7 @@ const api = axios.create({
 });
 
 export const apiPostMigration = (payload) => api.post('/migrate', payload);
+export const apiPostTransferMigration = (payload) => api.post('/migrate/ledger', payload);
 
 export const apiGetPendingEthMigration = (address) => api.get(`/migrate/pending/eth/${address}`);
 export const apiGetPendingCosmosMigration = (address) => api.get(`/migrate/pending/cosmos/${address}`);

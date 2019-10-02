@@ -51,6 +51,7 @@ import * as eth from '../util/eth';
 import * as cosmos from '../util/cosmos';
 import {
   apiPostMigration,
+  apiPostTransferMigration,
   apiGetPendingEthMigration,
   apiGetPendingCosmosMigration,
   apiGetCosmosBalance,
@@ -170,6 +171,14 @@ export default {
       const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
       migrationData.cosmosAddress = this.cosmosAddr;
       const { data } = await apiPostMigration(migrationData);
+      this.processingEthTxHash = data.txHash;
+      trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
+      this.waitForEth();
+    },
+    async onSendTransfer() {
+      const migrationData = await eth.signTransferMigration(this.ethAddr, this.valueToSend);
+      migrationData.cosmosAddress = this.cosmosAddr;
+      const { data } = await apiPostTransferMigration(migrationData);
       this.processingEthTxHash = data.txHash;
       trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
       this.waitForEth();

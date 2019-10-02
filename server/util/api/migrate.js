@@ -21,11 +21,32 @@ export function verifyMigrationData({
   });
 }
 
+export function verifyTransferMigrationData({ to }) {
+  if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
+    throw new Error('Invalid to address');
+  }
+}
+
 export async function addMigrationEthTx(payload) {
   const { txHash } = payload;
   try {
     await dbRef.doc(txHash).create({
       type: 'transferDelegated',
+      status: 'pending',
+      ts: Date.now(),
+      cosmosMigrationTxHash: '',
+      ...payload,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function addMigrationTransferEthTx(payload) {
+  const { txHash } = payload;
+  try {
+    await dbRef.doc(txHash).create({
+      type: 'transfer',
       status: 'pending',
       ts: Date.now(),
       cosmosMigrationTxHash: '',

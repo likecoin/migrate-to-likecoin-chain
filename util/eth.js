@@ -87,6 +87,33 @@ export async function signMigration(from, value) {
   };
 }
 
+export async function signTransferMigration(from, value) {
+  const to = ETH_LOCK_ADDRESS;
+  const balance = await LikeCoin.methods.balanceOf(from).call();
+  console.log(balance);
+  const txEventEmitter = new Promise((resolve, reject) => {
+    LikeCoin.methods.transfer(to, value)
+      .send({ from })
+      .on('transactionHash', (hash) => {
+        if (this.onSigned) this.onSigned();
+        resolve(hash);
+      })
+      .on('error', (err) => {
+        if (this.onSigned) this.onSigned();
+        reject(err);
+      });
+  });
+  const txHash = await txEventEmitter;
+  console.log(txEventEmitter);
+  console.log(txHash);
+  return {
+    txHash,
+    from,
+    to,
+    value,
+  };
+}
+
 export function isStatusSuccess(status) {
   if (typeof status === 'string') {
     switch (status) {
