@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    {{ state }}
+    {{ state }} {{ isLedger ? 'ledger' : 'metamask' }}
     <div v-if="state === 'ready'">
       <div>
         Ethereum address: {{ ethAddr }}
@@ -9,12 +9,22 @@
         >
           Get MetaMask Address
         </button>
+        <button
+          @click="createWeb3Ledger"
+        >
+          Get Ledger
+        </button>
       </div>
       <div>
         Ethereum balance: {{ ethBalance }}
       </div>
       <div>
         Cosmos address: <input v-model="cosmosAddr" size="60">
+        <button
+          @click="getCosmosAddressByLedger"
+        >
+          Get Ledger Cosmos Address
+        </button>
       </div>
       <div>
         Cosmos balance: {{ cosmosBalance }}
@@ -60,12 +70,17 @@ import {
   ETHERSCAN_HOST,
   BIGDIPPER_HOST,
 } from '../constant';
+import {
+  getLedgerWeb3Engine,
+  getLedgerCosmosAddress,
+} from '../util/ledger';
 import { timeout } from '../util/misc';
 import { trySetLocalStorage } from '../util/client';
 
 export default {
   data: () => ({
     state: 'ready',
+    isLedger: false,
     web3: null,
     ethAddr: null,
     ethBalance: '0',
@@ -128,6 +143,17 @@ export default {
       eth.initWeb3(web3);
       this.web3 = web3;
       this.ethAddr = await eth.getFromAddr();
+      this.isLedger = false;
+    },
+    async createWeb3Ledger() {
+      const web3 = new Web3(await getLedgerWeb3Engine());
+      eth.initWeb3(web3);
+      this.web3 = web3;
+      this.ethAddr = await eth.getFromAddr();
+      this.isLedger = true;
+    },
+    async getCosmosAddressByLedger() {
+      this.cosmosAddr = await getLedgerCosmosAddress();
     },
     async refreshState() {
       let state;
@@ -168,6 +194,13 @@ export default {
       }
     },
     async onSend() {
+      if (this.isLedger) {
+        this.sendTransfer();
+      } else {
+        this.sendMigrationTx();
+      }
+    },
+    async sendMigrationTx() {
       const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
       migrationData.cosmosAddress = this.cosmosAddr;
       const { data } = await apiPostMigration(migrationData);
@@ -175,7 +208,7 @@ export default {
       trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
       this.waitForEth();
     },
-    async onSendTransfer() {
+    async sendTransfer() {
       const migrationData = await eth.signTransferMigration(this.ethAddr, this.valueToSend);
       migrationData.cosmosAddress = this.cosmosAddr;
       const { data } = await apiPostTransferMigration(migrationData);
