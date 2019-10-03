@@ -2,6 +2,12 @@
   <div id="app">
     <div>
       Ethereum address: {{ ethAddr }}
+      <button
+        v-if="!ethAddr"
+        @click="createWeb3"
+      >
+        Get Address
+      </button>
     </div>
     <div>
       Ethereum balance: {{ ethBalance }}
@@ -22,76 +28,63 @@
 </template>
 
 <script>
-import Web3 from 'web3'
-import axios from 'axios'
-import * as eth from '../lib/eth'
-import * as cosmos from '../lib/cosmos'
-import { sleep } from '../lib/utils'
-import * as config from '../config'
-
-async function createWeb3 () {
-  // TODO: check network
-  if (window.ethereum) {
-    await window.ethereum.enable()
-    return new Web3(window.ethereum)
-  } else if (window.web3) {
-    return new Web3(window.web3.currentProvider)
-  } else {
-    throw new Error('Cannot detect web3 from browser')
-  }
-}
+import Web3 from 'web3';
+import * as eth from '../util/eth';
+import {
+  apiPostMigration,
+  apiGetPendingMigration,
+  apiGetCosmosBalance,
+} from '../util/api';
 
 export default {
   data: () => ({
+    web3: null,
     ethAddr: null,
     ethBalance: '0',
     cosmosAddr: '',
     cosmosBalance: '0nanolike',
-    valueToSend: '0'
+    valueToSend: '0',
   }),
-  async mounted () {
-    const web3 = await createWeb3()
-    eth.initWeb3(web3)
-    cosmos.init('/api')
-    this.poll()
+  watch: {
+    async ethAddr(ethAddr) {
+      this.getEthBalance();
+      this.pendingEthTx = await apiGetPendingMigration(ethAddr);
+    },
+    async cosmosAddr() {
+      await this.getCosmosBalance();
+    },
   },
   methods: {
-    async getEthBalance () {
-      this.ethBalance = await eth.getLikeCoinBalance(this.ethAddr)
-    },
-    async getCosmosBalance () {
-      let amount = 0
-      try {
-        if (this.cosmosAddr) {
-          const accountInfo = await cosmos.getAccountInfo(this.cosmosAddr)
-          if (accountInfo.coins) {
-            const coin = accountInfo.coins.filter(coin => coin.denom === config.COSMOS_DENOM)[0]
-            if (coin) {
-              ({ amount } = coin)
-            }
-          }
-        }
-      } finally {
-        this.cosmosBalance = new cosmos.Coin(amount, config.COSMOS_DENOM).toString()
+    async createWeb3() {
+      // TODO: check network
+      let web3;
+      if (window.ethereum) {
+        await window.ethereum.enable();
+        web3 = new Web3(window.ethereum);
+      } if (window.web3) {
+        web3 = new Web3(window.web3.currentProvider);
       }
+      if (!web3) throw new Error('Cannot detect web3 from browser');
+      eth.initWeb3(web3);
+      this.web3 = web3;
+      this.ethAddr = await eth.getFromAddr();
     },
-    async poll () {
-      while (true) {
-        try {
-          this.ethAddr = await eth.getFromAddr()
-          console.log(this.ethAddr)
-          await Promise.all([this.getEthBalance(), this.getCosmosBalance()])
-        } finally {
-          await sleep(10000)
-        }
+    async getEthBalance() {
+      if (!this.web3) {
+        await this.createWeb3();
       }
+      this.ethBalance = await eth.getLikeCoinBalance(this.ethAddr);
     },
-    async send () {
-      const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend)
-      migrationData.cosmosAddress = this.cosmosAddr
-      console.log(migrationData)
-      await axios.post('/migrate', migrationData)
-    }
-  }
-}
+    async getCosmosBalance() {
+      const { data } = await apiGetCosmosBalance(this.cosmosAddr);
+      if (data.value !== undefined) this.cosmosBalance = data.value;
+    },
+    async send() {
+      const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
+      migrationData.cosmosAddress = this.cosmosAddr;
+      console.log(migrationData);
+      await apiPostMigration(migrationData);
+    },
+  },
+};
 </script>
