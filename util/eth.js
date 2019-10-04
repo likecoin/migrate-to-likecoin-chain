@@ -1,3 +1,5 @@
+import BigNumber from 'bignumber.js';
+
 import { ETH_LOCK_ADDRESS, ETH_CONFIRMATION_NEEDED } from '../config/config';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
 import { timeout } from './misc';
@@ -90,10 +92,30 @@ export async function signMigration(from, value) {
 export async function signTransferMigration(from, value) {
   const to = ETH_LOCK_ADDRESS;
   const balance = await LikeCoin.methods.balanceOf(from).call();
-  console.log(balance);
+  if (new BigNumber(balance).lt(value)) {
+    throw new Error('NOT_ENOUGH_BALANCE');
+  }
+  const methodCall = LikeCoin.methods.transfer(to, value);
+  const gas = await methodCall.estimateGas({
+    to: LIKE_COIN_ADDRESS,
+    from,
+    gas: 1000000,
+  });
+  const [myEth, gasPrice] = await Promise.all([
+    web3.eth.getBalance(from),
+    web3.eth.getGasPrice(),
+  ]);
+  const gasNumber = new BigNumber(gas).multipliedBy(1.5);
+  if ((gasNumber.multipliedBy(gasPrice).gt(myEth))) {
+    throw new Error('NOT_ENOUGH_GAS');
+  }
   const txEventEmitter = new Promise((resolve, reject) => {
     LikeCoin.methods.transfer(to, value)
-      .send({ from })
+      .send({
+        from,
+        gas: Math.ceil(gasNumber.toFixed()),
+        gasPrice,
+      })
       .on('transactionHash', (hash) => {
         if (this.onSigned) this.onSigned();
         resolve(hash);
@@ -104,8 +126,6 @@ export async function signTransferMigration(from, value) {
       });
   });
   const txHash = await txEventEmitter;
-  console.log(txEventEmitter);
-  console.log(txHash);
   return {
     txHash,
     from,

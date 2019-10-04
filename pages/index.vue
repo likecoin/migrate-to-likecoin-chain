@@ -99,31 +99,15 @@ export default {
       return `${BIGDIPPER_HOST}/transactions/${this.processingCosmosTxHash}`;
     },
   },
-  watch: {
-    async ethAddr(ethAddr) {
-      if (ethAddr) trySetLocalStorage('ethAddr', ethAddr);
-      await this.getEthBalance();
-      if (!this.processingEthTxHash) {
-        await this.updateEthProcessingTx();
-        this.refreshState();
-      }
-    },
-    async cosmosAddr(cosmosAddr) {
-      if (cosmosAddr) trySetLocalStorage('cosmosAddr', cosmosAddr);
-      await this.getCosmosBalance();
-      if (!this.processingCosmosTxHash) {
-        await this.updateCosmosProcessingTx({ checkPending: true });
-        this.refreshState();
-      }
-    },
-  },
   mounted() {
     if (window.localStorage) {
       try {
-        this.ethAddr = window.localStorage.getItem('ethAddr') || '';
-        this.cosmosAddr = window.localStorage.getItem('cosmosAddr') || '';
         this.processingEthTxHash = window.localStorage.getItem('processingEthTxHash') || '';
         this.processingCosmosTxHash = window.localStorage.getItem('processingCosmosTxHash') || '';
+        if (this.processingEthTxHash || this.processingCosmosTxHash) {
+          this.ethAddr = window.localStorage.getItem('ethAddr') || '';
+          this.cosmosAddr = window.localStorage.getItem('cosmosAddr') || '';
+        }
       } catch (err) {
         // no op
       }
@@ -142,18 +126,18 @@ export default {
       if (!web3) throw new Error('Cannot detect web3 from browser');
       eth.initWeb3(web3);
       this.web3 = web3;
-      this.ethAddr = await eth.getFromAddr();
+      this.updateEthAddr(await eth.getFromAddr());
       this.isLedger = false;
     },
     async createWeb3Ledger() {
       const web3 = new Web3(await getLedgerWeb3Engine());
       eth.initWeb3(web3);
       this.web3 = web3;
-      this.ethAddr = await eth.getFromAddr();
+      this.updateEthAddr(await eth.getFromAddr());
       this.isLedger = true;
     },
     async getCosmosAddressByLedger() {
-      this.cosmosAddr = await getLedgerCosmosAddress();
+      this.updateCosmosAdderr(await getLedgerCosmosAddress());
     },
     async refreshState() {
       let state;
@@ -175,6 +159,24 @@ export default {
     async getCosmosBalance() {
       const { data } = await apiGetCosmosBalance(this.cosmosAddr);
       if (data.value !== undefined) this.cosmosBalance = data.value;
+    },
+    async updateEthAddr(ethAddr) {
+      if (ethAddr) trySetLocalStorage('ethAddr', ethAddr);
+      this.ethAddr = ethAddr;
+      await this.getEthBalance();
+      if (!this.processingEthTxHash) {
+        await this.updateEthProcessingTx();
+        this.refreshState();
+      }
+    },
+    async updateCosmosAdderr(cosmosAddr) {
+      if (cosmosAddr) trySetLocalStorage('cosmosAddr', cosmosAddr);
+      this.cosmosAddr = cosmosAddr;
+      await this.getCosmosBalance();
+      if (!this.processingCosmosTxHash) {
+        await this.updateCosmosProcessingTx({ checkPending: true });
+        this.refreshState();
+      }
     },
     async updateEthProcessingTx() {
       const { data } = await apiGetPendingEthMigration(this.ethAddr);
