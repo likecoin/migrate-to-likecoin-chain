@@ -1,15 +1,27 @@
 import BigNumber from 'bignumber.js';
+import Web3 from 'web3';
 
-import { ETH_LOCK_ADDRESS, ETH_CONFIRMATION_NEEDED } from '../config/config';
+import {
+  ETH_LOCK_ADDRESS,
+  ETH_CONFIRMATION_NEEDED,
+  ETH_ENDPOINT,
+} from '../config/config';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
 import { timeout } from './misc';
 
 let web3 = null;
 let LikeCoin = null;
 
-export function initWeb3(newWeb3) {
-  web3 = newWeb3;
+export function initReadOnlyWeb3() {
+  web3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
   LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
+  return web3;
+}
+
+export function initWindowWeb3(windowWeb3) {
+  web3 = new Web3(windowWeb3);
+  LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
+  return web3;
 }
 
 export function getLikeCoinInstance() {
@@ -150,6 +162,7 @@ export function isStatusSuccess(status) {
 }
 
 export async function waitForTxToBeMined(txHash) {
+  if (!web3) initReadOnlyWeb3();
   let done = false;
   while (!done) {
     /* eslint-disable no-await-in-loop */

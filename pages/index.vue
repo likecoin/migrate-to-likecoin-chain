@@ -57,7 +57,6 @@
 </template>
 
 <script>
-import Web3 from 'web3';
 import * as eth from '../util/eth';
 import * as cosmos from '../util/cosmos';
 import {
@@ -124,12 +123,11 @@ export default {
         let web3;
         if (window.ethereum) {
           await window.ethereum.enable();
-          web3 = new Web3(window.ethereum);
+          web3 = eth.initWindowWeb3(window.ethereum);
         } if (window.web3) {
-          web3 = new Web3(window.web3.currentProvider);
+          web3 = eth.initWindowWeb3(window.web3.currentProvider);
         }
         if (!web3) throw new Error('Cannot detect web3 from browser');
-        eth.initWeb3(web3);
         this.web3 = web3;
         this.updateEthAddr(await eth.getFromAddr());
         this.isLedger = false;
@@ -142,9 +140,7 @@ export default {
     async createWeb3Ledger() {
       try {
         this.error = 'waiting for ETH ledger App...';
-        const web3 = new Web3(await getLedgerWeb3Engine());
-        eth.initWeb3(web3);
-        this.web3 = web3;
+        this.web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
         this.updateEthAddr(await eth.getFromAddr());
         this.isLedger = true;
         this.error = '';
@@ -212,6 +208,7 @@ export default {
     },
     async updateCosmosProcessingTx({ checkPending = false } = {}) {
       const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
+      console.log(data);
       if (data && data.list && data.list.length) {
         const [targetTx] = data.list;
         if (checkPending && targetTx.status !== 'pending') return;
