@@ -260,20 +260,30 @@ export default {
     },
     async waitForEth() {
       this.state = 'pendingEth';
-      await eth.waitForTxToBeMined(this.processingEthTxHash);
-      while (!this.processingCosmosTxHash) {
-        /* eslint-disable no-await-in-loop */
-        await timeout(10000);
-        await this.updateCosmosProcessingTx();
-        /* eslint-enable no-await-in-loop */
+      try {
+        await eth.waitForTxToBeMined(this.processingEthTxHash);
+        while (!this.processingCosmosTxHash) {
+          /* eslint-disable no-await-in-loop */
+          await timeout(10000);
+          await this.updateCosmosProcessingTx();
+          /* eslint-enable no-await-in-loop */
+        }
+        this.waitForCosmos();
+      } catch (err) {
+        console.error(err);
+        this.error = err;
       }
-      this.waitForCosmos();
     },
     async waitForCosmos() {
       this.state = 'pendingCosmos';
-      const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
-      this.resultValue = tx.value.msg[0].value.amount.amount; // TODO: parse amount
-      this.postDoneCleanUp();
+      try {
+        const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+        this.resultValue = tx.value.msg[0].value.amount.amount; // TODO: parse amount
+        this.postDoneCleanUp();
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async postDoneCleanUp() {
       this.state = 'done';

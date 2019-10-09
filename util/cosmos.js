@@ -15,7 +15,6 @@ export async function waitForTxToBeMined(txHash) {
     await timeout(1000);
     try {
       const { data } = await api.get(`/${txHash}`);
-      console.log(data);
       if (data && data.height) {
         ({ tx } = data);
         const {
@@ -27,6 +26,7 @@ export async function waitForTxToBeMined(txHash) {
       }
     } catch (err) {
       console.error(err);
+      throw err;
     }
   }
   return tx;
