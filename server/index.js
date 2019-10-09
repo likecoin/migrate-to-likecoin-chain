@@ -2,6 +2,7 @@ import { Nuxt, Builder } from 'nuxt';
 import express from 'express';
 import consola from 'consola';
 import bodyParser from 'body-parser';
+import path from 'path';
 
 // Import and Set Nuxt.js options
 import * as config from '../nuxt.config';
@@ -22,26 +23,31 @@ startEthTxPoller();
 const app = express();
 
 async function start() {
-  // Init Nuxt.js
-  const nuxt = new Nuxt(config);
-
-  const { host, port } = nuxt.options.server;
-
-  // Build only in dev mode
-  if (config.dev) {
-    const builder = new Builder(nuxt);
-    await builder.build();
-  } else {
-    await nuxt.ready();
-  }
-
   app.use(bodyParser.json());
   app.use('/api', api);
 
   // Give nuxt middleware to express
-  app.use(nuxt.render);
+  if (process.env.NODE_ENV !== 'production') {
+    // Init Nuxt.js
+    const nuxt = new Nuxt(config);
+    // Build only in dev mode
+    if (config.dev) {
+      const builder = new Builder(nuxt);
+      await builder.build();
+    } else {
+      await nuxt.ready();
+    }
+    app.use(nuxt.render);
+  } else {
+    app.use(express.static(path.resolve(__dirname, '../dist')));
+    app.get('/', (req, res) => {
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+    });
+  }
 
   // Listen the server
+  const port = process.env.PORT || 3000;
+  const host = process.env.HOST || 'localhost';
   app.listen(port, host);
   consola.ready({
     message: `Server listening on http://${host}:${port}`,

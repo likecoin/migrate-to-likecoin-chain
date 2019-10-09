@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env IS_TESTNET=TRUE NODE_ENV=development nodemon server/index.js --watch server --exec babel-node",
-    "build": "nuxt build",
-    "start": "cross-env NODE_ENV=production babel-node server/index.js",
+    "build": "nuxt build && babel server -d build ",
+    "start": "cross-env NODE_ENV=production node build/index.js",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
   },
