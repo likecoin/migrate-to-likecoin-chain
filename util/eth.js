@@ -7,6 +7,7 @@ import {
   ETH_ENDPOINT,
 } from '../config/config';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
+import { IS_TESTNET } from '../constant';
 import { timeout } from './misc';
 
 let web3 = null;
@@ -32,8 +33,16 @@ export function getLikeCoinBalance(address) {
   return LikeCoin.methods.balanceOf(address).call();
 }
 
+export async function checkNetwork() {
+  const network = await web3.eth.net.getNetworkType();
+  const target = (IS_TESTNET ? 'rinkeby' : 'main');
+  if (network !== target) throw new Error(`Please switch to ${target} network`);
+}
+
 export async function getFromAddr() {
-  return (await web3.eth.getAccounts())[0];
+  const accounts = await web3.eth.getAccounts();
+  if (!accounts || !accounts.length) throw new Error('Cannot get eth address, please unlock MetaMask');
+  return accounts[0];
 }
 
 function signTyped(msg, from) {

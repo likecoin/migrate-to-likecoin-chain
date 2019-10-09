@@ -52,7 +52,9 @@
         </button>
       </div>
     </div>
-    <div v-if="error" style="color:red">error: {{ error }}</div>
+    <div v-if="error" style="color:red">
+      error: {{ error }}
+    </div>
   </div>
 </template>
 
@@ -118,7 +120,6 @@ export default {
   methods: {
     async createWeb3() {
       try {
-        // TODO: check network
         this.error = 'waiting for MetaMask';
         let web3;
         if (window.ethereum) {
@@ -129,6 +130,7 @@ export default {
         }
         if (!web3) throw new Error('Cannot detect web3 from browser');
         this.web3 = web3;
+        await eth.checkNetwork();
         this.updateEthAddr(await eth.getFromAddr());
         this.isLedger = false;
         this.error = '';
