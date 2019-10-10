@@ -76,7 +76,7 @@ import {
   getLedgerWeb3Engine,
   getLedgerCosmosAddress,
 } from '../util/ledger';
-import { timeout } from '../util/misc';
+import { timeout } from '../common/util/misc';
 import { trySetLocalStorage } from '../util/client';
 
 export default {

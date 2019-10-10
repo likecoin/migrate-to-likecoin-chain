@@ -8,7 +8,7 @@ import {
   db,
   txCollection as txLogRef,
 } from './firebase';
-import { timeout } from '../../util/misc';
+import { timeout } from '../common/util/misc';
 
 import {
   COSMOS_ENDPOINT as cosmosLCDEndpoint,

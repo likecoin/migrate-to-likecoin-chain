@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { timeout } from './misc';
+import { timeout } from '../common/util/misc';
 
 const api = axios.create({
   baseURL: '/api/proxy/cosmos/txs',
