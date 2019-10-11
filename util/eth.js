@@ -139,11 +139,9 @@ export async function signTransferMigration(from, value) {
         gasPrice,
       })
       .on('transactionHash', (hash) => {
-        if (this.onSigned) this.onSigned();
         resolve(hash);
       })
       .on('error', (err) => {
-        if (this.onSigned) this.onSigned();
         reject(err);
       });
   });
@@ -161,14 +159,16 @@ export async function waitForTxToBeMined(txHash) {
   let done = false;
   while (!done) {
     /* eslint-disable no-await-in-loop */
-    await timeout(1000);
-    const [t, txReceipt, currentBlockNumber] = await Promise.all([
-      web3.eth.getTransaction(txHash),
-      web3.eth.getTransactionReceipt(txHash),
-      web3.eth.getBlockNumber(),
-    ]);
+    const txReceipt = await web3.eth.getTransactionReceipt(txHash);
     if (txReceipt && !isStatusSuccess(txReceipt.status)) throw new Error('Transaction failed');
-    done = t && txReceipt && currentBlockNumber && t.blockNumber
-      && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+    if (txReceipt) {
+      const [t, currentBlockNumber] = await Promise.all([
+        web3.eth.getTransaction(txHash),
+        web3.eth.getBlockNumber(),
+      ]);
+      done = t && txReceipt && currentBlockNumber && t.blockNumber
+        && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+    }
+    if (!done) await timeout(10000);
   }
 }

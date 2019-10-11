@@ -210,7 +210,6 @@ export default {
     },
     async updateCosmosProcessingTx({ checkPending = false } = {}) {
       const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
-      console.log(data);
       if (data && data.list && data.list.length) {
         const [targetTx] = data.list;
         if (checkPending && targetTx.status !== 'pending') return;

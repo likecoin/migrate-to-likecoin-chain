@@ -16,11 +16,11 @@ export async function waitForTxToBeMined(txHash) {
     try {
       const { data } = await api.get(`/${txHash}`);
       if (data && data.height) {
-        ({ tx } = data.result);
+        ({ tx } = data);
         const {
           code,
           logs: [{ success = false } = {}] = [],
-        } = data.result;
+        } = data;
         const isFailed = (code && code !== '0') || !success;
         if (isFailed) throw new Error(code);
       }
