@@ -279,7 +279,7 @@ export default {
       this.state = 'pendingCosmos';
       try {
         const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
-        this.resultValue = tx.value.msg[0].value.amount.amount; // TODO: parse amount
+        this.resultValue = tx.value.msg[0].value.amount[0].amount; // TODO: parse amount
         this.postDoneCleanUp();
       } catch (err) {
         console.error(err);
