@@ -5,9 +5,7 @@ import ProviderEngine from 'web3-provider-engine';
 import RpcSubprovider from 'web3-provider-engine/subproviders/rpc';
 import Ledger from '@lunie/cosmos-ledger';
 
-import { IS_TESTNET } from '../constant';
-
-import { ETH_ENDPOINT } from '../config/config';
+import { IS_TESTNET, ETH_ENDPOINT } from '../constant';
 
 export function getLedgerWeb3Engine() {
   const engine = new ProviderEngine();

@@ -5,9 +5,9 @@ import {
   ETH_LOCK_ADDRESS,
   ETH_CONFIRMATION_NEEDED,
   ETH_ENDPOINT,
-} from '../config/config';
+  IS_TESTNET,
+} from '../constant';
 import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../common/constant/contract/likecoin';
-import { IS_TESTNET } from '../constant';
 import { timeout } from '../common/util/misc';
 import { isStatusSuccess } from '../common/util/web3';
 

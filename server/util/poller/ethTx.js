@@ -3,10 +3,8 @@ import { db, txCollection as dbRef } from '../firebase';
 import { getTransfersFromReceipt, getTransactionReceipt } from '../web3';
 import { sendCoin } from '../cosmos';
 
-import {
-  ETH_LOCK_ADDRESS,
-  COSMOS_DENOM,
-} from '../../config/config';
+import { ETH_LOCK_ADDRESS } from '../../constant';
+import { COSMOS_DENOM } from '../../config/config';
 
 async function logCosmosTx(payload) {
   const { txHash } = payload;

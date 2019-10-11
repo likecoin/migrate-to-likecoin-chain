@@ -5,7 +5,7 @@ import { ETH_PRIVATE_KEY } from '../config/secret';
 import {
   ETH_ENDPOINT,
   ETH_CONFIRMATION_NEEDED,
-} from '../config/config';
+} from '../constant';
 // import { PUBSUB_TOPIC_MISC } from '../../constant';
 // import publisher from '../gcloudPub';
 import { getGasPrice } from '../poller/gas';
