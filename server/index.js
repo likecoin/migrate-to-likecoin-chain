@@ -25,6 +25,9 @@ const app = express();
 async function start() {
   app.use(bodyParser.json());
   app.use('/api', api);
+  app.get('/healthz', (req, res) => {
+    res.sendStatus(200);
+  });
 
   // Give nuxt middleware to express
   if (process.env.NODE_ENV !== 'production') {
