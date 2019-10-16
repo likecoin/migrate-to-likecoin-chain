@@ -6,7 +6,14 @@ import migrate from './migrate';
 
 const router = Router();
 
-router.use('/proxy/cosmos/', proxy(COSMOS_ENDPOINT));
+router.use('/proxy/cosmos/txs', proxy(COSMOS_ENDPOINT, {
+  proxyReqPathResolver: (req) => {
+    const parts = req.url.split('?');
+    const queryString = parts[1];
+    const updatedPath = `/txs${parts[0]}`;
+    return updatedPath + (queryString ? `?${queryString}` : '');
+  },
+}));
 router.use('/migrate', migrate);
 router.use((err, req, res, next) => {
   if (res.headersSent) {
