@@ -1,16 +1,16 @@
 <template>
   <div>
     <div>
-      Migrate value:
+      {{ $t('StepValueInput.migarteValue') }}
       <input
         v-model="value"
         size="60"
         :disabled="!isEditing"
       >
       <button @click="() => isEditing = !isEditing">
-        {{ isEditing ? 'confirm' : 'edit' }}
+        {{ isEditing ? $t('General.confirm') : $t('General.edit') }}
       </button>
-      Max value {{ displayMaxValue }}
+      {{ $t('StepValueInput.maxValue') }}
     </div>
     <button
       :disabled="!isValid || isEditing"

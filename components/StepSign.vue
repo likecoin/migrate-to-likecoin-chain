@@ -1,19 +1,19 @@
 <template>
   <div v-if="!isSigning">
     <div>
-      <span>eth from</span>
+      <span>{{ $t('Common.ethFrom') }}</span>
       <span>{{ ethAddress }}</span>
     </div>
     <div>
-      <span>cosmos to</span>
+      <span>{{ $t('Common.cosmosTo') }}</span>
       <span>{{ cosmosAddress }}</span>
     </div>
     <div>
-      <span>value</span>
+      <span>{{ $t('Common.value') }}</span>
       <span>{{ displayValue }}</span>
     </div>
     <button @click="onSend">
-      Sign
+      {{ $t('StepSign.button.sign') }}
     </button>
     <div v-if="message">
       {{ message }}
@@ -95,7 +95,7 @@ export default {
     },
     async sendMigrationTx() {
       try {
-        this.message = 'waiting for Metamask ETH signature...';
+        this.message = this.$t('StepSign.message.waitingForMetamask');
         const migrationData = await eth.signMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         const { data } = await apiPostMigration(migrationData);
@@ -108,7 +108,7 @@ export default {
     },
     async sendTransfer() {
       try {
-        this.message = 'waiting for ledger ETH signature...';
+        this.message = this.$t('StepSign.message.waitingForEthApp');
         const migrationData = await eth.signTransferMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         const { data } = await apiPostTransferMigration(migrationData);

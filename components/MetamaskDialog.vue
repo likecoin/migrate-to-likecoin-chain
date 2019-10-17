@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div>Please connect to MetaMask desu</div>
+    <div>{{ $t('MetaMaskDialog.connectMessage') }}</div>
     <slot />
     <button
       @click="$emit('cancel')"
     >
-      Cancel
+      {{ $t('General.cancel') }}
     </button>
   </div>
 </template>
