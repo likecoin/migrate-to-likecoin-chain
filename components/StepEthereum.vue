@@ -8,6 +8,7 @@
   </div>
   <div v-else-if="type==='ledger'">
     <ledger-dialog
+      @confirm="createWeb3Ledger"
       @cancel="onCancel"
     >
       {{ ledgerMessage }}
@@ -20,7 +21,7 @@
       Get MetaMask Address
     </button>
     <button
-      @click="createWeb3Ledger"
+      @click="onClickUseLedger"
     >
       Get Ledger
     </button>
@@ -78,7 +79,6 @@ export default {
     },
     async createWeb3Ledger() {
       try {
-        this.type = 'ledger';
         this.ledgerMessage = 'waiting for ETH ledger App...';
         const web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
         const ethAddress = await eth.getFromAddr();
@@ -95,6 +95,9 @@ export default {
         console.error(err);
         this.ledgerMessage = err;
       }
+    },
+    onClickUseLedger() {
+      this.type = 'ledger';
     },
     onCancel() {
       this.type = '';

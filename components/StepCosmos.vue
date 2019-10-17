@@ -11,7 +11,7 @@
       </button>
     </form>
     <button
-      @click="getCosmosAddressByLedger"
+      @click="onClickUseLedger"
     >
       Get Ledger Cosmos Address
     </button>
@@ -52,13 +52,13 @@ export default {
   methods: {
     onClickUseLedger() {
       this.showLedger = true;
-      this.ledgerMessage = 'waiting for Cosmos ledger App...';
     },
     onCancelLedger() {
       this.showLedger = false;
       this.ledgerMessage = '';
     },
     onConfirmLedger() {
+      this.ledgerMessage = 'waiting for Cosmos ledger App...';
       this.getCosmosAddressByLedger();
     },
     async getCosmosAddressByLedger() {
