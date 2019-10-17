@@ -8,11 +8,11 @@
     </div>
     <div v-else-if="processingCosmosTxHash">
       Waiting for Cosmos Tx {{ processingCosmosTxHash }}...
-      <a :href="ethTxLink" target="_blank">View on etherscan</a>
+      <a :href="cosmosTxLink" target="_blank">View on bigdipper</a>
     </div>
     <div v-else>
       Waiting for Eth Tx {{ processingEthTxHash }}...
-      <a :href="cosmosTxLink" target="_blank">View on bigdipper</a>
+      <a :href="ethTxLink" target="_blank">View on etherscan</a>
     </div>
     <div>
       <span>eth from</span>
