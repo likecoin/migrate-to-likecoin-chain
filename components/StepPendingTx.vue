@@ -4,26 +4,26 @@
       {{ error }}
     </div>
     <div v-else-if="isDone">
-      Done!
+      {{ $t('StepPendingTx.done') }}
     </div>
     <div v-else-if="processingCosmosTxHash">
-      Waiting for Cosmos Tx {{ processingCosmosTxHash }}...
-      <a :href="cosmosTxLink" target="_blank">View on bigdipper</a>
+      {{ $t('StepPendingTx.waitingForCosmosTx') }} {{ processingCosmosTxHash }}...
+      <a :href="cosmosTxLink" target="_blank">{{ $t('StepPendingTx.viewOnBigdipper') }}</a>
     </div>
     <div v-else>
-      Waiting for Eth Tx {{ processingEthTxHash }}...
-      <a :href="ethTxLink" target="_blank">View on etherscan</a>
+      {{ $t('StepPendingTx.waitingForEthTx') }} {{ processingEthTxHash }}...
+      <a :href="ethTxLink" target="_blank">{{ $t('StepPendingTx.viewOnEtherscan') }}</a>
     </div>
     <div>
-      <span>eth from</span>
+      <span>{{ $t('Common.ethFrom') }}</span>
       <span>{{ ethAddress }}</span>
     </div>
     <div>
-      <span>cosmos to</span>
+      <span>{{ $t('Common.cosmosTo') }}</span>
       <span>{{ cosmosAddress }}</span>
     </div>
     <div>
-      <span>value</span>
+      <span>{{ $t('Common.value') }}</span>
       <span>{{ displayValue }}</span>
     </div>
     <button v-if="error" @click="$emit('reset')">

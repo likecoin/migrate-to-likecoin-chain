@@ -3,17 +3,17 @@
     <form @submit.prevent="submitCosmosAddress">
       <span v-if="error">{{ error }}</span>
       <div>
-        Cosmos address:
+        {{ $t('StepCosmos.cosmosAddress' ) }}
         <input v-model="cosmosAddress" size="60">
       </div>
       <button type="submit">
-        Continue
+        {{ $t('StepCosmos.button.continue' ) }}
       </button>
     </form>
     <button
       @click="onClickUseLedger"
     >
-      Get Ledger Cosmos Address
+      {{ $t('General.button.connectLedger' ) }}
     </button>
   </div>
   <div v-else>
@@ -58,7 +58,7 @@ export default {
       this.ledgerMessage = '';
     },
     onConfirmLedger() {
-      this.ledgerMessage = 'waiting for Cosmos ledger App...';
+      this.ledgerMessage = this.$t('StepCosmos.message.waitingForCosmosApp');
       this.getCosmosAddressByLedger();
     },
     async getCosmosAddressByLedger() {
@@ -74,7 +74,7 @@ export default {
     async submitCosmosAddress() {
       this.error = '';
       if (!isValidCosmosWallet(this.cosmosAddress)) {
-        this.error = 'INVALID_COSMOS_ADDRESS';
+        this.error = this.$t('StepCosmos.message.invalidCosmosAddress');
       } else {
         this.$emit('confirm', this.cosmosAddress);
       }

@@ -18,12 +18,12 @@
     <button
       @click="createWeb3"
     >
-      Get MetaMask Address
+      {{ $t('General.button.connectMetaMask' ) }}
     </button>
     <button
       @click="onClickUseLedger"
     >
-      Get Ledger
+      {{ $t('General.button.connectLedger' ) }}
     </button>
   </div>
 </template>
@@ -52,7 +52,7 @@ export default {
     async createWeb3() {
       try {
         this.type = 'metamask';
-        this.metamaskMessage = 'waiting for MetaMask';
+        this.metamaskMessage = this.$t('StepEthereum.message.waitingForMetamask');
         let web3;
         if (window.ethereum) {
           await window.ethereum.enable();
@@ -60,7 +60,7 @@ export default {
         } if (window.web3) {
           web3 = eth.initWindowWeb3(window.web3.currentProvider);
         }
-        if (!web3) throw new Error('Cannot detect web3 from browser');
+        if (!web3) throw new Error(this.$t('StepEthereum.message.noWeb3'));
         await eth.checkNetwork();
         const ethAddress = await eth.getFromAddr();
         const ethBalance = await eth.getLikeCoinBalance(ethAddress);
@@ -79,7 +79,7 @@ export default {
     },
     async createWeb3Ledger() {
       try {
-        this.ledgerMessage = 'waiting for ETH ledger App...';
+        this.ledgerMessage = this.$t('StepEthereum.message.waitingForEthApp');
         const web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
         const ethAddress = await eth.getFromAddr();
         const ethBalance = await eth.getLikeCoinBalance(ethAddress);

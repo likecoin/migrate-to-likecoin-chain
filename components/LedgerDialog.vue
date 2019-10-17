@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div>Please connect Ledger desu {{ ledgerAppName }}</div>
+    <div>{{ $t('LedgerDialog.connectMessage') }} {{ ledgerAppName }}</div>
     <slot />
     <button
       @click="$emit('cancel')"
     >
-      Cancel
+      {{ $t('General.cancel') }}
     </button>
     <button
       v-if="waitForConfirm"
       @click="$emit('confirm')"
     >
-      Ok
+      {{ $t('General.confirm') }}
     </button>
   </div>
 </template>
@@ -29,8 +29,8 @@ export default {
   },
   computed: {
     ledgerAppName() {
-      if (this.type === 'cosmos') return 'cosmosApp';
-      if (this.type === 'eth') return 'EthApp';
+      if (this.type === 'cosmos') return this.$t('cosmosApp');
+      if (this.type === 'eth') return this.$t('ethApp');
       return '';
     },
   },
