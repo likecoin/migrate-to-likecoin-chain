@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    {{ state }} {{ isLedger ? 'ledger' : 'metamask' }}
+    <div>{{ state }}: {{ isLedger ? 'ledger' : 'metamask' }}</div>
     <div v-if="state === 'ready'">
       <div>
         Ethereum address: {{ ethAddr }}
@@ -52,11 +52,13 @@
         </button>
       </div>
     </div>
+    <div v-if="error" style="color:red">
+      error: {{ error }}
+    </div>
   </div>
 </template>
 
 <script>
-import Web3 from 'web3';
 import * as eth from '../util/eth';
 import * as cosmos from '../util/cosmos';
 import {
@@ -74,12 +76,13 @@ import {
   getLedgerWeb3Engine,
   getLedgerCosmosAddress,
 } from '../util/ledger';
-import { timeout } from '../util/misc';
+import { timeout } from '../common/util/misc';
 import { trySetLocalStorage } from '../util/client';
 
 export default {
   data: () => ({
     state: 'ready',
+    error: '',
     isLedger: false,
     web3: null,
     ethAddr: null,
@@ -108,6 +111,7 @@ export default {
           this.ethAddr = window.localStorage.getItem('ethAddr') || '';
           this.cosmosAddr = window.localStorage.getItem('cosmosAddr') || '';
         }
+        this.refreshState();
       } catch (err) {
         // no op
       }
@@ -115,29 +119,47 @@ export default {
   },
   methods: {
     async createWeb3() {
-      // TODO: check network
-      let web3;
-      if (window.ethereum) {
-        await window.ethereum.enable();
-        web3 = new Web3(window.ethereum);
-      } if (window.web3) {
-        web3 = new Web3(window.web3.currentProvider);
+      try {
+        this.error = 'waiting for MetaMask';
+        let web3;
+        if (window.ethereum) {
+          await window.ethereum.enable();
+          web3 = eth.initWindowWeb3(window.ethereum);
+        } if (window.web3) {
+          web3 = eth.initWindowWeb3(window.web3.currentProvider);
+        }
+        if (!web3) throw new Error('Cannot detect web3 from browser');
+        this.web3 = web3;
+        await eth.checkNetwork();
+        this.updateEthAddr(await eth.getFromAddr());
+        this.isLedger = false;
+        this.error = '';
+      } catch (err) {
+        console.error(err);
+        this.error = err;
       }
-      if (!web3) throw new Error('Cannot detect web3 from browser');
-      eth.initWeb3(web3);
-      this.web3 = web3;
-      this.updateEthAddr(await eth.getFromAddr());
-      this.isLedger = false;
     },
     async createWeb3Ledger() {
-      const web3 = new Web3(await getLedgerWeb3Engine());
-      eth.initWeb3(web3);
-      this.web3 = web3;
-      this.updateEthAddr(await eth.getFromAddr());
-      this.isLedger = true;
+      try {
+        this.error = 'waiting for ETH ledger App...';
+        this.web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
+        this.updateEthAddr(await eth.getFromAddr());
+        this.isLedger = true;
+        this.error = '';
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async getCosmosAddressByLedger() {
-      this.updateCosmosAdderr(await getLedgerCosmosAddress());
+      try {
+        this.error = 'waiting for Cosmos ledger App...';
+        this.updateCosmosAdderr(await getLedgerCosmosAddress());
+        this.error = '';
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async refreshState() {
       let state;
@@ -203,20 +225,34 @@ export default {
       }
     },
     async sendMigrationTx() {
-      const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
-      migrationData.cosmosAddress = this.cosmosAddr;
-      const { data } = await apiPostMigration(migrationData);
-      this.processingEthTxHash = data.txHash;
-      trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
-      this.waitForEth();
+      try {
+        this.error = 'waiting for Metamask ETH signature...';
+        const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
+        migrationData.cosmosAddress = this.cosmosAddr;
+        const { data } = await apiPostMigration(migrationData);
+        this.processingEthTxHash = data.txHash;
+        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
+        this.waitForEth();
+        this.error = '';
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async sendTransfer() {
-      const migrationData = await eth.signTransferMigration(this.ethAddr, this.valueToSend);
-      migrationData.cosmosAddress = this.cosmosAddr;
-      const { data } = await apiPostTransferMigration(migrationData);
-      this.processingEthTxHash = data.txHash;
-      trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
-      this.waitForEth();
+      try {
+        this.error = 'waiting for ledger ETH signature...';
+        const migrationData = await eth.signTransferMigration(this.ethAddr, this.valueToSend);
+        migrationData.cosmosAddress = this.cosmosAddr;
+        const { data } = await apiPostTransferMigration(migrationData);
+        this.processingEthTxHash = data.txHash;
+        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
+        this.waitForEth();
+        this.error = '';
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async onReset() {
       this.getEthBalance();
@@ -225,20 +261,30 @@ export default {
     },
     async waitForEth() {
       this.state = 'pendingEth';
-      await eth.waitForTxToBeMined(this.processingEthTxHash);
-      while (!this.processingCosmosTxHash) {
-        /* eslint-disable no-await-in-loop */
-        await timeout(10000);
-        await this.updateCosmosProcessingTx();
-        /* eslint-enable no-await-in-loop */
+      try {
+        await eth.waitForTxToBeMined(this.processingEthTxHash);
+        while (!this.processingCosmosTxHash) {
+          /* eslint-disable no-await-in-loop */
+          await timeout(10000);
+          await this.updateCosmosProcessingTx();
+          /* eslint-enable no-await-in-loop */
+        }
+        this.waitForCosmos();
+      } catch (err) {
+        console.error(err);
+        this.error = err;
       }
-      this.waitForCosmos();
     },
     async waitForCosmos() {
       this.state = 'pendingCosmos';
-      const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
-      this.resultValue = tx.value.msg[0].value.amount.amount; // TODO: parse amount
-      this.postDoneCleanUp();
+      try {
+        const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+        this.resultValue = tx.value.msg[0].value.amount[0].amount; // TODO: parse amount
+        this.postDoneCleanUp();
+      } catch (err) {
+        console.error(err);
+        this.error = err;
+      }
     },
     async postDoneCleanUp() {
       this.state = 'done';

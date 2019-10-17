@@ -1,9 +1,5 @@
 module.exports = {
   mode: 'spa',
-  server: {
-    port: process.env.PORT,
-    host: process.env.HOST,
-  },
   env: {
     IS_TESTNET: process.env.IS_TESTNET,
     CI: process.env.CI,

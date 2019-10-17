@@ -5,7 +5,7 @@ import { getCosmosDelegatorAddress } from '../cosmos';
 import {
   ETH_LOCK_ADDRESS,
   ETH_MIN_LIKECOIN_AMOUNT,
-} from '../../config/config';
+} from '../../constant';
 
 export function verifyMigrationData({
   from, to, value, maxReward, nonce, sig,

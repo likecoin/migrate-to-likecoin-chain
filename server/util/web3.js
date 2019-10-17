@@ -1,11 +1,11 @@
 import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
-import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../../constant/contract/likecoin';
+import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../common/constant/contract/likecoin';
 import { ETH_PRIVATE_KEY } from '../config/secret';
 import {
   ETH_ENDPOINT,
   ETH_CONFIRMATION_NEEDED,
-} from '../config/config';
+} from '../constant';
 // import { PUBSUB_TOPIC_MISC } from '../../constant';
 // import publisher from '../gcloudPub';
 import { getGasPrice } from '../poller/gas';
@@ -13,8 +13,8 @@ import {
   db,
   txCollection as txLogRef,
 } from './firebase';
-import { timeout } from '../../util/misc';
-import { isStatusSuccess } from '../../util/eth';
+import { timeout } from '../common/util/misc';
+import { isStatusSuccess } from '../common/util/web3';
 
 export const web3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
 export const LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);

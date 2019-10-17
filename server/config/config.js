@@ -1,12 +1,3 @@
-import * as config from '../../config/config';
-
-export const {
-  ETH_LOCK_ADDRESS,
-  ETH_MIN_LIKECOIN_AMOUNT,
-  ETH_CONFIRMATION_NEEDED,
-  ETH_ENDPOINT,
-} = config;
-
 export const FIRESTORE_TX_ROOT = '';
 export const FIRESTORE_CONFIG_ROOT = '';
 

@@ -1,15 +1,29 @@
 import BigNumber from 'bignumber.js';
+import Web3 from 'web3';
 
-import { ETH_LOCK_ADDRESS, ETH_CONFIRMATION_NEEDED } from '../config/config';
-import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../constant/contract/likecoin';
-import { timeout } from './misc';
+import {
+  ETH_LOCK_ADDRESS,
+  ETH_CONFIRMATION_NEEDED,
+  ETH_ENDPOINT,
+  IS_TESTNET,
+} from '../constant';
+import { LIKE_COIN_ABI, LIKE_COIN_ADDRESS } from '../common/constant/contract/likecoin';
+import { timeout } from '../common/util/misc';
+import { isStatusSuccess } from '../common/util/web3';
 
 let web3 = null;
 let LikeCoin = null;
 
-export function initWeb3(newWeb3) {
-  web3 = newWeb3;
+export function initReadOnlyWeb3() {
+  web3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
   LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
+  return web3;
+}
+
+export function initWindowWeb3(windowWeb3) {
+  web3 = new Web3(windowWeb3);
+  LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
+  return web3;
 }
 
 export function getLikeCoinInstance() {
@@ -20,8 +34,16 @@ export function getLikeCoinBalance(address) {
   return LikeCoin.methods.balanceOf(address).call();
 }
 
+export async function checkNetwork() {
+  const network = await web3.eth.net.getNetworkType();
+  const target = (IS_TESTNET ? 'rinkeby' : 'main');
+  if (network !== target) throw new Error(`Please switch to ${target} network`);
+}
+
 export async function getFromAddr() {
-  return (await web3.eth.getAccounts())[0];
+  const accounts = await web3.eth.getAccounts();
+  if (!accounts || !accounts.length) throw new Error('Cannot get eth address, please unlock MetaMask');
+  return accounts[0];
 }
 
 function signTyped(msg, from) {
@@ -117,11 +139,9 @@ export async function signTransferMigration(from, value) {
         gasPrice,
       })
       .on('transactionHash', (hash) => {
-        if (this.onSigned) this.onSigned();
         resolve(hash);
       })
       .on('error', (err) => {
-        if (this.onSigned) this.onSigned();
         reject(err);
       });
   });
@@ -134,33 +154,21 @@ export async function signTransferMigration(from, value) {
   };
 }
 
-export function isStatusSuccess(status) {
-  if (typeof status === 'string') {
-    switch (status) {
-      case '0x1':
-      case '1':
-      case 'true':
-        return true;
-      default:
-        return false;
-    }
-  } else {
-    return !!status;
-  }
-}
-
 export async function waitForTxToBeMined(txHash) {
+  if (!web3) initReadOnlyWeb3();
   let done = false;
   while (!done) {
     /* eslint-disable no-await-in-loop */
-    await timeout(1000);
-    const [t, txReceipt, currentBlockNumber] = await Promise.all([
-      web3.eth.getTransaction(txHash),
-      web3.eth.getTransactionReceipt(txHash),
-      web3.eth.getBlockNumber(),
-    ]);
+    const txReceipt = await web3.eth.getTransactionReceipt(txHash);
     if (txReceipt && !isStatusSuccess(txReceipt.status)) throw new Error('Transaction failed');
-    done = t && txReceipt && currentBlockNumber && t.blockNumber
-      && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+    if (txReceipt) {
+      const [t, currentBlockNumber] = await Promise.all([
+        web3.eth.getTransaction(txHash),
+        web3.eth.getBlockNumber(),
+      ]);
+      done = t && txReceipt && currentBlockNumber && t.blockNumber
+        && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+    }
+    if (!done) await timeout(10000);
   }
 }

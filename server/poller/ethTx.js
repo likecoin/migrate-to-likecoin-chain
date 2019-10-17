@@ -1,5 +1,5 @@
 import { txCollection as dbRef } from '../util/firebase';
-import { ETH_LOCK_ADDRESS } from '../../config/config';
+import { ETH_LOCK_ADDRESS } from '../constant';
 
 let unsubscribeEthTx;
 let ethTxHandler;

@@ -1,0 +1,9 @@
+.dockerignore
+.git
+.gitignore
+.nuxt
+node_modules/
+server/config
+build
+dist
+webpack-cache
