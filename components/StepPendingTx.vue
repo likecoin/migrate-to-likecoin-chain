@@ -3,13 +3,16 @@
     <div v-if="error">
       {{ error }}
     </div>
+    <div v-else-if="isDone">
+      Done!
+    </div>
     <div v-else-if="processingCosmosTxHash">
-      Loading...
-      <a :href="BIGDIPPER_HOST" target="_blank">View on bigdipper</a>
+      Waiting for Cosmos Tx {{ processingCosmosTxHash }}...
+      <a :href="ethTxLink" target="_blank">View on etherscan</a>
     </div>
     <div v-else>
-      Loading...
-      <a :href="ETHERSCAN_HOST" target="_blank">View on etherscan</a>
+      Waiting for Eth Tx {{ processingEthTxHash }}...
+      <a :href="cosmosTxLink" target="_blank">View on bigdipper</a>
     </div>
     <div>
       <span>eth from</span>
@@ -21,7 +24,7 @@
     </div>
     <div>
       <span>value</span>
-      <span>{{ resultValue || value }}</span>
+      <span>{{ displayValue }}</span>
     </div>
     <button v-if="error" @click="$emit('reset')">
       Retry
@@ -40,6 +43,11 @@ import {
 } from '../util/api';
 import { timeout } from '../common/util/misc';
 
+const BigNumber = require('bignumber.js');
+
+const ONE_LIKE = new BigNumber(10).pow(18);
+const ONE_COSMOS_LIKE = new BigNumber(10).pow(9);
+
 export default {
   props: {
     ethAddress: {
@@ -51,7 +59,7 @@ export default {
       required: true,
     },
     value: {
-      type: Number,
+      type: String,
       required: true,
     },
     processingEthTxHash: {
@@ -61,6 +69,7 @@ export default {
   },
   data() {
     return {
+      isDone: false,
       error: '',
       resultValue: 0,
       processingCosmosTxHash: '',
@@ -72,6 +81,12 @@ export default {
     },
     cosmosTxLink() {
       return `${BIGDIPPER_HOST}/transactions/${this.processingCosmosTxHash}`;
+    },
+    displayValue() {
+      if (this.resultValue) {
+        return (new BigNumber(this.resultValue)).dividedBy(ONE_COSMOS_LIKE).toFixed();
+      }
+      return (new BigNumber(this.value)).dividedBy(ONE_LIKE).toFixed();
     },
   },
   mounted() {
@@ -106,6 +121,7 @@ export default {
       try {
         const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
         this.resultValue = tx.value.msg[0].value.amount[0].amount; // TODO: parse amount
+        this.isDone = true;
         this.$emit('done');
       } catch (err) {
         console.error(err);

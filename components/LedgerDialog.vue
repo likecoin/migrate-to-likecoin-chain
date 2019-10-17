@@ -1,13 +1,14 @@
 <template>
   <div>
     <div>Please connect Ledger desu {{ ledgerAppName }}</div>
-    <slot></slot>
+    <slot />
     <button
       @click="$emit('cancel')"
     >
       Cancel
     </button>
     <button
+      v-if="waitForConfirm"
       @click="$emit('confirm')"
     >
       Ok
@@ -20,6 +21,10 @@ export default {
     type: {
       type: String,
       default: 'eth',
+    },
+    waitForConfirm: {
+      type: Boolean,
+      default: true,
     },
   },
   computed: {

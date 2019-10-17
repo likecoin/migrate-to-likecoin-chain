@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!isSigning">
     <div>
       <span>eth from</span>
       <span>{{ ethAddress }}</span>
@@ -10,13 +10,30 @@
     </div>
     <div>
       <span>value</span>
-      <span>{{ value }}</span>
+      <span>{{ displayValue }}</span>
     </div>
     <button @click="onSend">
       Sign
     </button>
-    <div v-if="error">
-      {{ error }}
+    <div v-if="message">
+      {{ message }}
+    </div>
+  </div>
+  <div v-else>
+    <div v-if="!isLedger">
+      <metamask-dialog
+        @cancel="onCancel"
+      >
+        {{ message }}
+      </metamask-dialog>
+    </div>
+    <div v-else>
+      <ledger-dialog
+        :wait-for-confirm="false"
+        @cancel="onCancel"
+      >
+        {{ message }}
+      </ledger-dialog>
     </div>
   </div>
 </template>
@@ -26,19 +43,29 @@ import {
   apiPostMigration,
   apiPostTransferMigration,
 } from '../util/api';
+import LedgerDialog from './LedgerDialog.vue';
+import MetamaskDialog from './MetamaskDialog.vue';
+
+const BigNumber = require('bignumber.js');
+
+const ONE_LIKE = new BigNumber(10).pow(18);
 
 export default {
+  components: {
+    LedgerDialog,
+    MetamaskDialog,
+  },
   props: {
     ethAddress: {
       type: String,
       required: true,
     },
     cosmosAddress: {
-      type: Number,
+      type: String,
       required: true,
     },
     value: {
-      type: Number,
+      type: String,
       required: true,
     },
     isLedger: {
@@ -48,11 +75,18 @@ export default {
   },
   data() {
     return {
-      error: '',
+      isSigning: false,
+      message: '',
     };
+  },
+  computed: {
+    displayValue() {
+      return (new BigNumber(this.value)).dividedBy(ONE_LIKE).toFixed();
+    },
   },
   methods: {
     async onSend() {
+      this.isSigning = true;
       if (this.isLedger) {
         this.sendTransfer();
       } else {
@@ -61,29 +95,32 @@ export default {
     },
     async sendMigrationTx() {
       try {
-        this.error = 'waiting for Metamask ETH signature...';
-        const migrationData = await eth.signMigration(this.ethAddress, this.valueToSend);
+        this.message = 'waiting for Metamask ETH signature...';
+        const migrationData = await eth.signMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         const { data } = await apiPostMigration(migrationData);
-        this.error = '';
+        this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
         console.error(err);
-        this.error = err;
+        this.message = err;
       }
     },
     async sendTransfer() {
       try {
-        this.error = 'waiting for ledger ETH signature...';
-        const migrationData = await eth.signTransferMigration(this.ethAddress, this.valueToSend);
+        this.message = 'waiting for ledger ETH signature...';
+        const migrationData = await eth.signTransferMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         const { data } = await apiPostTransferMigration(migrationData);
-        this.error = '';
+        this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
         console.error(err);
-        this.error = err;
+        this.message = err;
       }
+    },
+    onCancel() {
+      this.isSigning = false;
     },
   },
 };
