@@ -11,25 +11,25 @@
     </template>
     <template v-else-if="state === 'value'">
       <step-value-input
-        :max-value="this.ethBalance"
+        :max-value="ethBalance"
         @confirm="setMigrateValue"
       />
     </template>
     <template v-else-if="state === 'sign'">
       <step-sign
-        :eth-address="this.ethAddress"
-        :cosmos-address="this.cosmosAddress"
-        :value="this.migrateValue"
-        :is-ledger="this.isLedger"
+        :eth-address="ethAddress"
+        :cosmos-address="cosmosAddress"
+        :value="migrateValue"
+        :is-ledger="isLedger"
         @confirm="setTxHash"
       />
     </template>
     <template v-else-if="state === 'pending-tx'">
       <step-pending-tx
-        :eth-address="this.ethAddress"
-        :cosmos-address="this.cosmosAddress"
-        :value="this.migrateValue"
-        :processing-eth-tx-hash="this.processingEthTxHash"
+        :eth-address="ethAddress"
+        :cosmos-address="cosmosAddress"
+        :value="migrateValue"
+        :processing-eth-tx-hash="processingEthTxHash"
         @reset="onReset"
         @done="onPostDone"
       />
