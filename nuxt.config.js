@@ -88,4 +88,14 @@ module.exports = {
       /* eslint-enable no-param-reassign */
     },
   },
+  vuetify: {
+    theme: {
+      themes: {
+        light: {
+          primary: '#28646E',
+          secondary: '#50E3C2',
+        },
+      },
+    },
+  },
 };

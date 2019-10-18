@@ -9,6 +9,9 @@
       "connectMetaMask": "Connect to MetaMask"
     }
   },
+  "App": {
+    "title": "ERC20 - Cosmos Migration"
+  },
   "Common": {
     "ethFrom": "eth from",
     "cosmosTo": "cosmos to",
