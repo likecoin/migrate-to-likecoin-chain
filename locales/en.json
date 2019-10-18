@@ -10,7 +10,14 @@
     }
   },
   "App": {
-    "title": "ERC20 - Cosmos Migration"
+    "title": "ERC20 - Cosmos Migration",
+    "step": [
+      "Introduction",
+      "Enter Cosmos address",
+      "Select amount",
+      "Confirm and sign",
+      "Transfer"
+    ]
   },
   "Common": {
     "ethFrom": "eth from",

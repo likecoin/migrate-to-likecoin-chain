@@ -72,50 +72,80 @@
               <circle cx="321.5" cy="78.02" r="2" />
           </g>
         </svg>
-        <h1 class="headline font-weight-medium text-center">{{ $t('App.title') }}</h1>
+        <h1 class="headline font-weight-medium text-center mb-12">{{ $t('App.title') }}</h1>
       </v-col>
     </v-row>
-    <v-row justify="center">
+    <v-row
+      class="mt-n12"
+      justify="center"
+    >
       <v-col
-        class="pa-8"
+        class="pt-0 px-md-8 px-5 pb-12"
         cols="12"
         sm="8"
         md="6"
       >
-        <template v-if="state === 'introduction'">
-          <step-introduction @confirm="onStart" />
-        </template>
-        <template v-else-if="state === 'cosmos'">
-          <step-cosmos @confirm="setCosmosAddress" />
-        </template>
-        <template v-else-if="state === 'eth'">
-          <step-ethereum @confirm="setEthInformation" />
-        </template>
-        <template v-else-if="state === 'value'">
-          <step-value-input
-            :max-value="ethBalance"
-            @confirm="setMigrateValue"
-          />
-        </template>
-        <template v-else-if="state === 'sign'">
-          <step-sign
-            :eth-address="ethAddress"
-            :cosmos-address="cosmosAddress"
-            :value="migrateValue"
-            :is-ledger="isLedger"
-            @confirm="setTxHash"
-          />
-        </template>
-        <template v-else-if="state === 'pending-tx'">
-          <step-pending-tx
-            :eth-address="ethAddress"
-            :cosmos-address="cosmosAddress"
-            :value="migrateValue"
-            :processing-eth-tx-hash="processingEthTxHash"
-            @reset="onReset"
-            @done="onPostDone"
-          />
-        </template>
+        <v-stepper
+          v-model="currentStep"
+          vertical
+        >
+          <v-stepper-step :step="1" :complete="currentStep >= 1">
+            <span class="text-center">{{ $t('App.step.0') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="1">
+            <step-introduction @confirm="onStart" />
+          </v-stepper-content>
+
+          <v-stepper-step :step="2" :complete="currentStep >= 2">
+            <span class="text-center">{{ $t('App.step.1') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="2">
+            <step-cosmos @confirm="setCosmosAddress" />
+          </v-stepper-content>
+
+          <v-stepper-step :step="3" :complete="currentStep >= 3">
+            <span class="text-center">{{ $t('App.step.2') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="3">
+            <step-ethereum
+              v-if="state === 'eth'"
+              @confirm="setEthInformation"
+            />
+            <step-value-input
+              v-else
+              :max-value="ethBalance"
+              @confirm="setMigrateValue"
+            />
+          </v-stepper-content>
+
+          <v-stepper-step :step="4" :complete="currentStep >= 4">
+            <span class="text-center">{{ $t('App.step.3') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="4">
+            <step-sign
+              :eth-address="ethAddress"
+              :cosmos-address="cosmosAddress"
+              :value="migrateValue"
+              :is-ledger="isLedger"
+              @confirm="setTxHash"
+            />
+          </v-stepper-content>
+
+          <v-stepper-step :step="5" :complete="currentStep >= 5">
+            <span class="text-center">{{ $t('App.step.4') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="5">
+            <step-pending-tx
+              v-if="currentStep === 5"
+              :eth-address="ethAddress"
+              :cosmos-address="cosmosAddress"
+              :value="migrateValue"
+              :processing-eth-tx-hash="processingEthTxHash"
+              @reset="onReset"
+              @done="onPostDone"
+            />
+          </v-stepper-content>
+        </v-stepper>
       </v-col>
     </v-row>
   </v-container>
@@ -166,6 +196,26 @@ export default {
         return 'sign';
       }
       return 'introduction';
+    },
+    currentStep() {
+      switch (this.state) {
+        case 'cosmos':
+          return 2;
+
+        case 'eth':
+        case 'value':
+          return 3;
+
+        case 'sign':
+          return 4;
+
+        case 'pending-tx':
+          return 5;
+
+        default:
+        case 'introduction':
+          return 1;
+      }
     },
   },
   mounted() {
