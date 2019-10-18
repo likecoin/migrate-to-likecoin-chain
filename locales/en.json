@@ -29,7 +29,7 @@
     "cosmosAddress": "Cosmos address:",
     "message": {
       "invalidCosmosAddress": "Cosmos Address is Invalid",
-      "waitingForCosmosApp": "waiting for Cosmos ledger App...",
+      "waitingForCosmosApp": "waiting for Cosmos ledger App..."
     },
     "button": {
       "continue": "Continue"
