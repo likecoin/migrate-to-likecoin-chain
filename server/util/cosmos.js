@@ -9,6 +9,8 @@ import {
   txCollection as txLogRef,
 } from './firebase';
 import { timeout } from '../common/util/misc';
+import { PUBSUB_TOPIC_MISC } from '../constant';
+import publisher from './gcloudPub';
 
 import {
   COSMOS_ENDPOINT as cosmosLCDEndpoint,
@@ -232,14 +234,13 @@ export async function sendCoins(signer, targets) {
       return Promise.resolve();
     }));
   } catch (err) {
-    // await publisher.publish(PUBSUB_TOPIC_MISC, null, {
-    //   logType: 'eventInfuraError',
-    //   fromWallet: address,
-    //   txHash,
-    //   rawSignedTx: tx.rawTransaction,
-    //   txNonce: pendingCount,
-    //   error: err.toString(),
-    // });
+    await publisher.publish(PUBSUB_TOPIC_MISC, null, {
+      logType: 'eventCosmosError',
+      fromWallet: signer.cosmosAddress,
+      txHash,
+      txSequence: pendingCount,
+      error: err.toString(),
+    });
     console.error(err);
     throw err;
   }

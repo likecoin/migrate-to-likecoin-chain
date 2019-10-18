@@ -5,9 +5,9 @@ import { ETH_PRIVATE_KEY } from '../config/secret';
 import {
   ETH_ENDPOINT,
   ETH_CONFIRMATION_NEEDED,
+  PUBSUB_TOPIC_MISC,
 } from '../constant';
-// import { PUBSUB_TOPIC_MISC } from '../../constant';
-// import publisher from '../gcloudPub';
+import publisher from './gcloudPub';
 import { getGasPrice } from '../poller/gas';
 import {
   db,
@@ -143,14 +143,14 @@ async function sendWithLoop(
       return Promise.resolve();
     }));
   } catch (err) {
-    // await publisher.publish(PUBSUB_TOPIC_MISC, null, {
-    //   logType: 'eventInfuraError',
-    //   fromWallet: address,
-    //   txHash,
-    //   rawSignedTx: tx.rawTransaction,
-    //   txNonce: pendingCount,
-    //   error: err.toString(),
-    // });
+    await publisher.publish(PUBSUB_TOPIC_MISC, null, {
+      logType: 'eventInfuraError',
+      fromWallet: address,
+      txHash,
+      rawSignedTx: tx.rawTransaction,
+      txNonce: pendingCount,
+      error: err.toString(),
+    });
     console.error(err);
     throw err;
   }
