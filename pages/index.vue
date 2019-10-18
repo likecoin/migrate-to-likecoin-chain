@@ -1,293 +1,143 @@
 <template>
   <div id="app">
-    <div>{{ state }}: {{ isLedger ? 'ledger' : 'metamask' }}</div>
-    <div v-if="state === 'ready'">
-      <div>
-        Ethereum address: {{ ethAddr }}
-        <button
-          @click="createWeb3"
-        >
-          Get MetaMask Address
-        </button>
-        <button
-          @click="createWeb3Ledger"
-        >
-          Get Ledger
-        </button>
-      </div>
-      <div>
-        Ethereum balance: {{ ethBalance }}
-      </div>
-      <div>
-        Cosmos address: <input v-model="cosmosAddr" size="60">
-        <button
-          @click="getCosmosAddressByLedger"
-        >
-          Get Ledger Cosmos Address
-        </button>
-      </div>
-      <div>
-        Cosmos balance: {{ cosmosBalance }}
-      </div>
-      <div>
-        Amount: <input v-model="valueToSend" size="30">
-        <button @click="onSend">
-          Sign and send to cosmos
-        </button>
-      </div>
-    </div>
-    <div v-else-if="state === 'pendingEth'">
-      <div>Waiting for eth tx {{ processingEthTxHash }}</div>
-      <a target="_blank" :href="ethTxLink">{{ ethTxLink }}</a>
-    </div>
-    <div v-else-if="state === 'pendingCosmos'">
-      <div>Waiting for cosmos tx {{ processingCosmosTxHash }}</div>
-      <a target="_blank" :href="cosmosTxLink">{{ cosmosTxLink }}</a>
-    </div>
-    <div v-else-if="state === 'done'">
-      <div>Migrated {{ resultValue }}LIKE from {{ ethAddr }} to {{ cosmosAddr }}</div>
-      <div>
-        <button @click="onReset">
-          Back
-        </button>
-      </div>
-    </div>
-    <div v-if="error" style="color:red">
-      error: {{ error }}
-    </div>
+    <template v-if="state === 'introduction'">
+      <step-introduction @confirm="onStart" />
+    </template>
+    <template v-else-if="state === 'cosmos'">
+      <step-cosmos @confirm="setCosmosAddress" />
+    </template>
+    <template v-else-if="state === 'eth'">
+      <step-ethereum @confirm="setEthInformation" />
+    </template>
+    <template v-else-if="state === 'value'">
+      <step-value-input
+        :max-value="ethBalance"
+        @confirm="setMigrateValue"
+      />
+    </template>
+    <template v-else-if="state === 'sign'">
+      <step-sign
+        :eth-address="ethAddress"
+        :cosmos-address="cosmosAddress"
+        :value="migrateValue"
+        :is-ledger="isLedger"
+        @confirm="setTxHash"
+      />
+    </template>
+    <template v-else-if="state === 'pending-tx'">
+      <step-pending-tx
+        :eth-address="ethAddress"
+        :cosmos-address="cosmosAddress"
+        :value="migrateValue"
+        :processing-eth-tx-hash="processingEthTxHash"
+        @reset="onReset"
+        @done="onPostDone"
+      />
+    </template>
   </div>
 </template>
 
 <script>
-import * as eth from '../util/eth';
-import * as cosmos from '../util/cosmos';
-import {
-  apiPostMigration,
-  apiPostTransferMigration,
-  apiGetPendingEthMigration,
-  apiGetPendingCosmosMigration,
-  apiGetCosmosBalance,
-} from '../util/api';
-import {
-  ETHERSCAN_HOST,
-  BIGDIPPER_HOST,
-} from '../constant';
-import {
-  getLedgerWeb3Engine,
-  getLedgerCosmosAddress,
-} from '../util/ledger';
-import { timeout } from '../common/util/misc';
 import { trySetLocalStorage } from '../util/client';
+import StepSign from '../components/StepSign.vue';
+import StepPendingTx from '../components/StepPendingTx.vue';
+import StepEthereum from '../components/StepEthereum.vue';
+import StepValueInput from '../components/StepValueInput.vue';
+import StepCosmos from '../components/StepCosmos.vue';
+import StepIntroduction from '../components/StepIntroduction.vue';
 
 export default {
+  components: {
+    StepSign,
+    StepPendingTx,
+    StepEthereum,
+    StepValueInput,
+    StepCosmos,
+    StepIntroduction,
+  },
   data: () => ({
-    state: 'ready',
     error: '',
-    isLedger: false,
+    isBegin: false,
+    cosmosAddress: '',
     web3: null,
-    ethAddr: null,
-    ethBalance: '0',
-    cosmosAddr: '',
-    cosmosBalance: '0nanolike',
-    valueToSend: '0',
-    resultValue: '0',
+    ethAddress: '',
+    ethBalance: '',
+    migrateValue: '',
     processingEthTxHash: '',
-    processingCosmosTxHash: '',
+    isLedger: false,
   }),
   computed: {
-    ethTxLink() {
-      return `${ETHERSCAN_HOST}/tx/${this.processingEthTxHash}`;
-    },
-    cosmosTxLink() {
-      return `${BIGDIPPER_HOST}/transactions/${this.processingCosmosTxHash}`;
+    state() {
+      if (this.processingEthTxHash) { // overide all states
+        return 'pending-tx';
+      } if (!this.isBegin) {
+        return 'introduction';
+      } if (!this.cosmosAddress) {
+        return 'cosmos';
+      } if (!this.ethAddress || !this.ethBalance || !this.web3) {
+        return 'eth';
+      } if (!this.migrateValue) {
+        return 'value';
+      } if (!this.processingEthTxHash) {
+        return 'sign';
+      }
+      return 'introduction';
     },
   },
   mounted() {
     if (window.localStorage) {
       try {
         this.processingEthTxHash = window.localStorage.getItem('processingEthTxHash') || '';
-        this.processingCosmosTxHash = window.localStorage.getItem('processingCosmosTxHash') || '';
         if (this.processingEthTxHash || this.processingCosmosTxHash) {
-          this.ethAddr = window.localStorage.getItem('ethAddr') || '';
-          this.cosmosAddr = window.localStorage.getItem('cosmosAddr') || '';
+          this.cosmosAddress = window.localStorage.getItem('cosmosAddress') || '';
+          this.ethAddress = window.localStorage.getItem('ethAddress') || '';
+          this.migrateValue = window.localStorage.getItem('migrateValue') || '';
         }
-        this.refreshState();
       } catch (err) {
         // no op
       }
     }
   },
   methods: {
-    async createWeb3() {
-      try {
-        this.error = 'waiting for MetaMask';
-        let web3;
-        if (window.ethereum) {
-          await window.ethereum.enable();
-          web3 = eth.initWindowWeb3(window.ethereum);
-        } if (window.web3) {
-          web3 = eth.initWindowWeb3(window.web3.currentProvider);
-        }
-        if (!web3) throw new Error('Cannot detect web3 from browser');
-        this.web3 = web3;
-        await eth.checkNetwork();
-        this.updateEthAddr(await eth.getFromAddr());
-        this.isLedger = false;
-        this.error = '';
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
+    onStart() {
+      this.isBegin = true;
     },
-    async createWeb3Ledger() {
-      try {
-        this.error = 'waiting for ETH ledger App...';
-        this.web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
-        this.updateEthAddr(await eth.getFromAddr());
-        this.isLedger = true;
-        this.error = '';
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
+    setCosmosAddress(cosmosAddress) {
+      trySetLocalStorage('cosmosAddress', cosmosAddress);
+      this.cosmosAddress = cosmosAddress;
     },
-    async getCosmosAddressByLedger() {
-      try {
-        this.error = 'waiting for Cosmos ledger App...';
-        this.updateCosmosAdderr(await getLedgerCosmosAddress());
-        this.error = '';
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
+    setEthInformation({
+      ethAddress,
+      ethBalance,
+      web3,
+      isLedger,
+    }) {
+      trySetLocalStorage('ethAddress', ethAddress);
+      this.ethAddress = ethAddress;
+      this.web3 = web3;
+      this.isLedger = isLedger;
+      this.ethBalance = ethBalance;
     },
-    async refreshState() {
-      let state;
-      if (this.processingEthTxHash) state = 'pendingEth';
-      if (this.processingCosmosTxHash) state = 'pendingCosmos';
-      switch (state) {
-        case 'pendingEth': this.waitForEth(); break;
-        case 'pendingCosmos': this.waitForCosmos(); break;
-        default: break;
-      }
+    setMigrateValue(migrateValue) {
+      trySetLocalStorage('migrateValue', migrateValue);
+      this.migrateValue = migrateValue;
     },
-    async getEthBalance() {
-      if (!this.web3) {
-        await this.createWeb3();
-      }
-      this.ethBalance = await eth.getLikeCoinBalance(this.ethAddr);
-      if (!this.valueToSend || this.valueToSend === '0') this.valueToSend = this.ethBalance;
-    },
-    async getCosmosBalance() {
-      const { data } = await apiGetCosmosBalance(this.cosmosAddr);
-      if (data.value !== undefined) this.cosmosBalance = data.value;
-    },
-    async updateEthAddr(ethAddr) {
-      if (ethAddr) trySetLocalStorage('ethAddr', ethAddr);
-      this.ethAddr = ethAddr;
-      await this.getEthBalance();
-      if (!this.processingEthTxHash) {
-        await this.updateEthProcessingTx();
-        this.refreshState();
-      }
-    },
-    async updateCosmosAdderr(cosmosAddr) {
-      if (cosmosAddr) trySetLocalStorage('cosmosAddr', cosmosAddr);
-      this.cosmosAddr = cosmosAddr;
-      await this.getCosmosBalance();
-      if (!this.processingCosmosTxHash) {
-        await this.updateCosmosProcessingTx({ checkPending: true });
-        this.refreshState();
-      }
-    },
-    async updateEthProcessingTx() {
-      const { data } = await apiGetPendingEthMigration(this.ethAddr);
-      if (data && data.list && data.list.length) {
-        const [targetTx] = data.list;
-        this.processingEthTxHash = targetTx.txHash;
-        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
-      }
-    },
-    async updateCosmosProcessingTx({ checkPending = false } = {}) {
-      const { data } = await apiGetPendingCosmosMigration(this.cosmosAddr);
-      if (data && data.list && data.list.length) {
-        const [targetTx] = data.list;
-        if (checkPending && targetTx.status !== 'pending') return;
-        this.processingCosmosTxHash = targetTx.txHash;
-        trySetLocalStorage('processingCosmosTxHash', this.processingCosmosTxHash);
-      }
-    },
-    async onSend() {
-      if (this.isLedger) {
-        this.sendTransfer();
-      } else {
-        this.sendMigrationTx();
-      }
-    },
-    async sendMigrationTx() {
-      try {
-        this.error = 'waiting for Metamask ETH signature...';
-        const migrationData = await eth.signMigration(this.ethAddr, this.valueToSend);
-        migrationData.cosmosAddress = this.cosmosAddr;
-        const { data } = await apiPostMigration(migrationData);
-        this.processingEthTxHash = data.txHash;
-        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
-        this.waitForEth();
-        this.error = '';
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
-    },
-    async sendTransfer() {
-      try {
-        this.error = 'waiting for ledger ETH signature...';
-        const migrationData = await eth.signTransferMigration(this.ethAddr, this.valueToSend);
-        migrationData.cosmosAddress = this.cosmosAddr;
-        const { data } = await apiPostTransferMigration(migrationData);
-        this.processingEthTxHash = data.txHash;
-        trySetLocalStorage('processingEthTxHash', this.processingEthTxHash);
-        this.waitForEth();
-        this.error = '';
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
+    setTxHash(txHash) {
+      trySetLocalStorage('processingEthTxHash', txHash);
+      this.processingEthTxHash = txHash;
     },
     async onReset() {
-      this.getEthBalance();
-      this.getCosmosBalance();
-      this.state = 'ready';
+      this.onPostDone();
+      this.isBegin = false;
+      this.web3 = null;
+      this.ethAddress = '';
+      this.ethBalance = 0;
+      this.cosmosAddress = '';
+      this.migrateVale = 0;
+      this.processingEthTxHash = '';
+      this.processingCosmosTxHash = '';
     },
-    async waitForEth() {
-      this.state = 'pendingEth';
-      try {
-        await eth.waitForTxToBeMined(this.processingEthTxHash);
-        while (!this.processingCosmosTxHash) {
-          /* eslint-disable no-await-in-loop */
-          await timeout(10000);
-          await this.updateCosmosProcessingTx();
-          /* eslint-enable no-await-in-loop */
-        }
-        this.waitForCosmos();
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
-    },
-    async waitForCosmos() {
-      this.state = 'pendingCosmos';
-      try {
-        const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
-        this.resultValue = tx.value.msg[0].value.amount[0].amount; // TODO: parse amount
-        this.postDoneCleanUp();
-      } catch (err) {
-        console.error(err);
-        this.error = err;
-      }
-    },
-    async postDoneCleanUp() {
-      this.state = 'done';
+    async onPostDone() {
       if (window.localStorage) {
         try {
           window.localStorage.removeItem('processingEthTxHash');
