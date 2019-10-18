@@ -4,7 +4,6 @@ import VueI18n from 'vue-i18n';
 import messages, {
   defaultLocale,
   availableLocales,
-  convertLikerCoinLocale,
 } from '../locales';
 
 Vue.use(VueI18n);
@@ -38,14 +37,12 @@ function getNavigatorLanguage() {
 }
 
 export default ({
-  app, store, req, query,
+  app, req, query,
 }) => {
   let locale = defaultLocale;
   if (!process.server) {
-    const { user: { user: { locale: userLocale } = {} } = {} } = store.state;
     const navLang = getNavigatorLanguage();
     locale = query.language
-      || convertLikerCoinLocale(userLocale)
       || (window.localStorage && window.localStorage.language)
       || navLang
       || defaultLocale;
