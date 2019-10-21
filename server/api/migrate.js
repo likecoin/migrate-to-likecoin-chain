@@ -13,7 +13,7 @@ import { getCosmosAccountLIKE } from '../util/cosmos';
 import {
   PUBSUB_TOPIC_MISC,
 } from '../constant';
-import { publisher } from '../util/gcloudPub';
+import publisher from '../util/gcloudPub';
 
 const router = Router();
 

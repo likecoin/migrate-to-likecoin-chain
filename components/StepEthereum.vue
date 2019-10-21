@@ -1,31 +1,55 @@
 <template>
-  <div v-if="type==='metamask'">
-    <metamask-dialog
-      @cancel="onCancel"
-    >
-      {{ metamaskMessage }}
-    </metamask-dialog>
-  </div>
-  <div v-else-if="type==='ledger'">
-    <ledger-dialog
-      @confirm="createWeb3Ledger"
-      @cancel="onCancel"
-    >
-      {{ ledgerMessage }}
-    </ledger-dialog>
-  </div>
-  <div v-else>
-    <button
-      @click="createWeb3"
-    >
-      {{ $t('General.button.connectMetaMask' ) }}
-    </button>
-    <button
-      @click="onClickUseLedger"
-    >
-      {{ $t('General.button.connectLedger' ) }}
-    </button>
-  </div>
+  <metamask-dialog
+    v-if="type==='metamask'"
+    :is-loading="isLoading"
+    @cancel="onCancel"
+  >
+    {{ metamaskMessage }}
+  </metamask-dialog>
+  <ledger-dialog
+    v-else-if="type==='ledger'"
+    :is-loading="isLoading"
+    @confirm="createWeb3Ledger"
+    @cancel="onCancel"
+  >
+    {{ ledgerMessage }}
+  </ledger-dialog>
+  <v-card
+    v-else
+    outlined
+  >
+    <v-card-text>
+      {{ $t('StepEthereum.selectWallet') }}
+    </v-card-text>
+    <v-card class="ma-4 mt-0">
+      <v-list-item @click="createWeb3">
+        <img
+          class="ml-n3 mr-3"
+          src="~/assets/images/metamask-fox-wordmark-horizontal.svg"
+          width="108px"
+        >
+        <v-list-item-content>
+          <v-list-item-title class="primary--text font-weight-bold">
+            {{ $t('General.button.connectMetaMask' ) }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-card>
+    <v-card class="ma-4">
+      <v-list-item @click="onClickUseLedger">
+        <img
+          class="ml-n3 mr-3"
+          src="~/assets/images/ledger-nano-s.svg"
+          width="108px"
+        >
+        <v-list-item-content>
+          <v-list-item-title class="primary--text font-weight-bold">
+            {{ $t('General.button.connectLedger' ) }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-card>
+  </v-card>
 </template>
 <script>
 import * as eth from '../util/eth';
@@ -46,12 +70,14 @@ export default {
       type: '',
       ledgerMessage: '',
       metamaskMessage: '',
+      isLoading: false,
     };
   },
   methods: {
     async createWeb3() {
       try {
         this.type = 'metamask';
+        this.isLoading = true;
         this.metamaskMessage = this.$t('StepEthereum.message.waitingForMetamask');
         let web3;
         if (window.ethereum) {
@@ -62,9 +88,11 @@ export default {
         }
         if (!web3) throw new Error(this.$t('StepEthereum.message.noWeb3'));
         await eth.checkNetwork();
+        this.metamaskMessage = '';
         const ethAddress = await eth.getFromAddr();
         const ethBalance = await eth.getLikeCoinBalance(ethAddress);
         const isLedger = false;
+        this.isLoading = false;
         this.metamaskMessage = '';
         this.$emit('confirm', {
           ethAddress,
