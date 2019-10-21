@@ -116,6 +116,7 @@ export default {
           // User rejected signing
           this.onCancel();
         } else {
+          // eslint-disable-next-line no-console
           console.error(err);
           this.message = err;
         }
@@ -132,6 +133,7 @@ export default {
         this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.message = err;
       }

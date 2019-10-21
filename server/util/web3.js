@@ -113,9 +113,11 @@ async function sendWithLoop(
     try {
       txHash = await sendTransaction(tx);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
       if (err.message.includes('replacement transaction underpriced')
         || err.message.includes('nonce too low')) {
+        // eslint-disable-next-line no-console
         console.log(`Nonce ${pendingCount} failed, trying web3 pending`);
       } else {
         retry = true;
@@ -151,6 +153,7 @@ async function sendWithLoop(
       txNonce: pendingCount,
       error: err.toString(),
     });
+    // eslint-disable-next-line no-console
     console.error(err);
     throw err;
   }

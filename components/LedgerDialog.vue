@@ -9,18 +9,22 @@
     <v-card-text v-if="$slots.default">
       <slot />
     </v-card-text>
-      <v-card-actions>
+    <v-card-actions>
       <v-spacer />
       <v-btn
         text
         @click="$emit('cancel')"
-      >{{ $t('General.cancel') }}</v-btn>
+      >
+        {{ $t('General.cancel') }}
+      </v-btn>
       <v-btn
         v-if="waitForConfirm"
         color="primary"
         text
         @click="$emit('confirm')"
-      >{{ $t('General.confirm') }}</v-btn>
+      >
+        {{ $t('General.confirm') }}
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>

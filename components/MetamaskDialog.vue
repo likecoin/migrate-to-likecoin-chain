@@ -12,14 +12,16 @@
       <v-btn
         text
         @click="$emit('cancel')"
-      >{{ $t('General.cancel') }}</v-btn>
+      >
+        {{ $t('General.cancel') }}
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 export default {
-  name: 'metamask-dialog',
+  name: 'MetamaskDialog',
   props: {
     isLoading: {
       type: Boolean,

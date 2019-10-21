@@ -7,8 +7,8 @@
       <v-form @submit.prevent="submitCosmosAddress">
         <v-card-text>
           <v-text-field
-            class="caption"
             v-model="cosmosAddress"
+            class="caption"
             :error-messages="error"
             :label="$t('StepCosmos.cosmosAddress')"
             required
@@ -21,7 +21,9 @@
             color="primary"
             type="submit"
             text
-          >{{ $t('StepCosmos.button.continue' ) }}</v-btn>
+          >
+            {{ $t('StepCosmos.button.continue' ) }}
+          </v-btn>
         </v-card-actions>
       </v-form>
     </v-card>
@@ -91,6 +93,7 @@ export default {
         this.ledgerMessage = '';
         this.submitCosmosAddress();
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.ledgerMessage = err;
       }

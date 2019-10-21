@@ -25,6 +25,7 @@ export async function waitForTxToBeMined(txHash) {
         if (isFailed) throw new Error(code);
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
       throw err;
     }

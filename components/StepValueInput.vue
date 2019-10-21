@@ -26,7 +26,9 @@
         :disabled="!isValid || isEditing"
         text
         @click="$emit('confirm', bigValue)"
-      >Ok</v-btn>
+      >
+        Ok
+      </v-btn>
     </v-card-actions>
   </v-card>
 </template>

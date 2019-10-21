@@ -10,7 +10,9 @@
       <v-btn
         color="primary"
         @click="$emit('confirm')"
-      >{{ $t('General.confirm') }}</v-btn>
+      >
+        {{ $t('General.confirm') }}
+      </v-btn>
     </v-row>
   </v-card>
 </template>

@@ -187,6 +187,7 @@ export default {
         }
         this.waitForCosmos();
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.error = err;
       }
@@ -206,6 +207,7 @@ export default {
         this.isDone = true;
         this.$emit('done');
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.error = err;
       }

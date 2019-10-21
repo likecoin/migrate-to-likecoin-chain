@@ -52,27 +52,29 @@
               <path d="M248.39,108.11a1.84,1.84,0,1,1-1.83,1.83,1.83,1.83,0,0,1,1.83-1.83m-4.32,1.83a4.33,4.33,0,1,0,4.32-4.31,4.33,4.33,0,0,0-4.32,4.31" />
               <!-- eslint-enable max-len -->
             </g>
-              <circle cx="258.57" cy="115.85" r="2" />
-              <circle cx="267.3" cy="120.9" r="2" />
-              <circle cx="276.04" cy="125.96" r="2" />
-              <circle cx="310.99" cy="115.85" r="2" />
-              <circle cx="302.25" cy="120.9" r="2" />
-              <circle cx="293.51" cy="125.96" r="2" />
-              <circle cx="310.98" cy="62.09" r="2" />
-              <circle cx="302.25" cy="57.03" r="2" />
-              <circle cx="293.51" cy="51.98" r="2" />
-              <circle cx="258.57" cy="62.09" r="2" />
-              <circle cx="267.3" cy="57.03" r="2" />
-              <circle cx="276.04" cy="51.98" r="2" />
-              <circle cx="248.39" cy="98.18" r="2" />
-              <circle cx="248.39" cy="88.1" r="2" />
-              <circle cx="248.39" cy="78.02" r="2" />
-              <circle cx="321.5" cy="98.18" r="2" />
-              <circle cx="321.5" cy="88.1" r="2" />
-              <circle cx="321.5" cy="78.02" r="2" />
+            <circle cx="258.57" cy="115.85" r="2" />
+            <circle cx="267.3" cy="120.9" r="2" />
+            <circle cx="276.04" cy="125.96" r="2" />
+            <circle cx="310.99" cy="115.85" r="2" />
+            <circle cx="302.25" cy="120.9" r="2" />
+            <circle cx="293.51" cy="125.96" r="2" />
+            <circle cx="310.98" cy="62.09" r="2" />
+            <circle cx="302.25" cy="57.03" r="2" />
+            <circle cx="293.51" cy="51.98" r="2" />
+            <circle cx="258.57" cy="62.09" r="2" />
+            <circle cx="267.3" cy="57.03" r="2" />
+            <circle cx="276.04" cy="51.98" r="2" />
+            <circle cx="248.39" cy="98.18" r="2" />
+            <circle cx="248.39" cy="88.1" r="2" />
+            <circle cx="248.39" cy="78.02" r="2" />
+            <circle cx="321.5" cy="98.18" r="2" />
+            <circle cx="321.5" cy="88.1" r="2" />
+            <circle cx="321.5" cy="78.02" r="2" />
           </g>
         </svg>
-        <h1 class="headline font-weight-medium text-center mb-12">{{ $t('App.title') }}</h1>
+        <h1 class="headline font-weight-medium text-center mb-12">
+          {{ $t('App.title') }}
+        </h1>
       </v-col>
     </v-row>
     <v-row

@@ -101,6 +101,7 @@ export default {
           isLedger,
         });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.metamaskMessage = err;
       }
@@ -120,6 +121,7 @@ export default {
           isLedger,
         });
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.ledgerMessage = err;
       }
