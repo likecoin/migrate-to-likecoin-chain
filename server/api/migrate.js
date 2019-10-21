@@ -10,7 +10,10 @@ import {
 } from '../util/api/migrate';
 import { sendTransactionWithLoop } from '../util/web3';
 import { getCosmosAccountLIKE } from '../util/cosmos';
-// import { publisher } from '../util/gcloudPub';
+import {
+  PUBSUB_TOPIC_MISC,
+} from '../constant';
+import { publisher } from '../util/gcloudPub';
 
 const router = Router();
 
@@ -80,7 +83,11 @@ router.post('/', async (req, res, next) => {
       delegatorAddress: toChecksumAddress(delegatorAddress),
     };
 
-    // publisher.publish(PUBSUB_TOPIC_MISC, req, dbTxRecord);
+    publisher.publish(PUBSUB_TOPIC_MISC, req, {
+      ...dbTxRecord,
+      logType: 'eventCosmosTokenMigrate',
+      method: 'transferDelegated',
+    });
 
     await addMigrationEthTx(dbTxRecord);
     res.send({ txHash });
@@ -109,7 +116,11 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
     };
 
-    // publisher.publish(PUBSUB_TOPIC_MISC, req, dbTxRecord);
+    publisher.publish(PUBSUB_TOPIC_MISC, req, {
+      ...dbTxRecord,
+      logType: 'eventCosmosTokenMigrate',
+      method: 'transfer',
+    });
     await addMigrationTransferEthTx(dbTxRecord);
     res.send({ txHash });
   } catch (err) {
