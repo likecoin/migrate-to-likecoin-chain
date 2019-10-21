@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   mode: 'spa',
   env: {
@@ -60,7 +62,28 @@ module.exports = {
     /*
     ** You can extend webpack config here
     */
-    extend(config, ctx) {
+    extend(config, { isClient }) {
+      /* eslint-disable no-param-reassign */
+      // https://github.com/ethereum/web3.js/issues/1178
+      if (process.env.NODE_ENV === 'production') {
+        config.resolve.alias['bn.js'] = path.join(__dirname, './node_modules/bn.js');
+      }
+
+      if (isClient) {
+        if (process.env.NODE_ENV === 'production') {
+          config.devtool = 'source-map';
+        }
+        /*
+        ** Run ESLINT on save
+        */
+        config.module.rules.push({
+          enforce: 'pre',
+          test: /\.(js|vue)$/,
+          loader: 'eslint-loader',
+          exclude: /(node_modules)/,
+        });
+      }
+      /* eslint-enable no-param-reassign */
     },
   },
 };
