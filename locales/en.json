@@ -46,6 +46,7 @@
     }
   },
   "StepEthereum": {
+    "selectWallet": "Connect to your wallet",
     "message": {
       "waitingForEthApp": "waiting for ETH ledger App...",
       "waitingForMetamask": "Waiting for MetaMask...",
@@ -70,6 +71,6 @@
   },
   "StepValueInput": {
     "migarteValue": "Migrate value:",
-    "maxValue": "Max value"
+    "maxValue": "Max value: {maxValue}"
   }
 }
