@@ -54,6 +54,7 @@
     }
   },
   "StepSign": {
+    "title": "Sign to confirm",
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
       "waitingForEthApp": "waiting for ETH ledger App..."
