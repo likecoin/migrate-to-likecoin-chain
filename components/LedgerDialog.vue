@@ -1,19 +1,28 @@
 <template>
-  <div>
-    <div>{{ $t('LedgerDialog.connectMessage') }} {{ ledgerAppName }}</div>
-    <slot />
-    <button
-      @click="$emit('cancel')"
-    >
-      {{ $t('General.cancel') }}
-    </button>
-    <button
-      v-if="waitForConfirm"
-      @click="$emit('confirm')"
-    >
-      {{ $t('General.confirm') }}
-    </button>
-  </div>
+  <v-card
+    outlined
+    :loading="isLoading"
+  >
+    <v-card-title>
+      {{ $t('LedgerDialog.connectMessage') }} {{ ledgerAppName }}
+    </v-card-title>
+    <v-card-text v-if="$slots.default">
+      <slot />
+    </v-card-text>
+      <v-card-actions>
+      <v-spacer />
+      <v-btn
+        text
+        @click="$emit('cancel')"
+      >{{ $t('General.cancel') }}</v-btn>
+      <v-btn
+        v-if="waitForConfirm"
+        color="primary"
+        text
+        @click="$emit('confirm')"
+      >{{ $t('General.confirm') }}</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 <script>
 export default {
@@ -25,6 +34,10 @@ export default {
     waitForConfirm: {
       type: Boolean,
       default: true,
+    },
+    isLoading: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

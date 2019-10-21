@@ -1,29 +1,53 @@
 <template>
-  <div v-if="!showLedger">
-    <form @submit.prevent="submitCosmosAddress">
-      <span v-if="error">{{ error }}</span>
-      <div>
-        {{ $t('StepCosmos.cosmosAddress' ) }}
-        <input v-model="cosmosAddress" size="60">
-      </div>
-      <button type="submit">
-        {{ $t('StepCosmos.button.continue' ) }}
-      </button>
-    </form>
-    <button
-      @click="onClickUseLedger"
-    >
-      {{ $t('General.button.connectLedger' ) }}
-    </button>
-  </div>
-  <div v-else>
-    <ledger-dialog
-      @cancel="onCancelLedger"
-      @confirm="onConfirmLedger"
-    >
-      {{ ledgerMessage }}
-    </ledger-dialog>
-  </div>
+  <v-card
+    v-if="!showLedger"
+    outlined
+  >
+    <v-card flat>
+      <v-form @submit.prevent="submitCosmosAddress">
+        <v-card-text>
+          <v-text-field
+            class="caption"
+            v-model="cosmosAddress"
+            :error-messages="error"
+            :label="$t('StepCosmos.cosmosAddress')"
+            required
+          />
+        </v-card-text>
+        <v-card-actions class="pt-0">
+          <v-spacer />
+          <v-btn
+            :disabled="!cosmosAddress"
+            color="primary"
+            type="submit"
+            text
+          >{{ $t('StepCosmos.button.continue' ) }}</v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
+    <v-divider />
+    <v-card class="ma-4">
+      <v-list-item @click="onClickUseLedger">
+        <img
+          class="ml-n3 mr-3"
+          src="~/assets/images/ledger-nano-s.svg"
+          width="108px"
+        >
+        <v-list-item-content>
+          <v-list-item-title class="primary--text font-weight-bold">
+            {{ $t('General.button.connectLedger' ) }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </v-card>
+  </v-card>
+  <ledger-dialog
+    v-else
+    @cancel="onCancelLedger"
+    @confirm="onConfirmLedger"
+  >
+    {{ ledgerMessage }}
+  </ledger-dialog>
 </template>
 
 <script>
