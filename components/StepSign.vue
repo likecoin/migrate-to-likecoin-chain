@@ -1,47 +1,32 @@
 <template>
-  <v-card
+  <SigningForm
     v-if="!isSigning"
-    outlined
+    class="mx-auto"
+    :eth-address="ethAddress"
+    :cosmos-address="cosmosAddress"
+    :value="displayValue"
   >
-    <v-card-title>{{ $t('StepSign.title') }}</v-card-title>
-    <v-card-text class="pb-0">
-      <v-text-field
-        class="caption"
-        :label="$t('Common.ethFrom')"
-        :value="ethAddress"
-        outlined
-        flat
-        dense
-        readonly
-      />
-      <v-text-field
-        class="caption"
-        :label="$t('Common.cosmosTo')"
-        :value="cosmosAddress"
-        outlined
-        flat
-        dense
-        readonly
-      />
-      <v-text-field
-        class="headline"
-        :label="$t('Common.value')"
-        :value="displayValue"
-        outlined
-        flat
-        readonly
-      />
-    </v-card-text>
-    <v-card-text v-if="message">{{ message }}</v-card-text>
-    <v-card-actions class="pt-0">
-      <v-spacer />
-      <v-btn
-        class="primary--text"
-        text
-        @click="onSend"
-      >{{ $t('StepSign.button.sign') }}</v-btn>
-    </v-card-actions>
-  </v-card>
+    <template #form-prepend>
+      <v-card-title>
+        {{ $t('StepSign.title') }}
+      </v-card-title>
+    </template>
+    <template #form-append>
+      <v-card-text v-if="message">
+        {{ message }}
+      </v-card-text>
+      <v-card-actions class="pt-0">
+        <v-spacer />
+        <v-btn
+          class="primary--text"
+          text
+          @click="onSend"
+        >
+          {{ $t('StepSign.button.sign') }}
+        </v-btn>
+      </v-card-actions>
+    </template>
+  </SigningForm>
   <metamask-dialog
     v-else-if="!isLedger"
     :is-loading="isLoading"
@@ -56,7 +41,6 @@
   >
     {{ message }}
   </ledger-dialog>
-  </template>
 </template>
 <script>
 import * as eth from '../util/eth';
@@ -64,8 +48,10 @@ import {
   apiPostMigration,
   apiPostTransferMigration,
 } from '../util/api';
+
 import LedgerDialog from './LedgerDialog.vue';
 import MetamaskDialog from './MetamaskDialog.vue';
+import SigningForm from './SigningForm.vue';
 
 const BigNumber = require('bignumber.js');
 
@@ -75,6 +61,7 @@ export default {
   components: {
     LedgerDialog,
     MetamaskDialog,
+    SigningForm,
   },
   props: {
     ethAddress: {

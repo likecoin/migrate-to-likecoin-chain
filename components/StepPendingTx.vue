@@ -1,36 +1,113 @@
 <template>
-  <div>
-    <div v-if="error">
-      {{ error }}
+  <v-card
+    class="px-4 py-8"
+    outlined
+  >
+    <div
+      v-if="error"
+      class="text-center"
+    >
+      <div class="error--text display-1">
+        {{ $t('StepPendingTx.error') }}
+      </div>
+      <v-icon
+        class="my-4"
+        color="error"
+        large
+      >
+        mdi-alert
+      </v-icon>
+      <div class="body-2 error--text text--darken-4">
+        {{ error }}
+      </div>
     </div>
-    <div v-else-if="isDone">
-      {{ $t('StepPendingTx.done') }}
+    <div
+      v-else-if="isDone"
+      class="text-center"
+    >
+      <div class="primary--text display-1">
+        {{ $t('StepPendingTx.done') }}
+      </div>
+      <v-icon
+        class="my-4"
+        color="primary"
+        large
+      >
+        mdi-check
+      </v-icon>
+      <div class="body-2">
+        {{ $t('StepPendingTx.doneDescription') }}
+      </div>
     </div>
-    <div v-else-if="processingCosmosTxHash">
-      {{ $t('StepPendingTx.waitingForCosmosTx') }} {{ processingCosmosTxHash }}...
-      <a :href="cosmosTxLink" target="_blank">{{ $t('StepPendingTx.viewOnBigdipper') }}</a>
+    <div
+      v-else-if="processingCosmosTxHash"
+      class="text-center"
+    >
+      <div class="headline blue--text">
+        {{ $t('StepPendingTx.waitingForCosmosTx') }}
+      </div>
+      <v-icon
+        class="my-4"
+        large
+      >
+        mdi-dots-horizontal
+      </v-icon>
+      <div class="caption">
+        {{ processingCosmosTxHash }}
+      </div>
+      <a
+        class="body-2"
+        :href="cosmosTxLink"
+        target="_blank"
+      >{{ $t('StepPendingTx.viewOnBigdipper') }}</a>
     </div>
-    <div v-else>
-      {{ $t('StepPendingTx.waitingForEthTx') }} {{ processingEthTxHash }}...
-      <a :href="ethTxLink" target="_blank">{{ $t('StepPendingTx.viewOnEtherscan') }}</a>
+    <div
+      v-else
+      class="text-center"
+    >
+      <div class="headline blue--text">
+        {{ $t('StepPendingTx.waitingForEthTx') }}
+      </div>
+      <v-icon
+        class="my-4"
+        large
+      >
+        mdi-dots-horizontal
+      </v-icon>
+      <div class="caption">
+        {{ processingEthTxHash }}
+      </div>
+      <a
+        class="body-2"
+        :href="ethTxLink"
+        target="_blank"
+      >{{ $t('StepPendingTx.viewOnEtherscan') }}</a>
     </div>
-    <div>
-      <span>{{ $t('Common.ethFrom') }}</span>
-      <span>{{ ethAddress }}</span>
-    </div>
-    <div>
-      <span>{{ $t('Common.cosmosTo') }}</span>
-      <span>{{ cosmosAddress }}</span>
-    </div>
-    <div>
-      <span>{{ $t('Common.value') }}</span>
-      <span>{{ displayValue }}</span>
-    </div>
-    <button v-if="error" @click="$emit('reset')">
-      Retry
-    </button>
-  </div>
+
+    <signing-form
+      class="mx-auto mt-8"
+      :eth-address="ethAddress"
+      :cosmos-address="cosmosAddress"
+      :value="displayValue"
+      :is-loading="(processingCosmosTxHash || processingEthTxHash) && !isDone"
+    >
+      <template #form-append>
+        <v-card-actions class="pt-0">
+          <v-spacer />
+          <v-btn
+            v-if="error"
+            color="primary"
+            text
+            @click="$emit('reset')"
+          >
+            {{ $t("General.retry") }}
+          </v-btn>
+        </v-card-actions>
+      </template>
+    </signing-form>
+  </v-card>
 </template>
+
 <script>
 import * as eth from '../util/eth';
 import * as cosmos from '../util/cosmos';
@@ -43,12 +120,17 @@ import {
 } from '../util/api';
 import { timeout } from '../common/util/misc';
 
+import SigningForm from './SigningForm.vue';
+
 const BigNumber = require('bignumber.js');
 
 const ONE_LIKE = new BigNumber(10).pow(18);
 const ONE_COSMOS_LIKE = new BigNumber(10).pow(9);
 
 export default {
+  components: {
+    SigningForm,
+  },
   props: {
     ethAddress: {
       type: String,

@@ -4,6 +4,7 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "edit": "Edit",
+    "retry": "Retry",
     "button": {
       "connectLedger": "Connect to Ledger",
       "connectMetaMask": "Connect to MetaMask"
@@ -64,11 +65,13 @@
     }
   },
   "StepPendingTx": {
+    "error": "Error",
     "done": "Done",
+    "doneDescription": "New LikeCoin has been transferred to your Cosmos address",
     "waitingForCosmosTx": "Waiting for Cosmos Tx ",
     "waitingForEthTx": "Waiting for Eth Tx ",
-    "viewOnBigdipper": "View on bigdipper",
-    "viewOnEtherscan": "View on etherscan"
+    "viewOnBigdipper": "View on Big Dipper",
+    "viewOnEtherscan": "View on Etherscan"
   },
   "StepValueInput": {
     "migarteValue": "Migrate value:",
