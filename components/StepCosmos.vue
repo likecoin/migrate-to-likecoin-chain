@@ -4,32 +4,48 @@
     outlined
   >
     <v-card flat>
+      <v-card-text>
+        {{ $t('StepCosmos.cosmosAddress') }}
+      </v-card-text>
       <v-form @submit.prevent="submitCosmosAddress">
-        <v-card-text>
+        <v-card-text class="py-0">
           <v-text-field
             v-model="cosmosAddress"
             class="caption"
             :error-messages="error"
-            :label="$t('StepCosmos.cosmosAddress')"
+            placeholder="e.g. cosmos1234567890abcdefghijklmnopqrstuvwxyz123"
+            outlined
+            solo
+            flat
             required
           />
         </v-card-text>
-        <v-card-actions class="pt-0">
+        <v-card-actions class="pt-0 pb-4">
           <v-spacer />
           <v-btn
             :disabled="!cosmosAddress"
-            color="primary"
+            color="secondary"
             type="submit"
-            text
+            outlined
+            rounded
           >
-            {{ $t('StepCosmos.button.continue' ) }}
+            <span
+              :class="{ 'primary--text': !!cosmosAddress, 'px-2': true }"
+            >{{ $t('StepCosmos.button.continue' ) }}</span>
           </v-btn>
+          <v-spacer />
         </v-card-actions>
       </v-form>
     </v-card>
-    <v-divider />
+    <v-divider class="mt-2" />
+    <div class="mt-n2 d-flex justify-center">
+      <span class="d-inline-block overline grey--text white px-2">{{ $t('General.or') }}</span>
+    </div>
     <v-card class="ma-4">
-      <v-list-item @click="onClickUseLedger">
+      <v-list-item
+        class="grey lighten-5"
+        @click="onClickUseLedger"
+      >
         <img
           class="ml-n3 mr-3"
           src="~/assets/images/ledger-nano-s.svg"
@@ -40,6 +56,11 @@
             {{ $t('General.button.connectLedger' ) }}
           </v-list-item-title>
         </v-list-item-content>
+        <v-list-item-action>
+          <v-icon color="secondary">
+            mdi-arrow-right
+          </v-icon>
+        </v-list-item-action>
       </v-list-item>
     </v-card>
   </v-card>
