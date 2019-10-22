@@ -22,7 +22,10 @@
       {{ $t('StepEthereum.selectWallet') }}
     </v-card-text>
     <v-card class="ma-4 mt-0">
-      <v-list-item @click="createWeb3">
+      <v-list-item
+        class="grey lighten-5"
+        @click="createWeb3"
+      >
         <img
           class="ml-n3 mr-3"
           src="~/assets/images/metamask-fox-wordmark-horizontal.svg"
@@ -33,10 +36,18 @@
             {{ $t('General.button.connectMetaMask' ) }}
           </v-list-item-title>
         </v-list-item-content>
+        <v-list-item-action>
+          <v-icon color="secondary">
+            mdi-arrow-right
+          </v-icon>
+        </v-list-item-action>
       </v-list-item>
     </v-card>
     <v-card class="ma-4">
-      <v-list-item @click="onClickUseLedger">
+      <v-list-item
+        class="grey lighten-5"
+        @click="onClickUseLedger"
+      >
         <img
           class="ml-n3 mr-3"
           src="~/assets/images/ledger-nano-s.svg"
@@ -47,6 +58,11 @@
             {{ $t('General.button.connectLedger' ) }}
           </v-list-item-title>
         </v-list-item-content>
+        <v-list-item-action>
+          <v-icon color="secondary">
+            mdi-arrow-right
+          </v-icon>
+        </v-list-item-action>
       </v-list-item>
     </v-card>
   </v-card>
