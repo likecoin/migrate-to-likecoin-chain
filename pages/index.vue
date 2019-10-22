@@ -77,79 +77,73 @@
         </h1>
       </v-col>
     </v-row>
-    <v-row
-      class="mt-n12"
-      justify="center"
+    <v-card
+      class="mx-auto mt-n12"
+      max-width="480px"
+      flat
     >
-      <v-col
-        class="pt-0 px-md-8 px-5 pb-12"
-        cols="12"
-        sm="8"
-        md="6"
+      <v-stepper
+        v-model="currentStep"
+        vertical
       >
-        <v-stepper
-          v-model="currentStep"
-          vertical
-        >
-          <v-stepper-step :step="1" :complete="currentStep >= 1">
-            <span class="text-center">{{ $t('App.step.0') }}</span>
-          </v-stepper-step>
-          <v-stepper-content :step="1">
-            <step-introduction @confirm="onStart" />
-          </v-stepper-content>
+        <v-stepper-step :step="1" :complete="currentStep >= 1">
+          <span class="text-center">{{ $t('App.step.0') }}</span>
+        </v-stepper-step>
+        <v-stepper-content :step="1">
+          <step-introduction @confirm="onStart" />
+        </v-stepper-content>
 
-          <v-stepper-step :step="2" :complete="currentStep >= 2">
-            <span class="text-center">{{ $t('App.step.1') }}</span>
-          </v-stepper-step>
-          <v-stepper-content :step="2">
-            <step-cosmos @confirm="setCosmosAddress" />
-          </v-stepper-content>
+        <v-stepper-step :step="2" :complete="currentStep >= 2">
+          <span class="text-center">{{ $t('App.step.1') }}</span>
+        </v-stepper-step>
+        <v-stepper-content :step="2">
+          <step-cosmos @confirm="setCosmosAddress" />
+        </v-stepper-content>
 
-          <v-stepper-step :step="3" :complete="currentStep >= 3">
-            <span class="text-center">{{ $t('App.step.2') }}</span>
-          </v-stepper-step>
-          <v-stepper-content :step="3">
-            <step-ethereum
-              v-if="state === 'eth'"
-              @confirm="setEthInformation"
-            />
-            <step-value-input
-              v-else
-              :max-value="ethBalance"
-              @confirm="setMigrateValue"
-            />
-          </v-stepper-content>
+        <v-stepper-step :step="3" :complete="currentStep >= 3">
+          <span class="text-center">{{ $t('App.step.2') }}</span>
+        </v-stepper-step>
+        <v-stepper-content :step="3">
+          <step-ethereum
+            v-if="state === 'eth'"
+            @confirm="setEthInformation"
+          />
+          <step-value-input
+            v-else
+            :max-value="ethBalance"
+            @confirm="setMigrateValue"
+          />
+        </v-stepper-content>
 
-          <v-stepper-step :step="4" :complete="currentStep >= 4">
-            <span class="text-center">{{ $t('App.step.3') }}</span>
-          </v-stepper-step>
-          <v-stepper-content :step="4">
-            <step-sign
-              :eth-address="ethAddress"
-              :cosmos-address="cosmosAddress"
-              :value="migrateValue"
-              :is-ledger="isLedger"
-              @confirm="setTxHash"
-            />
-          </v-stepper-content>
+        <v-stepper-step :step="4" :complete="currentStep >= 4">
+          <span class="text-center">{{ $t('App.step.3') }}</span>
+        </v-stepper-step>
+        <v-stepper-content :step="4">
+          <step-sign
+            :eth-address="ethAddress"
+            :cosmos-address="cosmosAddress"
+            :value="migrateValue"
+            :is-ledger="isLedger"
+            @confirm="setTxHash"
+          />
+        </v-stepper-content>
 
-          <v-stepper-step :step="5" :complete="currentStep >= 5">
-            <span class="text-center">{{ $t('App.step.4') }}</span>
-          </v-stepper-step>
-          <v-stepper-content :step="5">
-            <step-pending-tx
-              v-if="currentStep === 5"
-              :eth-address="ethAddress"
-              :cosmos-address="cosmosAddress"
-              :value="migrateValue"
-              :processing-eth-tx-hash="processingEthTxHash"
-              @reset="onReset"
-              @done="onPostDone"
-            />
-          </v-stepper-content>
-        </v-stepper>
-      </v-col>
-    </v-row>
+        <v-stepper-step :step="5" :complete="currentStep >= 5">
+          <span class="text-center">{{ $t('App.step.4') }}</span>
+        </v-stepper-step>
+        <v-stepper-content :step="5">
+          <step-pending-tx
+            v-if="currentStep === 5"
+            :eth-address="ethAddress"
+            :cosmos-address="cosmosAddress"
+            :value="migrateValue"
+            :processing-eth-tx-hash="processingEthTxHash"
+            @reset="onReset"
+            @done="onPostDone"
+          />
+        </v-stepper-content>
+      </v-stepper>
+    </v-card>
   </v-container>
 </template>
 
