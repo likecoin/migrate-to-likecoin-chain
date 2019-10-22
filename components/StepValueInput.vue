@@ -69,6 +69,8 @@ export default {
           throw new Error('LOWER_THAN_MIN');
         } else if (value.gt(this.maxValue)) {
           throw new Error('HIGHER_THAN_MAX');
+        } else if (value.isNaN()) {
+          throw new Error('INVALID');
         }
         this.isValid = true;
         this.value = value
