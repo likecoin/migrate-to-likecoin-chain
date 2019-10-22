@@ -53,6 +53,9 @@ import {
   apiPostMigration,
   apiPostTransferMigration,
 } from '../util/api';
+import {
+  getLedgerWeb3Engine,
+} from '../util/ledger';
 
 import LedgerDialog from './LedgerDialog.vue';
 import MetamaskDialog from './MetamaskDialog.vue';
@@ -85,6 +88,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    web3: {
+      type: Object,
+      default: () => null,
+    },
   },
   data() {
     return {
@@ -101,11 +108,29 @@ export default {
   },
   methods: {
     async onSend() {
-      this.isSigning = true;
-      if (this.isLedger) {
-        this.sendTransfer();
-      } else {
-        this.sendMigrationTx();
+      try {
+        this.isSigning = true;
+        if (!this.web3) {
+          if (this.isLedger) {
+            eth.initWindowWeb3(await getLedgerWeb3Engine());
+          } else {
+            const provider = await eth.getWeb3Provider();
+            if (!provider) throw new Error(this.$t('StepEthereum.message.noWeb3'));
+            eth.initWindowWeb3(provider);
+          }
+        }
+        if (this.ethAddress !== await eth.getFromAddr()) {
+          throw new Error(this.$t('StepSign.message.addressNotMatch'));
+        }
+        if (this.isLedger) {
+          await this.sendTransfer();
+        } else {
+          await this.sendMigrationTx();
+        }
+      } catch (err) {
+        console.error(err);
+        this.message = err;
+        this.isSigning = false;
       }
     },
     async sendMigrationTx() {

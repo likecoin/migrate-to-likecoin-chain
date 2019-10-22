@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { LIKECOIN_API_HOST } from '../../constant';
 
 const api = axios.create({
   baseURL: '/api',
@@ -7,6 +8,7 @@ const api = axios.create({
   },
 });
 
+export const apiGetLikerId = (id) => api.get(`${LIKECOIN_API_HOST}/users/id/${id}/min`);
 export const apiPostMigration = (payload) => api.post('/migrate', payload);
 export const apiPostTransferMigration = (payload) => api.post('/migrate/ledger', payload);
 

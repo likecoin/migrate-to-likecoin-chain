@@ -124,6 +124,7 @@
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
             :is-ledger="isLedger"
+            :web3="web3"
             @confirm="setTxHash"
           />
         </v-stepper-content>
@@ -148,13 +149,18 @@
 </template>
 
 <script>
-import { trySetLocalStorage } from '../util/client';
 import StepSign from '../components/StepSign.vue';
 import StepPendingTx from '../components/StepPendingTx.vue';
 import StepEthereum from '../components/StepEthereum.vue';
 import StepValueInput from '../components/StepValueInput.vue';
 import StepCosmos from '../components/StepCosmos.vue';
 import StepIntroduction from '../components/StepIntroduction.vue';
+
+import { trySetLocalStorage } from '../util/client';
+import * as eth from '../util/eth';
+import { apiGetLikerId } from '../util/api';
+
+const BigNumber = require('bignumber.js');
 
 export default {
   components: {
@@ -175,6 +181,7 @@ export default {
     migrateValue: '',
     processingEthTxHash: '',
     isLedger: false,
+    isLikerId: false,
   }),
   computed: {
     state() {
@@ -184,7 +191,7 @@ export default {
         return 'introduction';
       } if (!this.cosmosAddress) {
         return 'cosmos';
-      } if (!this.ethAddress || !this.ethBalance || !this.web3) {
+      } if (!this.ethAddress || !this.ethBalance || !(this.web3 || this.isLikerId)) {
         return 'eth';
       } if (!this.migrateValue) {
         return 'value';
@@ -214,7 +221,25 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
+    const { likerid } = this.$route.query;
+    if (likerid) {
+      const { data } = await apiGetLikerId(likerid);
+      const {
+        wallet,
+        cosmosWallet,
+        // displayName,
+      } = data;
+      this.isLikerId = true;
+      this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
+      this.migrateValue = new BigNumber(this.ethBalance)
+        .dividedBy(1e9)
+        .integerValue(BigNumber.ROUND_DOWN)
+        .multipliedBy(1e9)
+        .toString();
+      this.cosmosAddress = cosmosWallet;
+      this.ethAddress = wallet;
+    }
     if (window.localStorage) {
       try {
         this.processingEthTxHash = window.localStorage.getItem('processingEthTxHash') || '';

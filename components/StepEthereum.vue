@@ -97,14 +97,9 @@ export default {
         this.type = 'metamask';
         this.isLoading = true;
         this.metamaskMessage = this.$t('StepEthereum.message.waitingForMetamask');
-        let web3;
-        if (window.ethereum) {
-          await window.ethereum.enable();
-          web3 = eth.initWindowWeb3(window.ethereum);
-        } if (window.web3) {
-          web3 = eth.initWindowWeb3(window.web3.currentProvider);
-        }
-        if (!web3) throw new Error(this.$t('StepEthereum.message.noWeb3'));
+        const provider = await eth.getWeb3Provider();
+        if (!provider) throw new Error(this.$t('StepEthereum.message.noWeb3'));
+        const web3 = eth.initWindowWeb3(provider);
         await eth.checkNetwork();
         this.metamaskMessage = '';
         const ethAddress = await eth.getFromAddr();

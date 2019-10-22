@@ -59,7 +59,8 @@
     "title": "Sign to confirm",
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
-      "waitingForEthApp": "waiting for ETH ledger App..."
+      "waitingForEthApp": "waiting for ETH ledger App...",
+      "addressNotMatch": "Please use eth address shown above for signing"
     },
     "button": {
       "sign": "Sign"
