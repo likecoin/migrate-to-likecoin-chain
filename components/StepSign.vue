@@ -15,15 +15,17 @@
       <v-card-text v-if="message">
         {{ message }}
       </v-card-text>
-      <v-card-actions class="pt-0">
+      <v-card-actions class="pt-0 pb-4">
         <v-spacer />
         <v-btn
-          class="primary--text"
-          text
+          color="secondary"
+          outlined
+          rounded
           @click="onSend"
         >
-          {{ $t('StepSign.button.sign') }}
+          <span class="primary--text px-2">{{ $t('StepSign.button.sign') }}</span>
         </v-btn>
+        <v-spacer />
       </v-card-actions>
     </template>
   </SigningForm>
