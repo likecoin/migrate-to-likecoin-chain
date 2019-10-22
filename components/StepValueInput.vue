@@ -7,19 +7,26 @@
       <v-text-field
         v-model="value"
         class="text-right display-1"
-        :hint="$t('StepValueInput.maxValue', { maxValue: displayMaxValue })"
+        :hint="$t('StepValueInput.maxValue', { maxValue: `${displayMaxValue} LIKE` })"
         size="60"
         :placeholder="displayMaxValue"
         flat
         outlined
         persistent-hint
         reverse
-      />
+      >
+        <template #append>
+          <div class="caption mt-1">
+            LIKE
+          </div>
+        </template>
+      </v-text-field>
     </v-card-text>
     <v-card-actions>
       <v-spacer />
       <v-btn
-        :disabled="!isValid || isEditing"
+        color="primary"
+        :disabled="!isValid"
         text
         @click="$emit('confirm', bigValue)"
       >
