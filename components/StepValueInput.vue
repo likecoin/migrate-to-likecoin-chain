@@ -1,24 +1,34 @@
 <template>
-  <div>
-    <div>
+  <v-card outlined>
+    <v-card-subtitle>
       {{ $t('StepValueInput.migarteValue') }}
-      <input
+    </v-card-subtitle>
+    <v-card-text>
+      <v-text-field
         v-model="value"
+        class="text-right display-1"
+        :hint="$t('StepValueInput.maxValue', { maxValue: displayMaxValue })"
         size="60"
-        :disabled="!isEditing"
-      >
-      <button @click="() => isEditing = !isEditing">
-        {{ isEditing ? $t('General.confirm') : $t('General.edit') }}
-      </button>
-      {{ $t('StepValueInput.maxValue') }}
-    </div>
-    <button
-      :disabled="!isValid || isEditing"
-      @click="$emit('confirm', bigValue)"
-    >
-      Ok
-    </button>
-  </div>
+        :append-icon="isEditing ? 'mdi-pencil-off' : 'mdi-pencil'"
+        :placeholder="displayMaxValue"
+        :readonly="!isEditing"
+        :flat="!isEditing"
+        outlined
+        persistent-hint
+        reverse
+        solo
+        @click:append="() => isEditing = !isEditing"
+      />
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer />
+      <v-btn
+        :disabled="!isValid || isEditing"
+        text
+        @click="$emit('confirm', bigValue)"
+      >Ok</v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 <script>
 const BigNumber = require('bignumber.js');

@@ -41,6 +41,8 @@ module.exports = {
   buildModules: [
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module',
+    // Doc: https://github.com/nuxt-community/vuetify-module
+    '@nuxtjs/vuetify',
   ],
   /*
   ** Nuxt.js modules
@@ -84,6 +86,16 @@ module.exports = {
         });
       }
       /* eslint-enable no-param-reassign */
+    },
+  },
+  vuetify: {
+    theme: {
+      themes: {
+        light: {
+          primary: '#28646E',
+          secondary: '#50E3C2',
+        },
+      },
     },
   },
 };

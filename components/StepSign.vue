@@ -1,41 +1,46 @@
 <template>
-  <div v-if="!isSigning">
-    <div>
-      <span>{{ $t('Common.ethFrom') }}</span>
-      <span>{{ ethAddress }}</span>
-    </div>
-    <div>
-      <span>{{ $t('Common.cosmosTo') }}</span>
-      <span>{{ cosmosAddress }}</span>
-    </div>
-    <div>
-      <span>{{ $t('Common.value') }}</span>
-      <span>{{ displayValue }}</span>
-    </div>
-    <button @click="onSend">
-      {{ $t('StepSign.button.sign') }}
-    </button>
-    <div v-if="message">
-      {{ message }}
-    </div>
-  </div>
-  <div v-else>
-    <div v-if="!isLedger">
-      <metamask-dialog
-        @cancel="onCancel"
-      >
+  <SigningForm
+    v-if="!isSigning"
+    class="mx-auto"
+    :eth-address="ethAddress"
+    :cosmos-address="cosmosAddress"
+    :value="displayValue"
+  >
+    <template #form-prepend>
+      <v-card-title>
+        {{ $t('StepSign.title') }}
+      </v-card-title>
+    </template>
+    <template #form-append>
+      <v-card-text v-if="message">
         {{ message }}
-      </metamask-dialog>
-    </div>
-    <div v-else>
-      <ledger-dialog
-        :wait-for-confirm="false"
-        @cancel="onCancel"
-      >
-        {{ message }}
-      </ledger-dialog>
-    </div>
-  </div>
+      </v-card-text>
+      <v-card-actions class="pt-0">
+        <v-spacer />
+        <v-btn
+          class="primary--text"
+          text
+          @click="onSend"
+        >
+          {{ $t('StepSign.button.sign') }}
+        </v-btn>
+      </v-card-actions>
+    </template>
+  </SigningForm>
+  <metamask-dialog
+    v-else-if="!isLedger"
+    :is-loading="isLoading"
+    @cancel="onCancel"
+  >
+    {{ message }}
+  </metamask-dialog>
+  <ledger-dialog
+    v-else
+    :wait-for-confirm="false"
+    @cancel="onCancel"
+  >
+    {{ message }}
+  </ledger-dialog>
 </template>
 <script>
 import * as eth from '../util/eth';
@@ -43,8 +48,10 @@ import {
   apiPostMigration,
   apiPostTransferMigration,
 } from '../util/api';
+
 import LedgerDialog from './LedgerDialog.vue';
 import MetamaskDialog from './MetamaskDialog.vue';
+import SigningForm from './SigningForm.vue';
 
 const BigNumber = require('bignumber.js');
 
@@ -54,6 +61,7 @@ export default {
   components: {
     LedgerDialog,
     MetamaskDialog,
+    SigningForm,
   },
   props: {
     ethAddress: {
@@ -77,6 +85,7 @@ export default {
     return {
       isSigning: false,
       message: '',
+      isLoading: false,
     };
   },
   computed: {
@@ -98,12 +107,20 @@ export default {
         this.message = this.$t('StepSign.message.waitingForMetamask');
         const migrationData = await eth.signMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
+        this.isLoading = true;
         const { data } = await apiPostMigration(migrationData);
         this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
-        console.error(err);
-        this.message = err;
+        if (err.code === -32603) {
+          // User rejected signing
+          this.onCancel();
+        } else {
+          console.error(err);
+          this.message = err;
+        }
+      } finally {
+        this.isLoading = false;
       }
     },
     async sendTransfer() {
@@ -120,7 +137,9 @@ export default {
       }
     },
     onCancel() {
+      this.message = '';
       this.isSigning = false;
+      this.isLoading = false;
     },
   },
 };
