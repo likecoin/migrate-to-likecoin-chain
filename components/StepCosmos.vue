@@ -67,6 +67,7 @@
   <ledger-dialog
     v-else
     type="cosmos"
+    :is-error="isLedgerError"
     @cancel="onCancelLedger"
     @confirm="onConfirmLedger"
   >
@@ -95,6 +96,7 @@ export default {
       isConnectingLedger: false,
       ledgerMessage: '',
       cosmosAddress: '',
+      isLedgerError: false,
     };
   },
   methods: {
@@ -103,9 +105,12 @@ export default {
     },
     onCancelLedger() {
       this.showLedger = false;
+      this.isLedgerError = false;
       this.ledgerMessage = '';
     },
     onConfirmLedger() {
+      this.isLedgerError = false;
+      console.log('aaas');
       this.ledgerMessage = this.$t('StepCosmos.message.waitingForCosmosApp');
       this.getCosmosAddressByLedger();
     },
@@ -118,6 +123,7 @@ export default {
         // eslint-disable-next-line no-console
         console.error(err);
         this.ledgerMessage = err;
+        this.isLedgerError = true;
       }
     },
     async submitCosmosAddress() {

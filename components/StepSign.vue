@@ -32,12 +32,15 @@
   <metamask-dialog
     v-else-if="!isLedger"
     :is-loading="isLoading"
+    :is-error="isError"
     @cancel="onCancel"
   >
     {{ message }}
   </metamask-dialog>
   <ledger-dialog
     v-else
+    :is-loading="isLoading"
+    :is-error="isError"
     :wait-for-confirm="false"
     @cancel="onCancel"
   >
@@ -88,6 +91,7 @@ export default {
       isSigning: false,
       message: '',
       isLoading: false,
+      isError: false,
     };
   },
   computed: {
@@ -121,6 +125,7 @@ export default {
           // eslint-disable-next-line no-console
           console.error(err);
           this.message = err;
+          this.isError = true;
         }
       } finally {
         this.isLoading = false;
@@ -131,6 +136,7 @@ export default {
         this.message = this.$t('StepSign.message.waitingForEthApp');
         const migrationData = await eth.signTransferMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
+        this.isLoading = true;
         const { data } = await apiPostTransferMigration(migrationData);
         this.message = '';
         this.$emit('confirm', data.txHash);
@@ -138,12 +144,16 @@ export default {
         // eslint-disable-next-line no-console
         console.error(err);
         this.message = err;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
       }
     },
     onCancel() {
       this.message = '';
       this.isSigning = false;
       this.isLoading = false;
+      this.isError = false;
     },
   },
 };

@@ -2,6 +2,7 @@
   <metamask-dialog
     v-if="type==='metamask'"
     :is-loading="isLoading"
+    :is-error="isError"
     @cancel="onCancel"
   >
     {{ metamaskMessage }}
@@ -9,6 +10,7 @@
   <ledger-dialog
     v-else-if="type==='ledger'"
     :is-loading="isLoading"
+    :is-error="isError"
     @confirm="createWeb3Ledger"
     @cancel="onCancel"
   >
@@ -82,11 +84,11 @@ export default {
   },
   data() {
     return {
-      error: '',
       type: '',
       ledgerMessage: '',
       metamaskMessage: '',
       isLoading: false,
+      isError: false,
     };
   },
   methods: {
@@ -118,12 +120,21 @@ export default {
         });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(err);
-        this.metamaskMessage = err;
+        if (err.code === -32603) {
+          // User denided signing
+          this.type = '';
+        } else {
+          console.error(err);
+          this.metamaskMessage = err;
+          this.isError = true;
+        }
+      } finally {
+        this.isLoading = false;
       }
     },
     async createWeb3Ledger() {
       try {
+        this.isError = false;
         this.ledgerMessage = this.$t('StepEthereum.message.waitingForEthApp');
         const web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
         const ethAddress = await eth.getFromAddr();
@@ -137,15 +148,24 @@ export default {
           isLedger,
         });
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error(err);
-        this.ledgerMessage = err;
+        if (err.name === 'TransportOpenUserCancelled') {
+          // User cancelled
+          this.type = '';
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(err);
+          this.ledgerMessage = err;
+          this.isError = true;
+        }
+      } finally {
+        this.isLoading = false;
       }
     },
     onClickUseLedger() {
       this.type = 'ledger';
     },
     onCancel() {
+      this.isError = false;
       this.type = '';
     },
   },
