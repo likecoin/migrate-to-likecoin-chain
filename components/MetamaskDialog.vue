@@ -1,27 +1,30 @@
 <template>
-  <v-card
-    outlined
-    :loading="isLoading"
+  <base-dialog
+    :title="$t('MetaMaskDialog.connectMessage')"
+    :is-loading="isLoading"
+    :is-error="isError"
+    @cancel="$emit('cancel')"
   >
-    <v-card-title>{{ $t('MetaMaskDialog.connectMessage') }}</v-card-title>
-    <v-card-text v-if="$slots.default">
+    <template #default>
       <slot />
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer />
-      <v-btn
-        text
-        @click="$emit('cancel')"
-      >{{ $t('General.cancel') }}</v-btn>
-    </v-card-actions>
-  </v-card>
+    </template>
+  </base-dialog>
 </template>
 
 <script>
+import BaseDialog from './BaseDialog.vue';
+
 export default {
-  name: 'metamask-dialog',
+  name: 'MetamaskDialog',
+  components: {
+    BaseDialog,
+  },
   props: {
     isLoading: {
+      type: Boolean,
+      default: false,
+    },
+    isError: {
       type: Boolean,
       default: false,
     },

@@ -1,31 +1,34 @@
 <template>
-  <v-card
-    outlined
-    :loading="isLoading"
+  <base-dialog
+    :title="`${$t('LedgerDialog.connectMessage')} ${ledgerAppName}`"
+    :is-loading="isLoading"
+    :is-error="isError"
+    @cancel="$emit('cancel')"
   >
-    <v-card-title>
-      {{ $t('LedgerDialog.connectMessage') }} {{ ledgerAppName }}
-    </v-card-title>
-    <v-card-text v-if="$slots.default">
+    <template #default>
       <slot />
-    </v-card-text>
-      <v-card-actions>
-      <v-spacer />
-      <v-btn
-        text
-        @click="$emit('cancel')"
-      >{{ $t('General.cancel') }}</v-btn>
+    </template>
+    <template #actions-append>
       <v-btn
         v-if="waitForConfirm"
         color="primary"
         text
         @click="$emit('confirm')"
-      >{{ $t('General.confirm') }}</v-btn>
-    </v-card-actions>
-  </v-card>
+      >
+        {{ $t('General.confirm') }}
+      </v-btn>
+    </template>
+  </base-dialog>
 </template>
+
 <script>
+import BaseDialog from './BaseDialog.vue';
+
 export default {
+  name: 'LedgerDialog',
+  components: {
+    BaseDialog,
+  },
   props: {
     type: {
       type: String,
@@ -39,11 +42,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    isError: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     ledgerAppName() {
-      if (this.type === 'cosmos') return this.$t('cosmosApp');
-      if (this.type === 'eth') return this.$t('ethApp');
+      if (this.type === 'cosmos') return this.$t('LedgerDialog.cosmosApp');
+      if (this.type === 'eth') return this.$t('LedgerDialog.ethApp');
       return '';
     },
   },

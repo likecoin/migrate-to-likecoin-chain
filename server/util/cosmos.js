@@ -57,6 +57,7 @@ export function amountToLIKE(likecoin) {
   if (likecoin.denom === 'nanolike') {
     return (new BigNumber(likecoin.amount)).dividedBy(1e9).toFixed();
   }
+  // eslint-disable-next-line no-console
   console.error(`${likecoin.denom} is not supported denom`);
   return -1;
 }
@@ -119,6 +120,7 @@ async function sendTransaction(signedTx) {
     }
     return res.data.txhash;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
     if (err && err.data) {
       if (err.data.includes('Tx already exists')) {
@@ -133,15 +135,18 @@ async function sendTransaction(signedTx) {
             .digest('hex');
           return txHash.toUpperCase();
         } catch (e) {
+          // eslint-disable-next-line no-console
           console.error(e);
           return '';
         }
       }
       if (err.data.code) {
+        // eslint-disable-next-line no-console
         console.error(err.data.raw_log);
         return '';
       }
     } else {
+      // eslint-disable-next-line no-console
       console.error(err);
     }
     return '';
@@ -199,8 +204,10 @@ export async function sendCoins(signer, targets) {
     try {
       txHash = await sendTransaction(signedTx);
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
       if (err.code === 3 || err.code === 4) {
+        // eslint-disable-next-line no-console
         console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
       } else {
         retry = true;
@@ -241,6 +248,7 @@ export async function sendCoins(signer, targets) {
       txSequence: pendingCount,
       error: err.toString(),
     });
+    // eslint-disable-next-line no-console
     console.error(err);
     throw err;
   }

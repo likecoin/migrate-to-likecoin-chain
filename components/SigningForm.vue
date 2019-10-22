@@ -3,6 +3,7 @@
     :loading="isLoading"
     max-width="392px"
     outlined
+    v-bind="$attrs"
   >
     <slot name="form-prepend" />
     <v-list disabled>
@@ -22,7 +23,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="$t('Common.value')" />
-            <v-list-item-subtitle v-text="value" />
+            <v-list-item-subtitle v-text="`${value} LIKE`" />
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>

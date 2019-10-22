@@ -3,30 +3,39 @@
     <v-card-subtitle>
       {{ $t('StepValueInput.migarteValue') }}
     </v-card-subtitle>
-    <v-card-text>
+    <v-card-text class="pb-0">
       <v-text-field
         v-model="value"
-        class="text-right display-1"
-        :hint="$t('StepValueInput.maxValue', { maxValue: displayMaxValue })"
+        class="text-center display-1"
+        :hint="$t('StepValueInput.hint', { maxValue: `${displayMaxValue} LIKE` })"
         size="60"
-        :append-icon="isEditing ? 'mdi-pencil-off' : 'mdi-pencil'"
         :placeholder="displayMaxValue"
-        :readonly="!isEditing"
-        :flat="!isEditing"
+        flat
         outlined
         persistent-hint
         reverse
-        solo
-        @click:append="() => isEditing = !isEditing"
-      />
+      >
+        <template #append>
+          <div class="caption mt-1">
+            LIKE
+          </div>
+        </template>
+      </v-text-field>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions class="pb-4">
       <v-spacer />
       <v-btn
-        :disabled="!isValid || isEditing"
-        text
+        color="secondary"
+        :disabled="!isValid"
+        outlined
+        rounded
         @click="$emit('confirm', bigValue)"
-      >Ok</v-btn>
+      >
+        <span
+          :class="{ 'primary--text': isValid, 'px-2': true }"
+        >{{ $t('General.confirm') }}</span>
+      </v-btn>
+      <v-spacer />
     </v-card-actions>
   </v-card>
 </template>
@@ -45,7 +54,6 @@ export default {
   data() {
     return {
       value: (new BigNumber(this.maxValue)).dividedBy(ONE_LIKE).toFixed(),
-      isEditing: false,
       isValid: true,
     };
   },
@@ -65,6 +73,8 @@ export default {
           throw new Error('LOWER_THAN_MIN');
         } else if (value.gt(this.maxValue)) {
           throw new Error('HIGHER_THAN_MAX');
+        } else if (value.isNaN()) {
+          throw new Error('INVALID');
         }
         this.isValid = true;
         this.value = value

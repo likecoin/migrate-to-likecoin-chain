@@ -15,27 +15,32 @@
       <v-card-text v-if="message">
         {{ message }}
       </v-card-text>
-      <v-card-actions class="pt-0">
+      <v-card-actions class="pt-0 pb-4">
         <v-spacer />
         <v-btn
-          class="primary--text"
-          text
+          color="secondary"
+          outlined
+          rounded
           @click="onSend"
         >
-          {{ $t('StepSign.button.sign') }}
+          <span class="primary--text px-2">{{ $t('StepSign.button.sign') }}</span>
         </v-btn>
+        <v-spacer />
       </v-card-actions>
     </template>
   </SigningForm>
   <metamask-dialog
     v-else-if="!isLedger"
     :is-loading="isLoading"
+    :is-error="isError"
     @cancel="onCancel"
   >
     {{ message }}
   </metamask-dialog>
   <ledger-dialog
     v-else
+    :is-loading="isLoading"
+    :is-error="isError"
     :wait-for-confirm="false"
     @cancel="onCancel"
   >
@@ -86,6 +91,7 @@ export default {
       isSigning: false,
       message: '',
       isLoading: false,
+      isError: false,
     };
   },
   computed: {
@@ -116,8 +122,10 @@ export default {
           // User rejected signing
           this.onCancel();
         } else {
+          // eslint-disable-next-line no-console
           console.error(err);
           this.message = err;
+          this.isError = true;
         }
       } finally {
         this.isLoading = false;
@@ -128,18 +136,24 @@ export default {
         this.message = this.$t('StepSign.message.waitingForEthApp');
         const migrationData = await eth.signTransferMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
+        this.isLoading = true;
         const { data } = await apiPostTransferMigration(migrationData);
         this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.message = err;
+        this.isError = true;
+      } finally {
+        this.isLoading = false;
       }
     },
     onCancel() {
       this.message = '';
       this.isSigning = false;
       this.isLoading = false;
+      this.isError = false;
     },
   },
 };

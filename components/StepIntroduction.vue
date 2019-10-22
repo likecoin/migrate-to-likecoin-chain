@@ -8,9 +8,13 @@
       justify="center"
     >
       <v-btn
-        color="primary"
+        color="secondary"
+        outlined
+        rounded
         @click="$emit('confirm')"
-      >{{ $t('General.confirm') }}</v-btn>
+      >
+        <span class="primary--text">{{ $t('General.confirm') }}</span>
+      </v-btn>
     </v-row>
   </v-card>
 </template>

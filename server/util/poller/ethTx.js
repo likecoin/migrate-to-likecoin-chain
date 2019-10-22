@@ -17,6 +17,7 @@ async function logCosmosTx(payload) {
       ...payload,
     });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 }
@@ -93,6 +94,7 @@ export async function handleEthMigrateCosmos(doc) {
       // TODO: handle error case
     }
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 }

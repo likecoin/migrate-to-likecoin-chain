@@ -90,21 +90,24 @@
       :cosmos-address="cosmosAddress"
       :value="displayValue"
       :is-loading="(processingCosmosTxHash || processingEthTxHash) && !isDone"
+      :outlined="false"
+      elevation="1"
+    />
+    <v-card-actions
+      v-if="error"
+      class="pt-6 pb-0"
     >
-      <template #form-append>
-        <v-card-actions class="pt-0">
-          <v-spacer />
-          <v-btn
-            v-if="error"
-            color="primary"
-            text
-            @click="$emit('reset')"
-          >
-            {{ $t("General.retry") }}
-          </v-btn>
-        </v-card-actions>
-      </template>
-    </signing-form>
+      <v-spacer />
+      <v-btn
+        color="secondary"
+        outlined
+        rounded
+        @click="$emit('reset')"
+      >
+        <span class="primary--text px-2">{{ $t("General.retry") }}</span>
+      </v-btn>
+      <v-spacer />
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -187,6 +190,7 @@ export default {
         }
         this.waitForCosmos();
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.error = err;
       }
@@ -206,6 +210,7 @@ export default {
         this.isDone = true;
         this.$emit('done');
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         this.error = err;
       }
