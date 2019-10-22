@@ -66,6 +66,7 @@
   </v-card>
   <ledger-dialog
     v-else
+    type="cosmos"
     @cancel="onCancelLedger"
     @confirm="onConfirmLedger"
   >
