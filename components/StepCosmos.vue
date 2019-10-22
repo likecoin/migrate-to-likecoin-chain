@@ -110,7 +110,6 @@ export default {
     },
     onConfirmLedger() {
       this.isLedgerError = false;
-      console.log('aaas');
       this.ledgerMessage = this.$t('StepCosmos.message.waitingForCosmosApp');
       this.getCosmosAddressByLedger();
     },
