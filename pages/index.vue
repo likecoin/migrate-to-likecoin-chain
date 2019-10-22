@@ -1,6 +1,6 @@
 <template>
   <v-container
-    class="blue-grey lighten-5 pa-0 fill-height d-block"
+    class="blue-grey lighten-5 pa-0 pb-12 fill-height d-block"
     fluid
   >
     <v-row
