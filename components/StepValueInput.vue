@@ -6,8 +6,8 @@
     <v-card-text class="pb-0">
       <v-text-field
         v-model="value"
-        class="text-right display-1"
-        :hint="$t('StepValueInput.maxValue', { maxValue: `${displayMaxValue} LIKE` })"
+        class="text-center display-1"
+        :hint="$t('StepValueInput.hint', { maxValue: `${displayMaxValue} LIKE` })"
         size="60"
         :placeholder="displayMaxValue"
         flat
@@ -22,16 +22,20 @@
         </template>
       </v-text-field>
     </v-card-text>
-    <v-card-actions>
+    <v-card-actions class="pb-4">
       <v-spacer />
       <v-btn
-        color="primary"
+        color="secondary"
         :disabled="!isValid"
-        text
+        outlined
+        rounded
         @click="$emit('confirm', bigValue)"
       >
-        Ok
+        <span
+          :class="{ 'primary--text': isValid, 'px-2': true }"
+        >{{ $t('General.confirm') }}</span>
       </v-btn>
+      <v-spacer />
     </v-card-actions>
   </v-card>
 </template>

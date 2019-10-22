@@ -76,6 +76,6 @@
   },
   "StepValueInput": {
     "migarteValue": "Migrate value:",
-    "maxValue": "Max value: {maxValue}"
+    "hint": "Conversion ratio is 1:1. Max value: {maxValue}"
   }
 }
