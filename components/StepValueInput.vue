@@ -3,21 +3,17 @@
     <v-card-subtitle>
       {{ $t('StepValueInput.migarteValue') }}
     </v-card-subtitle>
-    <v-card-text>
+    <v-card-text class="pb-0">
       <v-text-field
         v-model="value"
         class="text-right display-1"
         :hint="$t('StepValueInput.maxValue', { maxValue: displayMaxValue })"
         size="60"
-        :append-icon="isEditing ? 'mdi-pencil-off' : 'mdi-pencil'"
         :placeholder="displayMaxValue"
-        :readonly="!isEditing"
-        :flat="!isEditing"
+        flat
         outlined
         persistent-hint
         reverse
-        solo
-        @click:append="() => isEditing = !isEditing"
       />
     </v-card-text>
     <v-card-actions>
@@ -47,7 +43,6 @@ export default {
   data() {
     return {
       value: (new BigNumber(this.maxValue)).dividedBy(ONE_LIKE).toFixed(),
-      isEditing: false,
       isValid: true,
     };
   },
