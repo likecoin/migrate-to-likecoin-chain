@@ -40,6 +40,8 @@
   </v-card>
 </template>
 <script>
+import { ETH_MIN_LIKECOIN_AMOUNT } from '../constant';
+
 const BigNumber = require('bignumber.js');
 
 const ONE_LIKE = new BigNumber(10).pow(18);
@@ -69,7 +71,7 @@ export default {
     value(v) {
       try {
         const value = (new BigNumber(v)).multipliedBy(ONE_LIKE);
-        if (value.lt(ONE_LIKE)) {
+        if (value.lt(ETH_MIN_LIKECOIN_AMOUNT)) {
           throw new Error('LOWER_THAN_MIN');
         } else if (value.gt(this.maxValue)) {
           throw new Error('HIGHER_THAN_MAX');

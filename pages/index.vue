@@ -90,7 +90,10 @@
           <span class="text-center">{{ $t('App.step.0') }}</span>
         </v-stepper-step>
         <v-stepper-content :step="1">
-          <step-introduction @confirm="onStart" />
+          <div v-if="error">
+            {{ error }}
+          </div>
+          <step-introduction v-else @confirm="onStart" />
         </v-stepper-content>
 
         <template v-if="!isLikerId">
@@ -136,7 +139,8 @@
 
         <v-stepper-step
           :step="getStepFromState('pending-tx')"
-          :complete="currentStep >= getStepFromState('pending-tx')">
+          :complete="currentStep >= getStepFromState('pending-tx')"
+        >
           <span class="text-center">{{ $t('App.step.4') }}</span>
         </v-stepper-step>
         <v-stepper-content :step="getStepFromState('pending-tx')">
@@ -166,6 +170,7 @@ import StepIntroduction from '../components/StepIntroduction.vue';
 import { trySetLocalStorage } from '../util/client';
 import * as eth from '../util/eth';
 import { apiGetLikerId } from '../util/api';
+import { ETH_MIN_LIKECOIN_AMOUNT } from '../constant';
 
 const BigNumber = require('bignumber.js');
 
@@ -214,21 +219,35 @@ export default {
   async mounted() {
     const { likerid } = this.$route.query;
     if (likerid) {
-      const { data } = await apiGetLikerId(likerid);
-      const {
-        wallet,
-        cosmosWallet,
-        // displayName,
-      } = data;
-      this.isLikerId = true;
-      this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
-      this.migrateValue = new BigNumber(this.ethBalance)
-        .dividedBy(1e9)
-        .integerValue(BigNumber.ROUND_DOWN)
-        .multipliedBy(1e9)
-        .toString();
-      this.cosmosAddress = cosmosWallet;
-      this.ethAddress = wallet;
+      try {
+        const { data } = await apiGetLikerId(likerid);
+        const {
+          wallet,
+          cosmosWallet,
+          // displayName,
+        } = data;
+        this.isLikerId = true;
+        if (!wallet) throw new Error('USER_HAS_NO_WALLET');
+        if (!cosmosWallet) throw new Error('USER_HAS_NO_COSMOS_WALLET');
+        this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
+        const roundedBalance = new BigNumber(this.ethBalance)
+          .dividedBy(1e9)
+          .integerValue(BigNumber.ROUND_DOWN)
+          .multipliedBy(1e9);
+        if (roundedBalance < ETH_MIN_LIKECOIN_AMOUNT) {
+          throw new Error('BALANCE_BELOW_MIN');
+        }
+        this.migrateValue = roundedBalance.toString();
+        this.cosmosAddress = cosmosWallet;
+        this.ethAddress = wallet;
+      } catch (err) {
+        console.error(err);
+        if (err.status === 404) {
+          this.error = 'USER_NOT_FOUND';
+          return;
+        }
+        this.error = err;
+      }
     }
     if (window.localStorage) {
       try {
