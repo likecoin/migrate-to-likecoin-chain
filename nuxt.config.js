@@ -28,11 +28,13 @@ module.exports = {
   ** Global CSS
   */
   css: [
+    { src: '@likecoin/ui-vue/dist/ui-vue.css', lang: 'css' },
   ],
   /*
   ** Plugins to load before mounting the App
   */
   plugins: [
+    { src: '~/plugins/likecoin-ui-vue' },
     { src: '~/plugins/vue-i18n' },
   ],
   /*
