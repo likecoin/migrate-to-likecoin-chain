@@ -2,6 +2,7 @@
   <SigningForm
     v-if="!isSigning"
     class="mx-auto"
+    :liker-id="likerId"
     :eth-address="ethAddress"
     :cosmos-address="cosmosAddress"
     :value="displayValue"
@@ -15,7 +16,7 @@
       <v-card-text v-if="message">
         {{ message }}
       </v-card-text>
-      <v-card-actions class="pt-0 pb-4">
+      <v-card-actions class="pt-0 pb-0">
         <v-spacer />
         <v-btn
           color="secondary"
@@ -27,10 +28,24 @@
         </v-btn>
         <v-spacer />
       </v-card-actions>
+      <v-card-actions
+        v-if="!web3"
+        class="pt-2"
+      >
+        <v-spacer />
+        <v-btn
+          class="caption"
+          color="grey"
+          text
+          @click="onUseLedger"
+        >
+          {{ $t(`StepSign.button.use${useLedger ? 'MetaMask' : 'Ledger' }`) }}
+        </v-btn>
+      </v-card-actions>
     </template>
   </SigningForm>
   <metamask-dialog
-    v-else-if="!isLedger"
+    v-else-if="!useLedger"
     :is-loading="isLoading"
     :is-error="isError"
     @cancel="onCancel"
@@ -84,6 +99,10 @@ export default {
       type: String,
       required: true,
     },
+    likerId: {
+      type: String,
+      default: '',
+    },
     isLedger: {
       type: Boolean,
       required: true,
@@ -99,19 +118,31 @@ export default {
       message: '',
       isLoading: false,
       isError: false,
+      isForceLedger: false,
     };
   },
   computed: {
+    useLedger() {
+      return this.isLedger || this.isForceLedger;
+    },
     displayValue() {
       return (new BigNumber(this.value)).dividedBy(ONE_LIKE).toFixed();
     },
   },
   methods: {
+    async onUseLedger() {
+      try {
+        this.isForceLedger = true;
+        await this.onSend();
+      } finally {
+        this.isForceLedger = false;
+      }
+    },
     async onSend() {
       try {
         this.isSigning = true;
         if (!this.web3) {
-          if (this.isLedger) {
+          if (this.useLedger) {
             eth.initWindowWeb3(await getLedgerWeb3Engine());
           } else {
             const provider = await eth.getWeb3Provider();
@@ -120,9 +151,10 @@ export default {
           }
         }
         if (this.ethAddress !== await eth.getFromAddr()) {
-          throw new Error(this.$t('StepSign.message.addressNotMatch'));
+          const maskedWallet = this.ethAddress.replace(/(0x.{4}).*(.{4})/, '$1...$2');
+          throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
-        if (this.isLedger) {
+        if (this.useLedger) {
           await this.sendTransfer();
         } else {
           await this.sendMigrationTx();

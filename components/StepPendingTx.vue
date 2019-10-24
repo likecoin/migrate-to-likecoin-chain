@@ -86,6 +86,7 @@
 
     <signing-form
       class="mx-auto mt-8"
+      :liker-id="likerId"
       :eth-address="ethAddress"
       :cosmos-address="cosmosAddress"
       :value="displayValue"
@@ -146,6 +147,10 @@ export default {
     value: {
       type: String,
       required: true,
+    },
+    likerId: {
+      type: String,
+      default: '',
     },
     processingEthTxHash: {
       type: String,
