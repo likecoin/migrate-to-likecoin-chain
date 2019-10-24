@@ -90,7 +90,13 @@
           <span class="text-center">{{ $t('App.step.0') }}</span>
         </v-stepper-step>
         <v-stepper-content :step="1">
-          <div v-if="error">
+          <div v-if="error" class="error--text">
+            <v-icon
+              class="mr-1"
+              color="error"
+            >
+              mdi-alert
+            </v-icon>
             {{ error }}
           </div>
           <step-introduction v-else @confirm="onStart" />
@@ -145,7 +151,7 @@
         </v-stepper-step>
         <v-stepper-content :step="getStepFromState('pending-tx')">
           <step-pending-tx
-            v-if="currentStep === 5"
+            v-if="state === 'pending-tx'"
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
@@ -242,7 +248,7 @@ export default {
         this.ethAddress = wallet;
       } catch (err) {
         console.error(err);
-        if (err.status === 404) {
+        if (err.response && err.response.status === 404) {
           this.error = 'USER_NOT_FOUND';
           return;
         }
