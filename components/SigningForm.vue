@@ -8,18 +8,28 @@
     <slot name="form-prepend" />
     <v-list disabled>
       <v-list-item-group>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title v-text="$t('Common.ethFrom')" />
-            <v-list-item-subtitle v-text="ethAddress" />
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title v-text="$t('Common.cosmosTo')" />
-            <v-list-item-subtitle v-text="cosmosAddress" />
-          </v-list-item-content>
-        </v-list-item>
+        <template v-if="likerId">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('Common.likerId')" />
+              <v-list-item-subtitle v-text="likerId" />
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+        <template v-else>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('Common.ethFrom')" />
+              <v-list-item-subtitle v-text="ethAddress" />
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title v-text="$t('Common.cosmosTo')" />
+              <v-list-item-subtitle v-text="cosmosAddress" />
+            </v-list-item-content>
+          </v-list-item>
+        </template>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="$t('Common.value')" />
@@ -53,6 +63,10 @@ export default {
       default: '',
     },
     value: {
+      type: String,
+      default: '',
+    },
+    likerId: {
       type: String,
       default: '',
     },

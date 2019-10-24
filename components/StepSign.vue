@@ -2,6 +2,7 @@
   <SigningForm
     v-if="!isSigning"
     class="mx-auto"
+    :liker-id="likerId"
     :eth-address="ethAddress"
     :cosmos-address="cosmosAddress"
     :value="displayValue"
@@ -15,7 +16,7 @@
       <v-card-text v-if="message">
         {{ message }}
       </v-card-text>
-      <v-card-actions class="pt-0 pb-4">
+      <v-card-actions class="pt-0 pb-0">
         <v-spacer />
         <v-btn
           color="secondary"
@@ -27,6 +28,16 @@
         </v-btn>
         <v-spacer />
       </v-card-actions>
+      <v-card-text
+        v-if="!web3"
+        class="pt-0 pb-6"
+      >
+        <a
+          class="float-right grey--text"
+          href="#"
+          @click.prevent="onUseLedger"
+        >{{ $t(`StepSign.button.use${isLedger ? 'MetaMask' : 'Ledger' }`) }}</a>
+      </v-card-text>
     </template>
   </SigningForm>
   <metamask-dialog
@@ -84,6 +95,10 @@ export default {
       type: String,
       required: true,
     },
+    likerId: {
+      type: String,
+      default: '',
+    },
     isLedger: {
       type: Boolean,
       required: true,
@@ -107,6 +122,14 @@ export default {
     },
   },
   methods: {
+    async onUseLedger() {
+      this.isLedger = true;
+      try {
+        await this.onSend();
+      } finally {
+        this.isLedger = false;
+      }
+    },
     async onSend() {
       try {
         this.isSigning = true;
@@ -120,7 +143,8 @@ export default {
           }
         }
         if (this.ethAddress !== await eth.getFromAddr()) {
-          throw new Error(this.$t('StepSign.message.addressNotMatch'));
+          const maskedWallet = this.ethAddress.replace(/(0x.{4}).*(.{4})/, '$1...$2');
+          throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
         if (this.isLedger) {
           await this.sendTransfer();

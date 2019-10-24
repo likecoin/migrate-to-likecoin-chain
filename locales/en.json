@@ -24,7 +24,8 @@
   "Common": {
     "ethFrom": "eth from",
     "cosmosTo": "cosmos to",
-    "value": "value"
+    "value": "value",
+    "likerId": "Liker ID"
   },
   "LedgerDialog": {
     "connectMessage": "Please connect Ledger desu",
@@ -60,9 +61,11 @@
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
       "waitingForEthApp": "waiting for ETH ledger App...",
-      "addressNotMatch": "Please use eth address shown above for signing"
+      "addressNotMatch": "Please use eth address {wallet} for signing"
     },
     "button": {
+      "useLedger": "Use Ledger",
+      "useMetaMask": "Use MetaMask",
       "sign": "Sign"
     }
   },

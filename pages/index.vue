@@ -134,6 +134,7 @@
         </v-stepper-step>
         <v-stepper-content :step="getStepFromState('sign')">
           <step-sign
+            :liker-id="likerId"
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
@@ -152,6 +153,7 @@
         <v-stepper-content :step="getStepFromState('pending-tx')">
           <step-pending-tx
             v-if="state === 'pending-tx'"
+            :liker-id="likerId"
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
@@ -199,9 +201,12 @@ export default {
     migrateValue: '',
     processingEthTxHash: '',
     isLedger: false,
-    isLikerId: false,
+    likerId: '',
   }),
   computed: {
+    isLikerId() {
+      return !!this.likerId;
+    },
     state() {
       if (this.processingEthTxHash) { // overide all states
         return 'pending-tx';
@@ -232,7 +237,7 @@ export default {
           cosmosWallet,
           // displayName,
         } = data;
-        this.isLikerId = true;
+        this.likerId = likerid;
         if (!wallet) throw new Error('USER_HAS_NO_WALLET');
         if (!cosmosWallet) throw new Error('USER_HAS_NO_COSMOS_WALLET');
         this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
