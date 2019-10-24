@@ -9,6 +9,13 @@
     <v-list disabled>
       <v-list-item-group>
         <template v-if="likerId">
+          <v-list-item v-if="avatar">
+            <lc-avatar
+              :src="avatar"
+              :halo="isCivicLiker ? 'civic-liker' : 'none'"
+              :width="56"
+            />
+          </v-list-item>
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title v-text="$t('Common.likerId')" />
@@ -69,6 +76,14 @@ export default {
     likerId: {
       type: String,
       default: '',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
+    isCivicLiker: {
+      type: Boolean,
+      default: false,
     },
   },
 };

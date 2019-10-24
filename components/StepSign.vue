@@ -3,6 +3,8 @@
     v-if="!isSigning"
     class="mx-auto"
     :liker-id="likerId"
+    :avatar="avatar"
+    :is-civic-liker="isCivicLiker"
     :eth-address="ethAddress"
     :cosmos-address="cosmosAddress"
     :value="displayValue"
@@ -102,6 +104,14 @@ export default {
     likerId: {
       type: String,
       default: '',
+    },
+    avatar: {
+      type: String,
+      default: '',
+    },
+    isCivicLiker: {
+      type: Boolean,
+      default: false,
     },
     isLedger: {
       type: Boolean,

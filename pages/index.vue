@@ -135,6 +135,8 @@
         <v-stepper-content :step="getStepFromState('sign')">
           <step-sign
             :liker-id="likerId"
+            :avatar="avatar"
+            :is-civic-liker="isCivicLiker"
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
@@ -202,6 +204,8 @@ export default {
     processingEthTxHash: '',
     isLedger: false,
     likerId: '',
+    avatar: '',
+    isCivicLiker: false,
   }),
   computed: {
     isLikerId() {
@@ -236,8 +240,13 @@ export default {
           wallet,
           cosmosWallet,
           // displayName,
+          avatar,
+          isCivicLikerTrial,
+          isSubscribedCivicLiker,
         } = data;
         this.likerId = likerid;
+        this.avatar = avatar;
+        this.isCivicLiker = isCivicLikerTrial || isSubscribedCivicLiker;
         if (!wallet) throw new Error('USER_HAS_NO_WALLET');
         if (!cosmosWallet) throw new Error('USER_HAS_NO_COSMOS_WALLET');
         this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
