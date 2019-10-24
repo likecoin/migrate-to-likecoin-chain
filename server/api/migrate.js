@@ -5,7 +5,6 @@ import {
   verifyTransferMigrationData,
   addMigrationEthTx,
   addMigrationTransferEthTx,
-  findMigrationEthTxLog,
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
 import { sendTransactionWithLoop } from '../util/web3';
@@ -16,16 +15,6 @@ import {
 import publisher from '../util/gcloudPub';
 
 const router = Router();
-
-router.get('/pending/eth/:ethWallet', async (req, res, next) => {
-  try {
-    const { ethWallet } = req.params;
-    const list = await findMigrationEthTxLog({ from: ethWallet });
-    res.json({ list });
-  } catch (err) {
-    next(err);
-  }
-});
 
 router.get('/pending/cosmos/:cosmosWallet', async (req, res, next) => {
   try {

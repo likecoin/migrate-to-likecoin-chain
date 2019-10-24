@@ -59,33 +59,6 @@ export async function addMigrationTransferEthTx(payload) {
   }
 }
 
-export async function findMigrationEthTxLog({ from }) {
-  const pending = await dbRef
-    .where('from', '==', from)
-    .where('to', '==', ETH_LOCK_ADDRESS)
-    .where('type', '==', 'transferDelegated')
-    .where('status', '==', 'pending')
-    .where('cosmosMigrationTxHash', '==', '')
-    .orderBy('ts', 'desc')
-    .limit(1)
-    .get();
-  return pending.docs.map((d) => {
-    const {
-      status,
-      value,
-      ts,
-      competeTs,
-    } = d.data();
-    return {
-      txHash: d.id,
-      status,
-      value,
-      ts,
-      competeTs,
-    };
-  });
-}
-
 export async function findMigrationCosmosTxLog({ to }) {
   const from = getCosmosDelegatorAddress();
   const pending = await dbRef
