@@ -177,6 +177,7 @@ import StepValueInput from '../components/StepValueInput.vue';
 import StepCosmos from '../components/StepCosmos.vue';
 import StepIntroduction from '../components/StepIntroduction.vue';
 
+import { logTrackerEvent } from '../util/EventLogger';
 import { trySetLocalStorage } from '../util/client';
 import * as eth from '../util/eth';
 import { apiGetLikerId } from '../util/api';
@@ -229,6 +230,15 @@ export default {
     },
     currentStep() {
       return this.getStepFromState(this.state);
+    },
+  },
+  watch: {
+    state(s) {
+      if (this.isLikerId) {
+        logTrackerEvent(this, 'ErcMigration', `GuestStateChangeTo${s}`, `GuestStateChangeTo${s}`);
+      } else {
+        logTrackerEvent(this, 'ErcMigration', `LikerStateChangeTo${s}`, `LikerStateChangeTo${s}`);
+      }
     },
   },
   async mounted() {
