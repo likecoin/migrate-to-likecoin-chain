@@ -5,14 +5,16 @@
   >
     <v-card-title>{{ title }}</v-card-title>
     <v-card-text
-      :class="{ 'error--text': isError }"
       v-if="$slots.default"
+      :class="{ 'error--text': isError }"
     >
       <v-icon
         v-if="isError"
         class="mr-1"
         color="error"
-      >mdi-alert</v-icon>
+      >
+        mdi-alert
+      </v-icon>
       <slot name="default" />
     </v-card-text>
     <v-card-actions>

@@ -4,4 +4,6 @@ export const ETHERSCAN_HOST = IS_TESTNET ? 'https://rinkeby.etherscan.io' : 'htt
 
 export const BIGDIPPER_HOST = IS_TESTNET ? 'https://taipei.likecoin.bigdipper.live' : 'https://taipei.likecoin.bigdipper.live';
 
+export const LIKECOIN_API_HOST = IS_TESTNET ? 'https://api.taipei.like.co' : 'https://api.like.co';
+
 export * from '../common/constant';

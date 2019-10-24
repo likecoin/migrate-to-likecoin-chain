@@ -90,50 +90,68 @@
           <span class="text-center">{{ $t('App.step.0') }}</span>
         </v-stepper-step>
         <v-stepper-content :step="1">
-          <step-introduction @confirm="onStart" />
+          <div v-if="error" class="error--text">
+            <v-icon
+              class="mr-1"
+              color="error"
+            >
+              mdi-alert
+            </v-icon>
+            {{ error }}
+          </div>
+          <step-introduction v-else @confirm="onStart" />
         </v-stepper-content>
 
-        <v-stepper-step :step="2" :complete="currentStep >= 2">
-          <span class="text-center">{{ $t('App.step.1') }}</span>
-        </v-stepper-step>
-        <v-stepper-content :step="2">
-          <step-cosmos @confirm="setCosmosAddress" />
-        </v-stepper-content>
+        <template v-if="!isLikerId">
+          <v-stepper-step :step="2" :complete="currentStep >= 2">
+            <span class="text-center">{{ $t('App.step.1') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="2">
+            <step-cosmos @confirm="setCosmosAddress" />
+          </v-stepper-content>
 
-        <v-stepper-step :step="3" :complete="currentStep >= 3">
-          <span class="text-center">{{ $t('App.step.2') }}</span>
-        </v-stepper-step>
-        <v-stepper-content :step="3">
-          <step-ethereum
-            v-if="state === 'eth'"
-            @confirm="setEthInformation"
-          />
-          <step-value-input
-            v-else
-            :max-value="ethBalance"
-            @confirm="setMigrateValue"
-          />
-        </v-stepper-content>
+          <v-stepper-step :step="3" :complete="currentStep >= 3">
+            <span class="text-center">{{ $t('App.step.2') }}</span>
+          </v-stepper-step>
+          <v-stepper-content :step="3">
+            <step-ethereum
+              v-if="state === 'eth'"
+              @confirm="setEthInformation"
+            />
+            <step-value-input
+              v-else
+              :max-value="ethBalance"
+              @confirm="setMigrateValue"
+            />
+          </v-stepper-content>
+        </template>
 
-        <v-stepper-step :step="4" :complete="currentStep >= 4">
+        <v-stepper-step
+          :step="getStepFromState('sign')"
+          :complete="currentStep >= getStepFromState('sign')"
+        >
           <span class="text-center">{{ $t('App.step.3') }}</span>
         </v-stepper-step>
-        <v-stepper-content :step="4">
+        <v-stepper-content :step="getStepFromState('sign')">
           <step-sign
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
             :is-ledger="isLedger"
+            :web3="web3"
             @confirm="setTxHash"
           />
         </v-stepper-content>
 
-        <v-stepper-step :step="5" :complete="currentStep >= 5">
+        <v-stepper-step
+          :step="getStepFromState('pending-tx')"
+          :complete="currentStep >= getStepFromState('pending-tx')"
+        >
           <span class="text-center">{{ $t('App.step.4') }}</span>
         </v-stepper-step>
-        <v-stepper-content :step="5">
+        <v-stepper-content :step="getStepFromState('pending-tx')">
           <step-pending-tx
-            v-if="currentStep === 5"
+            v-if="state === 'pending-tx'"
             :eth-address="ethAddress"
             :cosmos-address="cosmosAddress"
             :value="migrateValue"
@@ -148,13 +166,19 @@
 </template>
 
 <script>
-import { trySetLocalStorage } from '../util/client';
 import StepSign from '../components/StepSign.vue';
 import StepPendingTx from '../components/StepPendingTx.vue';
 import StepEthereum from '../components/StepEthereum.vue';
 import StepValueInput from '../components/StepValueInput.vue';
 import StepCosmos from '../components/StepCosmos.vue';
 import StepIntroduction from '../components/StepIntroduction.vue';
+
+import { trySetLocalStorage } from '../util/client';
+import * as eth from '../util/eth';
+import { apiGetLikerId } from '../util/api';
+import { ETH_MIN_LIKECOIN_AMOUNT } from '../constant';
+
+const BigNumber = require('bignumber.js');
 
 export default {
   components: {
@@ -175,6 +199,7 @@ export default {
     migrateValue: '',
     processingEthTxHash: '',
     isLedger: false,
+    isLikerId: false,
   }),
   computed: {
     state() {
@@ -184,7 +209,7 @@ export default {
         return 'introduction';
       } if (!this.cosmosAddress) {
         return 'cosmos';
-      } if (!this.ethAddress || !this.ethBalance || !this.web3) {
+      } if (!this.ethAddress || !this.ethBalance || !(this.web3 || this.isLikerId)) {
         return 'eth';
       } if (!this.migrateValue) {
         return 'value';
@@ -194,27 +219,42 @@ export default {
       return 'introduction';
     },
     currentStep() {
-      switch (this.state) {
-        case 'cosmos':
-          return 2;
-
-        case 'eth':
-        case 'value':
-          return 3;
-
-        case 'sign':
-          return 4;
-
-        case 'pending-tx':
-          return 5;
-
-        default:
-        case 'introduction':
-          return 1;
-      }
+      return this.getStepFromState(this.state);
     },
   },
-  mounted() {
+  async mounted() {
+    const { likerid } = this.$route.query;
+    if (likerid) {
+      try {
+        const { data } = await apiGetLikerId(likerid);
+        const {
+          wallet,
+          cosmosWallet,
+          // displayName,
+        } = data;
+        this.isLikerId = true;
+        if (!wallet) throw new Error('USER_HAS_NO_WALLET');
+        if (!cosmosWallet) throw new Error('USER_HAS_NO_COSMOS_WALLET');
+        this.ethBalance = (await eth.getLikeCoinBalance(wallet)).toString();
+        const roundedBalance = new BigNumber(this.ethBalance)
+          .dividedBy(1e9)
+          .integerValue(BigNumber.ROUND_DOWN)
+          .multipliedBy(1e9);
+        if (roundedBalance < ETH_MIN_LIKECOIN_AMOUNT) {
+          throw new Error('BALANCE_BELOW_MIN');
+        }
+        this.migrateValue = roundedBalance.toString();
+        this.cosmosAddress = cosmosWallet;
+        this.ethAddress = wallet;
+      } catch (err) {
+        console.error(err);
+        if (err.response && err.response.status === 404) {
+          this.error = 'USER_NOT_FOUND';
+          return;
+        }
+        this.error = err;
+      }
+    }
     if (window.localStorage) {
       try {
         this.processingEthTxHash = window.localStorage.getItem('processingEthTxHash') || '';
@@ -229,6 +269,26 @@ export default {
     }
   },
   methods: {
+    getStepFromState(state) {
+      switch (state) {
+        case 'cosmos':
+          return 2;
+
+        case 'eth':
+        case 'value':
+          return 3;
+
+        case 'sign':
+          return this.isLikerId ? 2 : 4;
+
+        case 'pending-tx':
+          return this.isLikerId ? 3 : 5;
+
+        default:
+        case 'introduction':
+          return 1;
+      }
+    },
     onStart() {
       this.isBegin = true;
     },

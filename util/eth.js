@@ -13,15 +13,28 @@ import { isStatusSuccess } from '../common/util/web3';
 
 let web3 = null;
 let LikeCoin = null;
+let readWeb3 = null;
+let readLikeCoin = null;
 
-export function initReadOnlyWeb3() {
-  web3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
-  LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
-  return web3;
+export async function getWeb3Provider() {
+  let provider;
+  if (window.ethereum) {
+    await window.ethereum.enable();
+    provider = window.ethereum;
+  } if (window.web3) {
+    provider = window.web3.currentProvider;
+  }
+  return provider;
 }
 
-export function initWindowWeb3(windowWeb3) {
-  web3 = new Web3(windowWeb3);
+export function initReadOnlyWeb3() {
+  readWeb3 = new Web3(new Web3.providers.HttpProvider(ETH_ENDPOINT));
+  readLikeCoin = new readWeb3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
+  return readWeb3;
+}
+
+export function initWindowWeb3(provider) {
+  web3 = new Web3(provider);
   LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
   return web3;
 }
@@ -31,7 +44,8 @@ export function getLikeCoinInstance() {
 }
 
 export function getLikeCoinBalance(address) {
-  return LikeCoin.methods.balanceOf(address).call();
+  if (!readLikeCoin) initReadOnlyWeb3();
+  return readLikeCoin.methods.balanceOf(address).call();
 }
 
 export async function checkNetwork() {
@@ -155,16 +169,16 @@ export async function signTransferMigration(from, value) {
 }
 
 export async function waitForTxToBeMined(txHash) {
-  if (!web3) initReadOnlyWeb3();
+  if (!readWeb3) initReadOnlyWeb3();
   let done = false;
   while (!done) {
     /* eslint-disable no-await-in-loop */
-    const txReceipt = await web3.eth.getTransactionReceipt(txHash);
+    const txReceipt = await readWeb3.eth.getTransactionReceipt(txHash);
     if (txReceipt && !isStatusSuccess(txReceipt.status)) throw new Error('Transaction failed');
     if (txReceipt) {
       const [t, currentBlockNumber] = await Promise.all([
-        web3.eth.getTransaction(txHash),
-        web3.eth.getBlockNumber(),
+        readWeb3.eth.getTransaction(txHash),
+        readWeb3.eth.getBlockNumber(),
       ]);
       done = t && txReceipt && currentBlockNumber && t.blockNumber
         && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
