@@ -28,20 +28,24 @@
         </v-btn>
         <v-spacer />
       </v-card-actions>
-      <v-card-text
+      <v-card-actions
         v-if="!web3"
-        class="pt-0 pb-6"
+        class="pt-2"
       >
-        <a
-          class="float-right grey--text"
-          href="#"
-          @click.prevent="onUseLedger"
-        >{{ $t(`StepSign.button.use${isLedger ? 'MetaMask' : 'Ledger' }`) }}</a>
-      </v-card-text>
+        <v-spacer />
+        <v-btn
+          class="caption"
+          color="grey"
+          text
+          @click="onUseLedger"
+        >
+          {{ $t(`StepSign.button.use${useLedger ? 'MetaMask' : 'Ledger' }`) }}
+        </v-btn>
+      </v-card-actions>
     </template>
   </SigningForm>
   <metamask-dialog
-    v-else-if="!isLedger"
+    v-else-if="!useLedger"
     :is-loading="isLoading"
     :is-error="isError"
     @cancel="onCancel"
@@ -114,27 +118,31 @@ export default {
       message: '',
       isLoading: false,
       isError: false,
+      isForceLedger: false,
     };
   },
   computed: {
+    useLedger() {
+      return this.isLedger || this.isForceLedger;
+    },
     displayValue() {
       return (new BigNumber(this.value)).dividedBy(ONE_LIKE).toFixed();
     },
   },
   methods: {
     async onUseLedger() {
-      this.isLedger = true;
       try {
+        this.isForceLedger = true;
         await this.onSend();
       } finally {
-        this.isLedger = false;
+        this.isForceLedger = false;
       }
     },
     async onSend() {
       try {
         this.isSigning = true;
         if (!this.web3) {
-          if (this.isLedger) {
+          if (this.useLedger) {
             eth.initWindowWeb3(await getLedgerWeb3Engine());
           } else {
             const provider = await eth.getWeb3Provider();
@@ -146,7 +154,7 @@ export default {
           const maskedWallet = this.ethAddress.replace(/(0x.{4}).*(.{4})/, '$1...$2');
           throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
-        if (this.isLedger) {
+        if (this.useLedger) {
           await this.sendTransfer();
         } else {
           await this.sendMigrationTx();
