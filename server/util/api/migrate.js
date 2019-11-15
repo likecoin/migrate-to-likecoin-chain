@@ -59,12 +59,13 @@ export async function addMigrationTransferEthTx(payload) {
   }
 }
 
-export async function findMigrationCosmosTxLog({ to }) {
+export async function findMigrationCosmosTxLog({ to, ethMigrationTxHash }) {
   const from = getCosmosDelegatorAddress();
   const pending = await dbRef
     .where('from', '==', from)
     .where('to', '==', to)
     .where('type', '==', 'cosmosTransfer')
+    .where('ethMigrationTxHash', '==', ethMigrationTxHash)
     .orderBy('ts', 'desc')
     .limit(1)
     .get();

@@ -12,6 +12,8 @@ export const apiGetLikerId = (id) => api.get(`${LIKECOIN_API_HOST}/users/id/${id
 export const apiPostMigration = (payload) => api.post('/migrate', payload);
 export const apiPostTransferMigration = (payload) => api.post('/migrate/ledger', payload);
 
-export const apiGetPendingCosmosMigration = (address) => api.get(`/migrate/pending/cosmos/${address}`);
+export const apiGetPendingCosmosMigration = (address, ethMigrationTxHash) => api.get(
+  `/migrate/pending/cosmos/${address}?eth_tx=${ethMigrationTxHash}`,
+);
 
 export const apiGetCosmosBalance = (address) => api.get(`/migrate/cosmos/${address}`);
