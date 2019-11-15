@@ -201,7 +201,10 @@ export default {
       }
     },
     async updateCosmosProcessingTx() {
-      const { data } = await apiGetPendingCosmosMigration(this.cosmosAddress);
+      const { data } = await apiGetPendingCosmosMigration(
+        this.cosmosAddress,
+        this.processingEthTxHash,
+      );
       if (data && data.list && data.list.length) {
         const [targetTx] = data.list;
         this.processingCosmosTxHash = targetTx.txHash;

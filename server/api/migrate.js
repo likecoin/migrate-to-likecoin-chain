@@ -19,7 +19,14 @@ const router = Router();
 router.get('/pending/cosmos/:cosmosWallet', async (req, res, next) => {
   try {
     const { cosmosWallet } = req.params;
-    const list = await findMigrationCosmosTxLog({ to: cosmosWallet });
+    const { eth_tx: ethMigrationTxHash } = req.query;
+    if (!ethMigrationTxHash) {
+      throw new Error('Missing migration hash');
+    }
+    const list = await findMigrationCosmosTxLog({
+      to: cosmosWallet,
+      ethMigrationTxHash,
+    });
     res.json({ list });
   } catch (err) {
     next(err);
