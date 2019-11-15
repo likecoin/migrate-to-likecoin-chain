@@ -2,6 +2,7 @@ import { toBN } from 'web3-utils';
 import { db, txCollection as dbRef } from '../firebase';
 import { getTransfersFromReceipt, getTransactionReceipt } from '../web3';
 import { sendCoin } from '../cosmos';
+import { timeout } from '../misc';
 
 import { ETH_LOCK_ADDRESS } from '../../constant';
 import { COSMOS_DENOM } from '../../config/config';
@@ -81,6 +82,15 @@ export async function handleEthMigrateCosmos(doc) {
         value,
       } = dbData;
       const receipt = await getTransactionReceipt(txHash);
+      if (!receipt) {
+        // TODO: wait for receipt to appear
+        console.error(`No receipt: ${txHash}`);
+        await timeout(60000);
+        await docRef.update({
+          isMigrating: false,
+        });
+        return;
+      }
       if (!validateTransferInReceipt(receipt, { value })) {
         throw new Error('transaction succeed but no wanted Transfer event in receipt');
       }
