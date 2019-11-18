@@ -76,7 +76,10 @@
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
       "waitingForEthApp": "waiting for ETH ledger App...",
-      "addressNotMatch": "Please use eth address {wallet} for signing"
+      "addressNotMatch": "Please use eth address {wallet} for signing",
+      "loadingLedger": "Preparing Ledger for sign",
+      "signOnLedger": "Please sign on Ledger",
+      "signOnMetaMask": "Please sign on MetaMask"
     },
     "button": {
       "useLedger": "Use Ledger",

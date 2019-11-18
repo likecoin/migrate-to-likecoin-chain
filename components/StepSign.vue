@@ -1,6 +1,15 @@
 <template>
+  <ledger-dialog
+    v-if="useLedger"
+    :is-loading="isLoading"
+    :is-error="isError"
+    @confirm="updateLedgerAndSend"
+    @cancel="onCancelLedger"
+  >
+    {{ message }}
+  </ledger-dialog>
   <SigningForm
-    v-if="!isSigning"
+    v-else-if="!isSigning"
     class="mx-auto"
     :liker-id="likerId"
     :avatar="avatar"
@@ -50,22 +59,13 @@
     </template>
   </SigningForm>
   <metamask-dialog
-    v-else-if="!useLedger"
+    v-else
     :is-loading="isLoading"
     :is-error="isError"
     @cancel="onCancel"
   >
     {{ message }}
   </metamask-dialog>
-  <ledger-dialog
-    v-else
-    :is-loading="isLoading"
-    :is-error="isError"
-    @confirm="updateLedgerSetting"
-    @cancel="onCancel"
-  >
-    {{ message }}
-  </ledger-dialog>
 </template>
 <script>
 import * as eth from '../util/eth';
@@ -146,23 +146,23 @@ export default {
   },
   methods: {
     async onUseLedger() {
-      try {
-        this.isForceLedger = true;
-        await this.onSend();
-      } finally {
-        this.isForceLedger = false;
-      }
+      this.isForceLedger = true;
     },
-    async updateLedgerSetting({ isLegacy = true, offset = 0 } = {}) {
+    async onCancelLedger() {
+      this.isForceLedger = false;
+    },
+    async updateLedgerAndSend({ isLegacy = true, offset = 0 } = {}) {
       this.ledgerIsLegacy = isLegacy;
       this.ledgerOffset = offset;
+      this.onSend();
     },
     async onSend() {
       try {
         this.isSigning = true;
         if (!this.web3) {
           if (this.useLedger) {
-            eth.initWindowWeb3(await getLedgerWeb3Engine({
+            this.message = this.$t('StepSign.message.loadingLedger');
+            await eth.initWindowWeb3(await getLedgerWeb3Engine({
               isLegacy: this.ledgerIsLegacy,
               offset: this.ledgerOffset,
             }));
@@ -177,8 +177,10 @@ export default {
           throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
         if (this.useLedger) {
+          this.message = this.$t('StepSign.message.signOnLedger');
           await this.sendTransfer();
         } else {
+          this.message = this.$t('StepSign.message.signOnMetaMask');
           await this.sendMigrationTx();
         }
       } catch (err) {
