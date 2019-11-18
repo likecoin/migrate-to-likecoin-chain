@@ -54,6 +54,12 @@ export async function checkNetwork() {
   if (network !== target) throw new Error(`Please switch to ${target} network`);
 }
 
+export async function getAddrList() {
+  const accounts = await web3.eth.getAccounts();
+  if (!accounts || !accounts.length) return [];
+  return accounts;
+}
+
 export async function getFromAddr() {
   const accounts = await web3.eth.getAccounts();
   if (!accounts || !accounts.length) throw new Error('Cannot get eth address, please unlock MetaMask');

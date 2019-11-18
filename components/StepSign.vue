@@ -61,7 +61,7 @@
     v-else
     :is-loading="isLoading"
     :is-error="isError"
-    :wait-for-confirm="false"
+    @confirm="updateLedgerSetting"
     @cancel="onCancel"
   >
     {{ message }}
@@ -132,6 +132,8 @@ export default {
       isLoading: false,
       isError: false,
       isForceLedger: false,
+      ledgerIsLegacy: true,
+      ledgerOffset: 0,
     };
   },
   computed: {
@@ -151,12 +153,19 @@ export default {
         this.isForceLedger = false;
       }
     },
+    async updateLedgerSetting({ isLegacy = true, offset = 0 } = {}) {
+      this.ledgerIsLegacy = isLegacy;
+      this.ledgerOffset = offset;
+    },
     async onSend() {
       try {
         this.isSigning = true;
         if (!this.web3) {
           if (this.useLedger) {
-            eth.initWindowWeb3(await getLedgerWeb3Engine());
+            eth.initWindowWeb3(await getLedgerWeb3Engine({
+              isLegacy: this.ledgerIsLegacy,
+              offset: this.ledgerOffset,
+            }));
           } else {
             const provider = await eth.getWeb3Provider();
             if (!provider) throw new Error(this.$t('StepEthereum.message.noWeb3'));

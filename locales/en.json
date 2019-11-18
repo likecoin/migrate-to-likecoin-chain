@@ -28,7 +28,10 @@
     "likerId": "Liker ID"
   },
   "LedgerDialog": {
+    "walletType": "Wallet",
     "connectMessage": "Please connect Ledger desu",
+    "fetchingAddressList": "Loading Ledger wallets...",
+    "connectAndRefresh": "Please connect ledger and refresh",
     "cosmosApp": "Cosmos App",
     "ethApp": "Ethereum App"
   },

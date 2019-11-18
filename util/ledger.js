@@ -7,7 +7,7 @@ import Ledger from '@lunie/cosmos-ledger';
 
 import { IS_TESTNET, ETH_ENDPOINT } from '../constant';
 
-export function getLedgerWeb3Engine() {
+export function getLedgerWeb3Engine({ isLegacy = true, offset = 0 } = {}) {
   const engine = new ProviderEngine();
   const getTransport = () => {
     if (navigator.usb) return TransportWebUSB.create();
@@ -15,7 +15,9 @@ export function getLedgerWeb3Engine() {
   };
   const ledger = createLedgerSubprovider(getTransport, {
     networkId: IS_TESTNET ? 4 : 1,
-    accountsLength: 1,
+    path: isLegacy ? "44'/60'/0'/0" : "44'/60'/0'/0/0",
+    accountsOffset: offset,
+    accountsLength: 5,
   });
   engine.addProvider(ledger);
   engine.addProvider(new RpcSubprovider({ rpcUrl: ETH_ENDPOINT }));
