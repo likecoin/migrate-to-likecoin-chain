@@ -1,7 +1,10 @@
 <template>
   <v-card outlined>
     <v-card-text>
-      {{ $t('Introduction.description') }}
+      {{ $t('Introduction.description0') }}
+    </v-card-text>
+    <v-card-text>
+      {{ $t('Introduction.description1') }}
     </v-card-text>
     <v-row
       class="pb-6"
