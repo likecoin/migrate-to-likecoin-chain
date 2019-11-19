@@ -99,7 +99,11 @@
             </v-icon>
             {{ error }}
           </div>
-          <step-introduction v-else @confirm="onStart" />
+          <step-introduction
+            v-else
+            :is-liker-id="isLikerId"
+            @confirm="onStart"
+          />
         </v-stepper-content>
 
         <template v-if="!isLikerId">

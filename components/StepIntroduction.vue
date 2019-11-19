@@ -1,10 +1,13 @@
 <template>
   <v-card outlined>
     <v-card-text>
-      {{ $t('Introduction.description0') }}
+      {{ $t(`Introduction.${isLikerId ? 'likerId' : 'manual'}.description0`) }}
     </v-card-text>
     <v-card-text>
-      {{ $t('Introduction.description1') }}
+      {{ $t(`Introduction.${isLikerId ? 'likerId' : 'manual'}.description1`) }}
+    </v-card-text>
+    <v-card-text>
+      {{ $t(`Introduction.${isLikerId ? 'likerId' : 'manual'}.description2`) }}
     </v-card-text>
     <v-row
       class="pb-6"
@@ -21,3 +24,14 @@
     </v-row>
   </v-card>
 </template>
+
+<script>
+export default {
+  props: {
+    isLikerId: {
+      type: Boolean,
+      default: false,
+    },
+  },
+};
+</script>

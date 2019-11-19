@@ -15,6 +15,9 @@
       </v-card-title>
     </template>
     <template #form-append>
+      <v-card-text>
+        {{ $t('StepSign.description') }}
+      </v-card-text>
       <v-card-text v-if="message">
         {{ message }}
       </v-card-text>

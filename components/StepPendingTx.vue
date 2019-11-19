@@ -36,7 +36,9 @@
         mdi-check
       </v-icon>
       <div class="body-2">
-        {{ $t('StepPendingTx.doneDescription') }}
+        <i18n path="StepPendingTx.doneDescription" tag="div">
+          <a :href="cosmosTxLink" target="_blank">likecoin.bigdipper.live</a>
+        </i18n>
       </div>
     </div>
     <div
