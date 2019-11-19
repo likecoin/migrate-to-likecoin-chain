@@ -35,6 +35,13 @@
     "cosmosApp": "Cosmos App",
     "ethApp": "Ethereum App"
   },
+  "LedgerWalletListDialog": {
+    "title": {
+      "eth": "Select your Ethereum Wallet"
+    },
+    "try": "Try",
+    "findAddress": "Cannot find your address?"
+  },
   "MetaMaskDialog": {
     "connectMessage": "Please connect to MetaMask desu"
   },
@@ -97,7 +104,9 @@
     "viewOnEtherscan": "View on Etherscan"
   },
   "StepValueInput": {
+    "yourWallet": "Your Ethereum Wallet",
+    "editWallet": "Select different address",
     "migarteValue": "Migrate value:",
-    "hint": "Conversion ratio is 1:1. Max value: {maxValue}"
+    "hint": "Conversion ratio is 1:1."
   }
 }
