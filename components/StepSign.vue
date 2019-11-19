@@ -1,15 +1,6 @@
 <template>
-  <ledger-dialog
-    v-if="useLedger"
-    :is-loading="isLoading"
-    :is-error="isError"
-    @confirm="updateLedgerAndSend"
-    @cancel="onCancelLedger"
-  >
-    {{ message }}
-  </ledger-dialog>
   <SigningForm
-    v-else-if="!isSigning"
+    v-if="!isSigning"
     class="mx-auto"
     :liker-id="likerId"
     :avatar="avatar"
@@ -59,13 +50,22 @@
     </template>
   </SigningForm>
   <metamask-dialog
-    v-else
+    v-else-if="!useLedger"
     :is-loading="isLoading"
     :is-error="isError"
     @cancel="onCancel"
   >
     {{ message }}
   </metamask-dialog>
+  <ledger-dialog
+    v-else
+    :is-loading="isLoading"
+    :is-error="isError"
+    :wait-for-confirm="false"
+    @cancel="onCancel"
+  >
+    {{ message }}
+  </ledger-dialog>
 </template>
 <script>
 import * as eth from '../util/eth';
@@ -132,8 +132,6 @@ export default {
       isLoading: false,
       isError: false,
       isForceLedger: false,
-      ledgerIsLegacy: true,
-      ledgerOffset: 0,
     };
   },
   computed: {
@@ -146,15 +144,12 @@ export default {
   },
   methods: {
     async onUseLedger() {
-      this.isForceLedger = true;
-    },
-    async onCancelLedger() {
-      this.isForceLedger = false;
-    },
-    async updateLedgerAndSend({ isLegacy = true, offset = 0 } = {}) {
-      this.ledgerIsLegacy = isLegacy;
-      this.ledgerOffset = offset;
-      this.onSend();
+      try {
+        this.isForceLedger = true;
+        await this.onSend();
+      } finally {
+        this.isForceLedger = false;
+      }
     },
     async onSend() {
       try {
@@ -162,10 +157,7 @@ export default {
         if (!this.web3) {
           if (this.useLedger) {
             this.message = this.$t('StepSign.message.loadingLedger');
-            await eth.initWindowWeb3(await getLedgerWeb3Engine({
-              isLegacy: this.ledgerIsLegacy,
-              offset: this.ledgerOffset,
-            }));
+            eth.initWindowWeb3(await getLedgerWeb3Engine());
           } else {
             const provider = await eth.getWeb3Provider();
             if (!provider) throw new Error(this.$t('StepEthereum.message.noWeb3'));
