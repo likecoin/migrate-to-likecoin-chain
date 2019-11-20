@@ -10,6 +10,7 @@ const api = axios.create({
 
 export async function waitForTxToBeMined(txHash) {
   let tx;
+  let notFoundOnce = false;
   while (!tx) {
     /* eslint-disable no-await-in-loop */
     await timeout(1000);
@@ -27,7 +28,13 @@ export async function waitForTxToBeMined(txHash) {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
-      throw err;
+      if (err.response && err.response.status === 404) {
+        if (notFoundOnce) throw err;
+        notFoundOnce = true;
+        await timeout(12000); // wait for 2 block + 2s
+      } else {
+        throw err;
+      }
     }
   }
   return tx;
