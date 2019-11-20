@@ -36,11 +36,21 @@
     "connectMessage": "Please connect to MetaMask desu"
   },
   "Introduction": {
-    "description0": "LikeCoin (ERC-20) token migration to the LikeCoin Mainnet is ongoing. If you haven’t transferred your LikeCoin (ERC-20) tokens, you can do it by following the instructions below. ",
-    "description1": "LikeCoin chain is build based on Cosmos SDK, all registered LikeCoin users will be given a free Cosmos token wallet bind with the Liker ID. If you have already logged in, it will automatically prefill the next step - Cosmos address for you. If you choose to manually input your Cosmos wallet, please kindly be advised to check your Cosmos wallet address is accurate and correctly filled (ie. Cosmos wallet usually starts with cosmos). Any Cosmos tokens transfer that goes to other non-supported wallet address is more likely to be lost and unable to be retrieved."
+    "description": {
+      "manual": [
+        "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and follow the instructions below.",
+        "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that  your LikeCoin ERC-20 will be permanently decommissioned.",
+        "All registered LikeCoin users will be given a free Cosmos wallet bind with your Liker ID. The system will automatically prefill the new Cosmos wallet address for you in the following steps.  "
+      ],
+      "likerId": [
+        "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and Cosmos wallet in the following instructions.",
+        "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that your LikeCoin ERC-20 will be permanently decommissioned.",
+        "Please kindly be advised to check your Cosmos wallet address is accurate and correctly filled. (Cosmos wallet address should start with “cosmos1”) Any LikeCoin transfer that goes to other non-supported wallet address will most likely be lost and unable to be retrieved."
+      ]
+    }
   },
   "StepCosmos": {
-    "cosmosAddress": "Enter your target Cosmos address",
+    "cosmosAddress": "Enter your Cosmos wallet address",
     "message": {
       "invalidCosmosAddress": "Cosmos Address is Invalid",
       "waitingForCosmosApp": "waiting for Cosmos ledger App..."
@@ -59,6 +69,7 @@
   },
   "StepSign": {
     "title": "Sign to confirm",
+    "description": "Please make sure the following information is accurate. Once you sign and confirm the transfer, we are unable to undo the transaction. If you are ready to proceed, please press SIGN.",
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
       "waitingForEthApp": "waiting for ETH ledger App...",
@@ -73,7 +84,7 @@
   "StepPendingTx": {
     "error": "Error",
     "done": "Done",
-    "doneDescription": "New LikeCoin has been transferred to your Cosmos address",
+    "doneDescription": "You may view your completed transaction on {0}",
     "waitingForCosmosTx": "Waiting for Cosmos Tx ",
     "waitingForEthTx": "Waiting for Eth Tx ",
     "viewOnBigdipper": "View on Big Dipper",
