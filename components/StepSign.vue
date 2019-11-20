@@ -164,7 +164,8 @@ export default {
             eth.initWindowWeb3(provider);
           }
         }
-        if (this.ethAddress !== await eth.getFromAddr()) {
+        const currentAddressList = await eth.getAddrList();
+        if (!currentAddressList.includes(this.ethAddress)) {
           const maskedWallet = this.ethAddress.replace(/(0x.{4}).*(.{4})/, '$1...$2');
           throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
