@@ -28,9 +28,19 @@
     "likerId": "Liker ID"
   },
   "LedgerDialog": {
+    "walletType": "Wallet",
     "connectMessage": "Please connect Ledger desu",
+    "fetchingAddressList": "Loading Ledger wallets...",
+    "connectAndRefresh": "Please connect ledger and refresh",
     "cosmosApp": "Cosmos App",
     "ethApp": "Ethereum App"
+  },
+  "LedgerWalletListDialog": {
+    "title": {
+      "eth": "Select your Ethereum Wallet"
+    },
+    "try": "Try",
+    "findAddress": "Cannot find your address?"
   },
   "MetaMaskDialog": {
     "connectMessage": "Please connect to MetaMask desu"
@@ -73,7 +83,10 @@
     "message": {
       "waitingForMetamask": "waiting for Metamask ETH signature...",
       "waitingForEthApp": "waiting for ETH ledger App...",
-      "addressNotMatch": "Please use eth address {wallet} for signing"
+      "addressNotMatch": "Please use eth address {wallet} for signing",
+      "loadingLedger": "Preparing Ledger for sign",
+      "signOnLedger": "Please sign on Ledger",
+      "signOnMetaMask": "Please sign on MetaMask"
     },
     "button": {
       "useLedger": "Use Ledger",
@@ -91,7 +104,9 @@
     "viewOnEtherscan": "View on Etherscan"
   },
   "StepValueInput": {
+    "yourWallet": "Your Ethereum Wallet",
+    "editWallet": "Select different address",
     "migarteValue": "Migrate value:",
-    "hint": "Conversion ratio is 1:1. Max value: {maxValue}"
+    "hint": "Conversion ratio is 1:1."
   }
 }

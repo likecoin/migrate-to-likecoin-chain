@@ -156,6 +156,7 @@ export default {
         this.isSigning = true;
         if (!this.web3) {
           if (this.useLedger) {
+            this.message = this.$t('StepSign.message.loadingLedger');
             eth.initWindowWeb3(await getLedgerWeb3Engine());
           } else {
             const provider = await eth.getWeb3Provider();
@@ -168,8 +169,10 @@ export default {
           throw new Error(this.$t('StepSign.message.addressNotMatch', { wallet: maskedWallet }));
         }
         if (this.useLedger) {
+          this.message = this.$t('StepSign.message.signOnLedger');
           await this.sendTransfer();
         } else {
+          this.message = this.$t('StepSign.message.signOnMetaMask');
           await this.sendMigrationTx();
         }
       } catch (err) {

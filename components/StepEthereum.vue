@@ -127,11 +127,14 @@ export default {
         this.isLoading = false;
       }
     },
-    async createWeb3Ledger() {
+    async createWeb3Ledger({ isLegacy = true, offset = 0 } = {}) {
       try {
         this.isError = false;
         this.ledgerMessage = this.$t('StepEthereum.message.waitingForEthApp');
-        const web3 = eth.initWindowWeb3(await getLedgerWeb3Engine());
+        const web3 = eth.initWindowWeb3(await getLedgerWeb3Engine({
+          isLegacy,
+          offset,
+        }));
         const ethAddress = await eth.getFromAddr();
         const ethBalance = await eth.getLikeCoinBalance(ethAddress);
         const isLedger = true;

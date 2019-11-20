@@ -1,5 +1,23 @@
 <template>
-  <v-card outlined>
+  <ledger-wallet-list-dialog
+    v-if="isChangingWallet"
+    type="eth"
+    :web3="web3"
+    :wallet="wallet"
+    @cancel="onCancelEditWallet"
+    @confirm="onConfirmEditWallet"
+  />
+  <v-card v-else outlined>
+    <v-card-title>
+      {{ $t('StepValueInput.yourWallet') }}
+    </v-card-title>
+    <v-card-text class="pb-0">
+      <div>{{ wallet }}</div>
+      <div>{{ displayMaxValue }} LIKE</div>
+      <a v-if="isLedger" href="#" @click.prevent="onEditWallet">
+        {{ $t('StepValueInput.editWallet') }}
+      </a>
+    </v-card-text>
     <v-card-subtitle>
       {{ $t('StepValueInput.migarteValue') }}
     </v-card-subtitle>
@@ -7,7 +25,7 @@
       <v-text-field
         v-model="value"
         class="text-center display-1"
-        :hint="$t('StepValueInput.hint', { maxValue: `${displayMaxValue} LIKE` })"
+        :hint="$t('StepValueInput.hint')"
         size="60"
         :placeholder="displayMaxValue"
         flat
@@ -41,14 +59,30 @@
 </template>
 <script>
 import { ETH_MIN_LIKECOIN_AMOUNT } from '../constant';
+import LedgerWalletListDialog from './LedgerWalletListDialog.vue';
 
 const BigNumber = require('bignumber.js');
 
 const ONE_LIKE = new BigNumber(10).pow(18);
 
 export default {
+  components: {
+    LedgerWalletListDialog,
+  },
   props: {
     maxValue: {
+      type: String,
+      required: true,
+    },
+    isLedger: {
+      type: Boolean,
+      default: false,
+    },
+    web3: {
+      type: Object,
+      default: () => null,
+    },
+    wallet: {
       type: String,
       required: true,
     },
@@ -57,6 +91,7 @@ export default {
     return {
       value: (new BigNumber(this.maxValue)).dividedBy(ONE_LIKE).toFixed(),
       isValid: true,
+      isChangingWallet: false,
     };
   },
   computed: {
@@ -68,6 +103,9 @@ export default {
     },
   },
   watch: {
+    maxValue(max) {
+      this.value = (new BigNumber(max)).dividedBy(ONE_LIKE).toFixed();
+    },
     value(v) {
       try {
         const value = (new BigNumber(v)).multipliedBy(ONE_LIKE);
@@ -87,6 +125,28 @@ export default {
       } catch (err) {
         this.isValid = false;
       }
+    },
+  },
+  methods: {
+    onEditWallet() {
+      this.isChangingWallet = true;
+    },
+    onConfirmEditWallet(payload) {
+      this.isChangingWallet = false;
+      const {
+        ethAddress,
+        ethBalance,
+        web3,
+      } = payload;
+      this.$emit('change-eth-wallet', {
+        ethAddress,
+        ethBalance,
+        web3,
+        isLedger: this.isLedger,
+      });
+    },
+    onCancelEditWallet() {
+      this.isChangingWallet = false;
     },
   },
 };

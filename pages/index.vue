@@ -124,7 +124,11 @@
             />
             <step-value-input
               v-else
+              :wallet="ethAddress"
+              :web3="web3"
               :max-value="ethBalance"
+              :is-ledger="isLedger"
+              @change-eth-wallet="setEthInformation"
               @confirm="setMigrateValue"
             />
           </v-stepper-content>
