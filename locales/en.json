@@ -36,15 +36,17 @@
     "connectMessage": "Please connect to MetaMask desu"
   },
   "Introduction": {
-    "manual": {
-      "description0": "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and follow the instructions below.",
-      "description1": "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that  your LikeCoin ERC-20 will be permanently decommissioned.",
-      "description2": "All registered LikeCoin users will be given a free Cosmos wallet bind with your Liker ID. The system will automatically prefill the new Cosmos wallet address for you in the following steps.  "
-    },
-    "likerId": {
-      "description0": "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and Cosmos wallet in the following instructions.",
-      "description1": "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that your LikeCoin ERC-20 will be permanently decommissioned.",
-      "description2": "Please kindly be advised to check your Cosmos wallet address is accurate and correctly filled. (Cosmos wallet address should start with “cosmos1”) Any LikeCoin transfer that goes to other non-supported wallet address will most likely be lost and unable to be retrieved."
+    "description": {
+      "manual": [
+        "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and follow the instructions below.",
+        "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that  your LikeCoin ERC-20 will be permanently decommissioned.",
+        "All registered LikeCoin users will be given a free Cosmos wallet bind with your Liker ID. The system will automatically prefill the new Cosmos wallet address for you in the following steps.  "
+      ],
+      "likerId": [
+        "LikeCoin token migration is now live! The new LikeCoin supports the latest launch of LikeCoin chain. If you are an owner of LikeCoin ERC-20, please prepare your ETH wallet (Metamask or Ledger) and Cosmos wallet in the following instructions.",
+        "During this process, your LikeCoin ERC-20 will be migrated to the new LikeCoin. Note that your LikeCoin ERC-20 will be permanently decommissioned.",
+        "Please kindly be advised to check your Cosmos wallet address is accurate and correctly filled. (Cosmos wallet address should start with “cosmos1”) Any LikeCoin transfer that goes to other non-supported wallet address will most likely be lost and unable to be retrieved."
+      ]
     }
   },
   "StepCosmos": {
