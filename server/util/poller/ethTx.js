@@ -34,7 +34,7 @@ function validateTransferInReceipt(receipt, { value }) {
 
 async function sendCosmosCoin(cosmosAddress, ercValue, { txHash: ethMigrationTxHash }) {
   // TODO: burn the LikeCoin (maybe in batch to save fee?)
-  const cosmosValue = toBN(ercValue).div(toBN(1e9)).toNumber().toFixed(0);
+  const cosmosValue = toBN(ercValue).div(toBN(1e9)).toString(10);
   const amount = { amount: cosmosValue, denom: COSMOS_DENOM };
   const {
     tx,
