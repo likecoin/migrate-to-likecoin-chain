@@ -126,7 +126,7 @@
               v-else
               :wallet="ethAddress"
               :web3="web3"
-              :max-value="ethBalance"
+              :max-value="maxMigrationValue"
               :is-ledger="isLedger"
               @change-eth-wallet="setEthInformation"
               @confirm="setMigrateValue"
@@ -188,8 +188,8 @@ import StepIntroduction from '../components/StepIntroduction.vue';
 import { logTrackerEvent } from '../util/EventLogger';
 import { trySetLocalStorage } from '../util/client';
 import * as eth from '../util/eth';
-import { apiGetLikerId } from '../util/api';
-import { ETH_MIN_LIKECOIN_AMOUNT } from '../constant';
+import { apiGetLikerId, apiGetCosmosBalance } from '../util/api';
+import { ETH_MIN_LIKECOIN_AMOUNT, COSMOS_MIGRATION_ADDRESS } from '../constant';
 
 const BigNumber = require('bignumber.js');
 
@@ -215,6 +215,7 @@ export default {
     likerId: '',
     avatar: '',
     isCivicLiker: false,
+    migrateAccBalance: '',
   }),
   computed: {
     isLikerId() {
@@ -238,6 +239,9 @@ export default {
     },
     currentStep() {
       return this.getStepFromState(this.state);
+    },
+    maxMigrationValue() {
+      return BigNumber.min(this.ethBalance, this.migrateAccBalance);
     },
   },
   watch: {
@@ -299,6 +303,9 @@ export default {
         // no op
       }
     }
+    this.migrateAccBalance = new BigNumber(
+      await apiGetCosmosBalance(COSMOS_MIGRATION_ADDRESS),
+    ).multipliedBy(1e18);
   },
   methods: {
     getStepFromState(state) {

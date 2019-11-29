@@ -8,7 +8,7 @@ import {
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
 import { sendTransactionWithLoop } from '../util/web3';
-import { getCosmosAccountLIKE } from '../util/cosmos';
+import { getCosmosAccountLIKE, getCosmosDelegatorAddress } from '../util/cosmos';
 import {
   PUBSUB_TOPIC_MISC,
 } from '../constant';
@@ -48,13 +48,14 @@ router.post('/', async (req, res, next) => {
     const {
       from, to, value, maxReward, nonce, sig, cosmosAddress,
     } = req.body;
+    const migrationLimit = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
     const {
       address,
       methodCall,
       gas,
     } = await verifyMigrationData({
       from, to, value, maxReward, nonce, sig,
-    });
+    }, migrationLimit);
     const txData = methodCall.encodeABI();
     const {
       tx,
@@ -101,9 +102,10 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
       txHash,
     } = req.body;
+    const migrationLimit = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
     verifyTransferMigrationData({
       from, to, value,
-    });
+    }, migrationLimit);
     const dbTxRecord = {
       from,
       to,
