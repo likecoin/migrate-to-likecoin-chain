@@ -272,7 +272,7 @@ export default {
           .dividedBy(1e9)
           .integerValue(BigNumber.ROUND_DOWN)
           .multipliedBy(1e9);
-        if (roundedBalance < ETH_MIN_LIKECOIN_AMOUNT) {
+        if (roundedBalance.lt(new BigNumber(ETH_MIN_LIKECOIN_AMOUNT))) {
           throw new Error('BALANCE_BELOW_MIN');
         }
         this.migrateValue = roundedBalance.toString();
