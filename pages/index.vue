@@ -304,7 +304,7 @@ export default {
       }
     }
     const rawMigrateAccBalance = (await apiGetCosmosBalance(COSMOS_MIGRATION_ADDRESS)).data.value;
-    this.migrateAccBalance = new BigNumber(rawMigrateAccBalance).multipliedBy(1e18);
+    this.migrateAccBalance = new BigNumber(rawMigrateAccBalance).multipliedBy(1e18).toFixed();
   },
   methods: {
     getStepFromState(state) {

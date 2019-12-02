@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import BigNumber from 'bignumber.js';
 import { toChecksumAddress } from 'web3-utils';
 import {
   verifyMigrationData,
@@ -48,8 +49,9 @@ router.post('/', async (req, res, next) => {
     const {
       from, to, value, maxReward, nonce, sig, cosmosAddress,
     } = req.body;
-    const migrationLimit = (await getCosmosAccountLIKE(getCosmosDelegatorAddress()))
-      .multiplyBy(1e18)
+    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = new BigNumber(migrateBalance)
+      .multipliedBy(1e18)
       .toFixed();
     const {
       address,
@@ -104,8 +106,9 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
       txHash,
     } = req.body;
-    const migrationLimit = (await getCosmosAccountLIKE(getCosmosDelegatorAddress()))
-      .multiplyBy(1e18)
+    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = new BigNumber(migrateBalance)
+      .multipliedBy(1e18)
       .toFixed();
     verifyTransferMigrationData({
       from, to, value,
