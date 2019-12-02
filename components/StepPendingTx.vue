@@ -111,6 +111,21 @@
       </v-btn>
       <v-spacer />
     </v-card-actions>
+    <v-card-actions
+      v-else-if="isDone && likerId"
+      class="pt-6 pb-0"
+    >
+      <v-spacer />
+      <v-btn
+        color="secondary"
+        outlined
+        rounded
+        :href="likeCoLink"
+      >
+        <span class="primary--text px-2">{{ $t("StepPendingTx.backToLikeCo") }}</span>
+      </v-btn>
+      <v-spacer />
+    </v-card-actions>
   </v-card>
 </template>
 
@@ -120,6 +135,7 @@ import * as cosmos from '../util/cosmos';
 import {
   ETHERSCAN_HOST,
   BIGDIPPER_HOST,
+  LIKECO_HOST,
 } from '../constant';
 import {
   apiGetPendingCosmosMigration,
@@ -173,6 +189,9 @@ export default {
     },
     cosmosTxLink() {
       return `${BIGDIPPER_HOST}/transactions/${this.processingCosmosTxHash}`;
+    },
+    likeCoLink() {
+      return `${LIKECO_HOST}/in`;
     },
     displayValue() {
       if (this.resultValue) {
