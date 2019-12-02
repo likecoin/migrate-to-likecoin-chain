@@ -48,7 +48,9 @@ router.post('/', async (req, res, next) => {
     const {
       from, to, value, maxReward, nonce, sig, cosmosAddress,
     } = req.body;
-    const migrationLimit = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = (await getCosmosAccountLIKE(getCosmosDelegatorAddress()))
+      .multiplyBy(1e18)
+      .toFixed();
     const {
       address,
       methodCall,
@@ -102,7 +104,9 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
       txHash,
     } = req.body;
-    const migrationLimit = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = (await getCosmosAccountLIKE(getCosmosDelegatorAddress()))
+      .multiplyBy(1e18)
+      .toFixed();
     verifyTransferMigrationData({
       from, to, value,
     }, migrationLimit);

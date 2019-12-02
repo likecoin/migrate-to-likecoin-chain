@@ -16,7 +16,7 @@ export function verifyMigrationData({
   if (toBN(value).lt(toBN(ETH_MIN_LIKECOIN_AMOUNT))) {
     throw new Error(`Invalid value, should be at least ${ETH_MIN_LIKECOIN_AMOUNT} * 1e-18 LikeCoin`);
   }
-  if (toBN(value).gt(toBN(migrationLimit).mul(toBN(1e18)))) {
+  if (toBN(value).gt(migrationLimit)) {
     throw new Error('Value too large for migration');
   }
   return prepareWeb3Payload({
@@ -28,7 +28,7 @@ export function verifyTransferMigrationData({ to, value }, migrationLimit) {
   if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
     throw new Error('Invalid to address');
   }
-  if (toBN(value).gt(toBN(migrationLimit).mul(toBN(1e18)))) {
+  if (toBN(value).gt(migrationLimit)) {
     throw new Error('Value too large for migration');
   }
 }

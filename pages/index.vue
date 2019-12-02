@@ -241,7 +241,7 @@ export default {
       return this.getStepFromState(this.state);
     },
     maxMigrationValue() {
-      return BigNumber.min(this.ethBalance, this.migrateAccBalance);
+      return BigNumber.min(this.ethBalance, this.migrateAccBalance).toFixed();
     },
   },
   watch: {
@@ -303,9 +303,8 @@ export default {
         // no op
       }
     }
-    this.migrateAccBalance = new BigNumber(
-      await apiGetCosmosBalance(COSMOS_MIGRATION_ADDRESS),
-    ).multipliedBy(1e18);
+    const rawMigrateAccBalance = (await apiGetCosmosBalance(COSMOS_MIGRATION_ADDRESS)).data.value;
+    this.migrateAccBalance = new BigNumber(rawMigrateAccBalance).multipliedBy(1e18);
   },
   methods: {
     getStepFromState(state) {
