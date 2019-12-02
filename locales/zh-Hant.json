@@ -1,29 +1,112 @@
 {
-  "App": {
-    "title": "ERC20 - Cosmos Migration",
-    "step": [
-      "Introduction",
-      "請輸入 Cosmos 錢包地址",
-      "請輸入要轉換的LikeCoin數量",
-      "確認轉換並簽署",
-      "Transfer"
-    ]
-  },
-  "Introduction": {
-    "description": {
-      "manual": [
-        "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）和 Cosmos錢包。",
-        "在此過程中，您的LikeCoin ERC-20將被轉換到新的LikeCoin。請注意，您的LikeCoin ERC-20將被永久註銷。",
-        "請檢查您的Cosmos錢包地址是否正確填寫。（Cosmos錢包地址應以“ cosmos1”開頭）。若不慎將您的幣發送到不同的幣種錢包中，你的LikeCoin有可能會丟失並且無法找回。"
-      ],
-      "likerId": [
-        "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）。",
-        "在此過程中，您的 LikeCoin ERC-20 將被轉換到新的 LikeCoin。請注意，您的 LikeCoin ERC-20 將被永久註銷。",
-        "透過 Liker ID 登入的用戶，新錢包資料已為你自動填上。請檢查您的 LikeCoin 錢包地址是否正確填寫（錢包地址應以 “cosmos1” 開頭）。"
-      ]
+    "General": {
+        "ok": "確認",
+        "confirm": "確認",
+        "cancel": "取消",
+        "edit": "編輯",
+        "or": "或",
+        "retry": "重試",
+        "button": {
+            "connectLedger": "連接 Ledger",
+            "connectMetaMask": "連接 MetaMask"
+        }
+    },
+    "App": {
+        "title": "ERC20 - Cosmos 轉移",
+        "step": [
+            "簡介",
+            "請輸入 Cosmos 錢包地址",
+            "請輸入要轉換的 LikeCoin 數量",
+            "確認轉換並簽署",
+            "轉移"
+        ]
+    },
+    "Common": {
+        "ethFrom": "eth 來源",
+        "cosmosTo": "cosmos 目的地",
+        "value": "價值",
+        "likerId": "Liker ID"
+    },
+    "LedgerDialog": {
+        "walletType": "錢包",
+        "connectMessage": "請連接 Ledger",
+        "fetchingAddressList": "連接 Ledger 錢包中⋯⋯",
+        "connectAndRefresh": "請連接 Ledger 並重刷",
+        "cosmosApp": "Cosmos App",
+        "ethApp": "以太坊 App"
+    },
+    "LedgerWalletListDialog": {
+        "title": {
+            "eth": "請選擇你的以太坊錢包"
+        },
+        "try": "試",
+        "findAddress": "無法找到你的地址？"
+    },
+    "MetaMaskDialog": {
+        "connectMessage": "請連接 MetaMask"
+    },
+    "Introduction": {
+        "description": {
+            "manual": [
+                "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）和 Cosmos錢包。",
+                "在此過程中，您的LikeCoin ERC-20將被轉換到新的LikeCoin。請注意，您的LikeCoin ERC-20將被永久註銷。",
+                "請檢查您的Cosmos錢包地址是否正確填寫。（Cosmos錢包地址應以“ cosmos1”開頭）。若不慎將您的幣發送到不同的幣種錢包中，你的LikeCoin有可能會丟失並且無法找回。"
+            ],
+            "likerId": [
+                "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）。",
+                "在此過程中，您的 LikeCoin ERC-20 將被轉換到新的 LikeCoin。請注意，您的 LikeCoin ERC-20 將被永久註銷。",
+                "透過 Liker ID 登入的用戶，新錢包資料已為你自動填上。請檢查您的 LikeCoin 錢包地址是否正確填寫（錢包地址應以 “cosmos1” 開頭）。"
+            ]
+        }
+    },
+    "StepCosmos": {
+        "cosmosAddress": "請輸入你的 Cosmos 錢包地址",
+        "message": {
+            "invalidCosmosAddress": "Cosmos 地址不正確",
+            "waitingForCosmosApp": "正在等候 Cosmos Ledger App⋯⋯"
+        },
+        "button": {
+            "continue": "繼續"
+        }
+    },
+    "StepEthereum": {
+        "selectWallet": "連接你的以太坊錢包",
+        "message": {
+            "waitingForEthApp": "正在等候以太坊 Ledger App⋯⋯",
+            "waitingForMetamask": "正在等候 MetaMask⋯⋯",
+            "noWeb3": "無法偵測瀏覽器的 web3"
+        }
+    },
+    "StepSign": {
+        "title": "簽署並確認",
+        "description": "請確保以下的資訊準確無誤。你一旦簽署並確認轉移，將無人能取消此轉移操作。若你確認可以繼續，請按「簽署」(SIGN)。",
+        "message": {
+            "waitingForMetamask": "正在等候 MetaMask 以太坊簽署⋯⋯",
+            "waitingForEthApp": "正在等候 MetaMask 以太坊 Ledger App ⋯⋯",
+            "addressNotMatch": "請用以太坊地址（錢包）來簽署",
+            "loadingLedger": "正在準備以 Ledger 簽署 ",
+            "signOnLedger": "請以 Ledger 簽署",
+            "signOnMetaMask": "請以 MetaMask 簽署"
+        },
+        "button": {
+            "useLedger": "使用 Ledger",
+            "useMetaMask": "使用 MetaMask",
+            "sign": "簽署"
+        }
+    },
+    "StepPendingTx": {
+        "error": "錯誤",
+        "done": "完成",
+        "doneDescription": "轉換流程現已完成！你可前往 {0} 查看轉換紀錄. LikeCoin-Big Dipper是一個公開透明的數據平台，用戶可以使用其查看自己的交易詳情和搜索 LikeCoin中的任何數據信息。",
+        "waitingForCosmosTx": "正在等待 Cosmos TX （轉帳記錄）",
+        "waitingForEthTx": "正在等待 ETH TX （轉帳記錄）",
+        "viewOnBigdipper": "在 Big Dipper 上查看",
+        "viewOnEtherscan": "在 Etherscan 上查看"
+    },
+    "StepValueInput": {
+        "yourWallet": "你的以太坊錢包",
+        "editWallet": "選擇不同的地址",
+        "migarteValue": "轉移數額：",
+        "hint": "轉換率是 1:1"
     }
-  },
-  "StepPendingTx": {
-    "doneDescription": "轉換流程現已完成！你可前往 {0} 查看轉換紀錄. LikeCoin-Big Dipper是一個公開透明的數據平台，用戶可以使用其查看自己的交易詳情和搜索 LikeCoin中的任何數據信息。"
-  }
 }
