@@ -275,7 +275,7 @@ export default {
         if (roundedBalance.lt(new BigNumber(ETH_MIN_LIKECOIN_AMOUNT))) {
           throw new Error('BALANCE_BELOW_MIN');
         }
-        this.migrateValue = roundedBalance.toString();
+        this.migrateValue = roundedBalance.toFixed();
         this.cosmosAddress = cosmosWallet;
         this.ethAddress = wallet;
       } catch (err) {
