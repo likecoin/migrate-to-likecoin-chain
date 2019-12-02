@@ -95,6 +95,7 @@
     }
   },
   "StepPendingTx": {
+    "backToLikeCo": "Back to like.co",
     "error": "Error",
     "done": "Done",
     "doneDescription": "You may view your completed transaction on {0}",
