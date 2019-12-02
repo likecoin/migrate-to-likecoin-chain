@@ -12,7 +12,7 @@
         }
     },
     "App": {
-        "title": "ERC20 - Cosmos 轉移",
+        "title": "LikeCoin-ERC20 - LikeCoin chain 轉移",
         "step": [
             "簡介",
             "請輸入 Cosmos 錢包地址",

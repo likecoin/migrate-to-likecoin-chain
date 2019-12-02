@@ -12,7 +12,7 @@
     }
   },
   "App": {
-    "title": "ERC20 - Cosmos Migration",
+    "title": "LikeCoin-ERC20 - LikeCoin chain Migration",
     "step": [
       "Introduction",
       "Enter Cosmos address",
@@ -29,7 +29,7 @@
   },
   "LedgerDialog": {
     "walletType": "Wallet",
-    "connectMessage": "Please connect Ledger desu",
+    "connectMessage": "Please connect Ledger",
     "fetchingAddressList": "Loading Ledger wallets...",
     "connectAndRefresh": "Please connect ledger and refresh",
     "cosmosApp": "Cosmos App",
@@ -43,7 +43,7 @@
     "findAddress": "Cannot find your address?"
   },
   "MetaMaskDialog": {
-    "connectMessage": "Please connect to MetaMask desu"
+    "connectMessage": "Please connect to MetaMask"
   },
   "Introduction": {
     "description": {
