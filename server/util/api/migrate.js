@@ -9,21 +9,27 @@ import {
 
 export function verifyMigrationData({
   from, to, value, maxReward, nonce, sig,
-}) {
+}, migrationLimit) {
   if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
     throw new Error('Invalid to address');
   }
   if (toBN(value).lt(toBN(ETH_MIN_LIKECOIN_AMOUNT))) {
     throw new Error(`Invalid value, should be at least ${ETH_MIN_LIKECOIN_AMOUNT} * 1e-18 LikeCoin`);
   }
+  if (toBN(value).gt(toBN(migrationLimit))) {
+    throw new Error('Value too large for migration');
+  }
   return prepareWeb3Payload({
     from, to, value, maxReward, nonce, sig,
   });
 }
 
-export function verifyTransferMigrationData({ to }) {
+export function verifyTransferMigrationData({ to, value }, migrationLimit) {
   if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
     throw new Error('Invalid to address');
+  }
+  if (toBN(value).gt(toBN(migrationLimit))) {
+    throw new Error('Value too large for migration');
   }
 }
 

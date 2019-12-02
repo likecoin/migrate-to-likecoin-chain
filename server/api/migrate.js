@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import BigNumber from 'bignumber.js';
 import { toChecksumAddress } from 'web3-utils';
 import {
   verifyMigrationData,
@@ -8,7 +9,7 @@ import {
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
 import { sendTransactionWithLoop } from '../util/web3';
-import { getCosmosAccountLIKE } from '../util/cosmos';
+import { getCosmosAccountLIKE, getCosmosDelegatorAddress } from '../util/cosmos';
 import {
   PUBSUB_TOPIC_MISC,
 } from '../constant';
@@ -48,13 +49,17 @@ router.post('/', async (req, res, next) => {
     const {
       from, to, value, maxReward, nonce, sig, cosmosAddress,
     } = req.body;
+    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = new BigNumber(migrateBalance)
+      .multipliedBy(1e18)
+      .toFixed();
     const {
       address,
       methodCall,
       gas,
     } = await verifyMigrationData({
       from, to, value, maxReward, nonce, sig,
-    });
+    }, migrationLimit);
     const txData = methodCall.encodeABI();
     const {
       tx,
@@ -101,9 +106,13 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
       txHash,
     } = req.body;
+    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const migrationLimit = new BigNumber(migrateBalance)
+      .multipliedBy(1e18)
+      .toFixed();
     verifyTransferMigrationData({
       from, to, value,
-    });
+    }, migrationLimit);
     const dbTxRecord = {
       from,
       to,
