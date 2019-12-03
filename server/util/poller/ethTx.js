@@ -67,7 +67,10 @@ export async function handleEthMigrateCosmos(doc) {
         status,
         cosmosAddress,
       } = txDoc.data();
-      if (isMigrating) throw new Error(`already handling ${txHash}`);
+      if (isMigrating) {
+        console.log(`already handling ${txHash}`);
+        return null;
+      }
       if (cosmosMigrationTxHash) throw new Error(`${txHash} already sent in ${cosmosMigrationTxHash}`);
       if (status !== 'success') throw new Error(`tx ${txHash} not success`);
       docRef.update({ isMigrating: true });
@@ -76,32 +79,34 @@ export async function handleEthMigrateCosmos(doc) {
         value,
       };
     });
-    try {
-      const {
-        cosmosAddress,
-        value,
-      } = dbData;
-      const receipt = await getTransactionReceipt(txHash);
-      if (!receipt) {
-        // TODO: wait for receipt to appear
-        console.error(`No receipt: ${txHash}`);
-        await timeout(60000);
+    if (dbData) {
+      try {
+        const {
+          cosmosAddress,
+          value,
+        } = dbData;
+        const receipt = await getTransactionReceipt(txHash);
+        if (!receipt) {
+          // TODO: wait for receipt to appear
+          console.log(`No receipt: ${txHash}`);
+          await timeout(60000);
+          await docRef.update({
+            isMigrating: false,
+          });
+          return;
+        }
+        if (!validateTransferInReceipt(receipt, { value })) {
+          throw new Error('transaction succeed but no wanted Transfer event in receipt');
+        }
+        const cosmosTxHash = await sendCosmosCoin(cosmosAddress, value, { txHash });
         await docRef.update({
+          cosmosMigrationTxHash: cosmosTxHash,
           isMigrating: false,
         });
-        return;
+      } finally {
+        // await docRef.update({ isMigrating: false });
+        // TODO: handle error case
       }
-      if (!validateTransferInReceipt(receipt, { value })) {
-        throw new Error('transaction succeed but no wanted Transfer event in receipt');
-      }
-      const cosmosTxHash = await sendCosmosCoin(cosmosAddress, value, { txHash });
-      await docRef.update({
-        cosmosMigrationTxHash: cosmosTxHash,
-        isMigrating: false,
-      });
-    } finally {
-      // await docRef.update({ isMigrating: false });
-      // TODO: handle error case
     }
   } catch (err) {
     // eslint-disable-next-line no-console
