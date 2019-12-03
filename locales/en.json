@@ -19,7 +19,11 @@
       "Select amount",
       "Confirm and sign",
       "Transfer"
-    ]
+    ],
+    "error": {
+      "pleaseUseDesktop": "LikeCoin chain migration requires Metamask or ledger. Please use a Dekstop browser.",
+      "dontUseSafari": "LikeCoin chain migration requires Metamask or ledger. Please use browsers which support Metamask extension such as Chrome."
+    }
   },
   "Common": {
     "ethFrom": "eth from",

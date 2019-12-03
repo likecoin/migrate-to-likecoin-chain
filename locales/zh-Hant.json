@@ -19,7 +19,11 @@
             "請輸入要轉換的 LikeCoin 數量",
             "確認轉換並簽署",
             "轉移"
-        ]
+        ],
+        "error": {
+          "pleaseUseDesktop": "LikeCoin chain 轉移需要使用到 MetaMask 或 ledger。請使用電腦瀏覽本頁。",
+          "dontUseSafari": "LikeCoin chain 轉移需要使用到 MetaMask 或 ledger。請使用如 Chrome 等支援 MetaMask 的瀏覽器。。"
+        }
     },
     "Common": {
         "ethFrom": "eth 來源",

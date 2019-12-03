@@ -186,7 +186,11 @@ import StepCosmos from '../components/StepCosmos.vue';
 import StepIntroduction from '../components/StepIntroduction.vue';
 
 import { logTrackerEvent } from '../util/EventLogger';
-import { trySetLocalStorage } from '../util/client';
+import {
+  trySetLocalStorage,
+  checkIsSafari,
+  checkIsMobileClient,
+} from '../util/client';
 import * as eth from '../util/eth';
 import { apiGetLikerId, apiGetCosmosBalance } from '../util/api';
 import { ETH_MIN_LIKECOIN_AMOUNT, COSMOS_MIGRATION_ADDRESS } from '../constant';
@@ -254,6 +258,14 @@ export default {
     },
   },
   async mounted() {
+    if (checkIsMobileClient()) {
+      this.error = this.$t('App.error.pleaseUseDesktop');
+      return;
+    }
+    if (checkIsSafari()) {
+      this.error = this.$t('App.error.dontUseSafari');
+      return;
+    }
     const { likerid } = this.$route.query;
     if (likerid) {
       try {
