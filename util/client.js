@@ -33,3 +33,18 @@ export function tryClearLocalStorage(key) {
   }
   return false;
 }
+
+export function checkIsMobileClient() {
+  if (!global.window) return false;
+  const ua = global.window.navigator.userAgent;
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(ua)) {
+    return true;
+  }
+  return false;
+}
+
+export function checkIsSafari() {
+  if (!global.window) return false;
+  const ua = global.window.navigator.userAgent;
+  return (/ Safari\/\d/.test(ua) && !/ Chrome\/\d/.test(ua));
+}
