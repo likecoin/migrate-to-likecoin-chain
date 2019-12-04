@@ -87,7 +87,7 @@
         "message": {
             "waitingForMetamask": "正在等候 MetaMask 以太坊簽署⋯⋯",
             "waitingForEthApp": "正在等候 MetaMask 以太坊 Ledger App ⋯⋯",
-            "addressNotMatch": "請用以太坊地址（錢包）來簽署",
+            "addressNotMatch": "請用已綁定你的 Liker ID 的以太坊地址 {wallet} 來簽署",
             "loadingLedger": "正在準備以 Ledger 簽署 ",
             "signOnLedger": "請以 Ledger 簽署",
             "signOnMetaMask": "請以 MetaMask 簽署"
