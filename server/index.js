@@ -1,5 +1,6 @@
 import { Nuxt, Builder } from 'nuxt';
 import express from 'express';
+import helmet from 'helmet';
 import consola from 'consola';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -23,6 +24,7 @@ startEthTxPoller();
 const app = express();
 
 async function start() {
+  app.use(helmet());
   app.use(bodyParser.json());
   app.use('/api', api);
   app.get('/healthz', (req, res) => {
