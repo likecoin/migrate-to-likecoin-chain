@@ -15,11 +15,19 @@ import {
 } from '../constant';
 import publisher from '../util/gcloudPub';
 
+function isValidCosmosWallet(str) {
+  return !!str.match(/^cosmos1[ac-hj-np-z02-9]{38}$/);
+}
+
 const router = Router();
 
 router.get('/pending/cosmos/:cosmosWallet', async (req, res, next) => {
   try {
     const { cosmosWallet } = req.params;
+    if (!isValidCosmosWallet(cosmosWallet)) {
+      res.status(400).send('INVALID_COSMOS_WALLET');
+      return;
+    }
     const { eth_tx: ethMigrationTxHash } = req.query;
     if (!ethMigrationTxHash) {
       throw new Error('Missing migration hash');
@@ -37,6 +45,10 @@ router.get('/pending/cosmos/:cosmosWallet', async (req, res, next) => {
 router.get('/cosmos/:cosmosWallet', async (req, res, next) => {
   try {
     const { cosmosWallet } = req.params;
+    if (!isValidCosmosWallet(cosmosWallet)) {
+      res.status(400).send('INVALID_COSMOS_WALLET');
+      return;
+    }
     const value = await getCosmosAccountLIKE(cosmosWallet);
     res.json({ value });
   } catch (err) {
