@@ -1,6 +1,6 @@
-# likecoin-cosmos-migration-demo
+# Migrate to LikeCoin chain
 
-> My superb Nuxt.js project
+> My superb LikeCoin project
 
 ## Build Setup
 
