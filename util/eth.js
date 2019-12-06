@@ -176,7 +176,7 @@ export async function signTransferMigration(from, value) {
   };
 }
 
-export async function waitForTxToBeMined(txHash) {
+export async function waitForTxToBeMined(txHash, { waitforConfirm = false } = {}) {
   if (!readWeb3) initReadOnlyWeb3();
   let done = false;
   while (!done) {
@@ -189,7 +189,7 @@ export async function waitForTxToBeMined(txHash) {
         readWeb3.eth.getBlockNumber(),
       ]);
       done = t && txReceipt && currentBlockNumber && t.blockNumber
-        && (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED);
+        && (!waitforConfirm || (currentBlockNumber - t.blockNumber > ETH_CONFIRMATION_NEEDED));
     }
     if (!done) await timeout(10000);
   }

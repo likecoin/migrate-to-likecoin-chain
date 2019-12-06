@@ -104,6 +104,7 @@
         "done": "完成",
         "doneDescription": "轉換流程現已完成！你可前往 {0} 查看轉換紀錄. LikeCoin-Big Dipper是一個公開透明的數據平台，用戶可以使用其查看自己的交易詳情和搜索 LikeCoin中的任何數據信息。",
         "waitingForCosmosTx": "正在等待 Cosmos TX （轉帳記錄）",
+        "waitingForMoreBlockConfirm": "正在等待更多區塊驗證",
         "waitingForSystemConfirm": "正在等待 LikeCoin 系統確認轉帳",
         "waitingForEthTx": "正在等待 ETH TX （轉帳記錄）",
         "viewOnBigdipper": "在 Big Dipper 上查看",

@@ -104,6 +104,7 @@
     "done": "Done",
     "doneDescription": "You may view your completed transaction on {0}",
     "waitingForCosmosTx": "Waiting for Cosmos Tx ",
+    "waitingForMoreBlockConfirm": "Waiting for more block confirmations",
     "waitingForSystemConfirm": "Waiting for LikeCoin system to confirm Eth Tx",
     "waitingForEthTx": "Waiting for Eth Tx ",
     "viewOnBigdipper": "View on Big Dipper",
