@@ -122,12 +122,14 @@ async function sendTransaction(signedTx) {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
-    if (err && err.data) {
-      if (err.data.includes('Tx already exists')) {
+    if (err && err.response && err.response.data) {
+      if (err.response.data.error
+        && err.response.data.error.includes('Tx already exists')) {
         // return tx hash
         try {
           const { data } = await api.post('/txs/encode', {
-            tx: signedTx,
+            type: 'cosmos-sdk/StdTx',
+            value: signedTx,
           });
           const sha256 = createHash('sha256');
           const txHash = sha256
@@ -140,9 +142,9 @@ async function sendTransaction(signedTx) {
           return '';
         }
       }
-      if (err.data.code) {
+      if (err.response.data.code) {
         // eslint-disable-next-line no-console
-        console.error(err.data.raw_log);
+        console.error(err.response.data.raw_log);
         return '';
       }
     } else {
