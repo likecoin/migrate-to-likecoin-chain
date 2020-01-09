@@ -64,6 +64,28 @@
       >{{ $t('StepPendingTx.viewOnBigdipper') }}</a>
     </div>
     <div
+      v-else-if="state === 'confirm'"
+      class="text-center"
+    >
+      <div class="headline blue--text">
+        {{ $t('StepPendingTx.waitingForMoreBlockConfirm') }}
+      </div>
+      <v-icon
+        class="my-4"
+        large
+      >
+        mdi-dots-horizontal
+      </v-icon>
+      <div class="caption">
+        {{ processingEthTxHash }}
+      </div>
+      <a
+        class="body-2"
+        :href="ethTxLink"
+        target="_blank"
+      >{{ $t('StepPendingTx.viewOnEtherscan') }}</a>
+    </div>
+    <div
       v-else-if="state === 'pending'"
       class="text-center"
     >
@@ -199,6 +221,7 @@ export default {
   },
   data() {
     return {
+      state: '',
       isDone: false,
       error: '',
       resultValue: 0,
@@ -230,6 +253,8 @@ export default {
       this.state = 'eth';
       try {
         await eth.waitForTxToBeMined(this.processingEthTxHash);
+        this.state = 'confirm';
+        await eth.waitForTxToBeMined(this.processingEthTxHash, { waitforConfirm: true });
         this.waitForConfirm();
       } catch (err) {
         // eslint-disable-next-line no-console
