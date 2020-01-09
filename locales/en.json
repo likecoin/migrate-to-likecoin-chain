@@ -78,7 +78,7 @@
     "message": {
       "waitingForEthApp": "waiting for ETH ledger App...",
       "waitingForMetamask": "Waiting for MetaMask...",
-      "noWeb3": "Cannot detect web3 from browser"
+      "noWeb3": "Cannot detect MetaMask. Please try again on a Chrome browser with Metamask extension enabled."
     }
   },
   "StepSign": {
