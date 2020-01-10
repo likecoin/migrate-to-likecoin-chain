@@ -1,3 +1,4 @@
+
 {
     "General": {
         "ok": "確認",
@@ -78,7 +79,7 @@
         "message": {
             "waitingForEthApp": "正在等候以太坊 Ledger App⋯⋯",
             "waitingForMetamask": "正在等候 MetaMask⋯⋯",
-            "noWeb3": "無法偵測瀏覽器的 web3"
+            "noWeb3": "偵測不到 MetaMask 插件。請用已安裝 MetaMask 的 Chrome 瀏覽器再試。"
         }
     },
     "StepSign": {
