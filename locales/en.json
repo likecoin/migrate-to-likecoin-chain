@@ -21,6 +21,7 @@
       "Transfer"
     ],
     "error": {
+      "pleaseMigrateFirst": "LikeCoin chain wallet not found，click here to update your account in like.co",
       "pleaseUseDesktop": "LikeCoin chain migration requires Metamask or ledger. Please use a Dekstop browser.",
       "dontUseSafari": "LikeCoin chain migration requires Metamask or ledger. Please use browsers which support Metamask extension such as Chrome."
     }

@@ -22,8 +22,9 @@
             "轉移"
         ],
         "error": {
+          "pleaseMigrateFirst": "未找到 LikeCoin chain 錢包，請按這裡到 like.co 設定帳戶",
           "pleaseUseDesktop": "LikeCoin chain 轉移需要使用到 MetaMask 或 ledger。請使用電腦瀏覽本頁。",
-          "dontUseSafari": "LikeCoin chain 轉移需要使用到 MetaMask 或 ledger。請使用如 Chrome 等支援 MetaMask 的瀏覽器。。"
+          "dontUseSafari": "LikeCoin chain 轉移需要使用到 MetaMask 或 ledger。請使用如 Chrome 等支援 MetaMask 的瀏覽器。"
         }
     },
     "Common": {
