@@ -97,7 +97,16 @@
             >
               mdi-alert
             </v-icon>
-            {{ error }}
+            <a
+              v-if="error.message === 'USER_HAS_NO_COSMOS_WALLET'"
+              :href="`${LIKECO_HOST}/in/migration/authcore`"
+              class="error--text"
+            >
+              {{ $t('App.error.pleaseMigrateFirst') }}
+            </a>
+            <template v-else>
+              {{ error }}
+            </template>
           </div>
           <step-introduction
             v-else
@@ -193,7 +202,11 @@ import {
 } from '../util/client';
 import * as eth from '../util/eth';
 import { apiGetLikerId, apiGetCosmosBalance } from '../util/api';
-import { ETH_MIN_LIKECOIN_AMOUNT, COSMOS_MIGRATION_ADDRESS } from '../constant';
+import {
+  ETH_MIN_LIKECOIN_AMOUNT,
+  COSMOS_MIGRATION_ADDRESS,
+  LIKECO_HOST,
+} from '../constant';
 
 const BigNumber = require('bignumber.js');
 
@@ -207,6 +220,7 @@ export default {
     StepIntroduction,
   },
   data: () => ({
+    LIKECO_HOST,
     error: '',
     isBegin: false,
     cosmosAddress: '',
