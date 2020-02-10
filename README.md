@@ -1,6 +1,5 @@
 # Migrate to LikeCoin chain
-
-> My superb LikeCoin project
+> Migrate your ERC20 LIKE to LikeCoin chain LIKE [now](https://migration.like.co)
 
 ## Build Setup
 
