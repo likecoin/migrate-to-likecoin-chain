@@ -16,10 +16,11 @@ router.use('/proxy/cosmos/txs', proxy(COSMOS_ENDPOINT, {
 }));
 router.use('/migrate', migrate);
 router.use((err, req, res, next) => {
+  const msg = (err.response && err.response.data) || err.message || err;
+  console.error(msg);
   if (res.headersSent) {
     return next(err);
   }
-  const msg = (err.response && err.response.data) || err.message || err;
   res.set('Content-Type', 'text/plain');
   return res.status(400).send(msg);
 });

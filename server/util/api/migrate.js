@@ -11,13 +11,13 @@ export function verifyMigrationData({
   from, to, value, maxReward, nonce, sig,
 }, migrationLimit) {
   if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
-    throw new Error('Invalid to address');
+    throw new Error(`Invalid to address ${to}`);
   }
   if (toBN(value).lt(toBN(ETH_MIN_LIKECOIN_AMOUNT))) {
-    throw new Error(`Invalid value, should be at least ${ETH_MIN_LIKECOIN_AMOUNT} * 1e-18 LikeCoin`);
+    throw new Error(`Invalid value ${value}, should be at least ${ETH_MIN_LIKECOIN_AMOUNT} * 1e-18 LikeCoin`);
   }
   if (toBN(value).gt(toBN(migrationLimit))) {
-    throw new Error('Value too large for migration');
+    throw new Error(`Value ${value} too large for migration`);
   }
   return prepareWeb3Payload({
     from, to, value, maxReward, nonce, sig,
@@ -26,10 +26,10 @@ export function verifyMigrationData({
 
 export function verifyTransferMigrationData({ to, value }, migrationLimit) {
   if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
-    throw new Error('Invalid to address');
+    throw new Error(`Invalid to address ${to}`);
   }
   if (toBN(value).gt(toBN(migrationLimit))) {
-    throw new Error('Value too large for migration');
+    throw new Error(`Value ${value} too large for migration`);
   }
 }
 
