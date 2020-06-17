@@ -14,7 +14,7 @@ const topics = [
 ];
 const publisher = {};
 const publisherWrapper = {};
-const network = process.env.IS_TESTNET ? 'rinkeby' : 'mainnet';
+const ethNetwork = process.env.IS_TESTNET ? 'rinkeby' : 'mainnet';
 
 topics.forEach((topic) => {
   publisherWrapper[topic] = pubsub.topic(topic, {
@@ -30,7 +30,7 @@ publisher.publish = async (publishTopic, req, obj) => {
   Object.assign(obj, {
     '@timestamp': new Date().toISOString(),
     appServer: config.APP_SERVER || 'erc-cosmos-migration',
-    network,
+    ethNetwork,
     uuidv4: uuidv4(),
     requestIP: req ? (req.headers['x-real-ip'] || req.ip) : undefined,
     agent: req ? (req.headers['x-ucbrowser-ua'] || req.headers['user-agent']) : undefined,
