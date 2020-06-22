@@ -95,7 +95,7 @@ async function sendWithLoop(
   let networkGas = await web3.eth.getGasPrice();
   networkGas = new BigNumber(networkGas).multipliedBy(1.5);
   networkGas = BigNumber.max(networkGas, '10000000000'); // min 10gwei
-  const gasPrice = BigNumber.min(getGasPrice(), networkGas).toString();
+  const gasPrice = BigNumber.min(getGasPrice(), networkGas).toFixed(0);
   const counterRef = txLogRef.doc(`!counter_${address}`);
   /* eslint-disable no-await-in-loop */
   let pendingCount = await db.runTransaction(async (t) => {
