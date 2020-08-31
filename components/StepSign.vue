@@ -70,7 +70,6 @@
 <script>
 import * as eth from '../util/eth';
 import {
-  apiPostMigration,
   apiPostTransferMigration,
 } from '../util/api';
 import {
@@ -171,38 +170,14 @@ export default {
         }
         if (this.useLedger) {
           this.message = this.$t('StepSign.message.signOnLedger');
-          await this.sendTransfer();
         } else {
           this.message = this.$t('StepSign.message.signOnMetaMask');
-          await this.sendMigrationTx();
         }
+        await this.sendTransfer();
       } catch (err) {
         console.error(err);
         this.message = err;
         this.isSigning = false;
-      }
-    },
-    async sendMigrationTx() {
-      try {
-        this.message = this.$t('StepSign.message.waitingForMetamask');
-        const migrationData = await eth.signMigration(this.ethAddress, this.value);
-        migrationData.cosmosAddress = this.cosmosAddress;
-        this.isLoading = true;
-        const { data } = await apiPostMigration(migrationData);
-        this.message = '';
-        this.$emit('confirm', data.txHash);
-      } catch (err) {
-        if (err.code === -32603) {
-          // User rejected signing
-          this.onCancel();
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(err);
-          this.message = err;
-          this.isError = true;
-        }
-      } finally {
-        this.isLoading = false;
       }
     },
     async sendTransfer() {

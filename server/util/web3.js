@@ -21,23 +21,6 @@ export const LikeCoin = new web3.eth.Contract(LIKE_COIN_ABI, LIKE_COIN_ADDRESS);
 
 const ethSigner = web3.eth.accounts.privateKeyToAccount(ETH_PRIVATE_KEY);
 
-export async function prepareWeb3Payload({
-  from, to, value, maxReward, nonce, sig,
-}) {
-  const methodCall = LikeCoin.methods.transferDelegated(from, to, value, maxReward, 0, nonce, sig);
-  const { address } = LikeCoin.options;
-  const gas = await methodCall.estimateGas({
-    address,
-    from: ethSigner.address,
-    gas: 1000000,
-  });
-  return {
-    address,
-    methodCall,
-    gas,
-  };
-}
-
 export async function getTransactionReceipt(txHash) {
   const currentBlock = await web3.eth.getBlockNumber();
   const receipt = await web3.eth.getTransactionReceipt(txHash);
