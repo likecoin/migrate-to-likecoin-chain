@@ -1,14 +1,10 @@
 import { Router } from 'express';
 import BigNumber from 'bignumber.js';
-import { toChecksumAddress } from 'web3-utils';
 import {
-  verifyMigrationData,
   verifyTransferMigrationData,
-  addMigrationEthTx,
   addMigrationTransferEthTx,
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
-import { sendTransactionWithLoop } from '../util/web3';
 import { getCosmosAccountLIKE, getCosmosDelegatorAddress } from '../util/cosmos';
 import {
   PUBSUB_TOPIC_MISC,
@@ -51,59 +47,6 @@ router.get('/cosmos/:cosmosWallet', async (req, res, next) => {
     }
     const value = await getCosmosAccountLIKE(cosmosWallet);
     res.json({ value });
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.post('/', async (req, res, next) => {
-  try {
-    const {
-      from, to, value, maxReward, nonce, sig, cosmosAddress,
-    } = req.body;
-    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
-    const migrationLimit = new BigNumber(migrateBalance)
-      .multipliedBy(1e18)
-      .toFixed();
-    const {
-      address,
-      methodCall,
-      gas,
-    } = await verifyMigrationData({
-      from, to, value, maxReward, nonce, sig,
-    }, migrationLimit);
-    const txData = methodCall.encodeABI();
-    const {
-      tx,
-      txHash,
-      pendingCount,
-      // gasPrice,
-      delegatorAddress,
-    } = await sendTransactionWithLoop(
-      address,
-      txData,
-      { gas: Math.floor(gas * 1.5) },
-    );
-
-    const dbTxRecord = {
-      from,
-      to,
-      value,
-      txHash,
-      nonce: pendingCount,
-      cosmosAddress,
-      rawSignedTx: tx.rawTransaction,
-      delegatorAddress: toChecksumAddress(delegatorAddress),
-    };
-
-    publisher.publish(PUBSUB_TOPIC_MISC, req, {
-      ...dbTxRecord,
-      logType: 'eventCosmosTokenMigrate',
-      method: 'transferDelegated',
-    });
-
-    await addMigrationEthTx(dbTxRecord);
-    res.send({ txHash });
   } catch (err) {
     next(err);
   }
