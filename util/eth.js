@@ -151,7 +151,7 @@ export async function signTransferMigration(from, value) {
   const gasPrice = BigNumber.maximum(new BigNumber(netWorkPrice).multipliedBy(1.5), '5000000000');
   const estimateCost = gasNumber.multipliedBy(gasPrice);
   if ((estimateCost.gt(myEth))) {
-    throw new Error(`NOT_ENOUGH_GAS, NEED ${estimateCost.dividedBy(10e18).toFixed()}`);
+    throw new Error(`NOT_ENOUGH_GAS, NEED ${estimateCost.dividedBy(1e18).toFixed()}`);
   }
   const txEventEmitter = new Promise((resolve, reject) => {
     LikeCoin.methods.transfer(to, value)
