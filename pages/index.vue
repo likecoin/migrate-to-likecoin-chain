@@ -262,7 +262,7 @@ export default {
       return BigNumber.min(
         this.ethBalance,
         // minus 1 LIKE for transaction fee
-        new BigNumber(this.migrateAccBalance).minus(new BigNumber(1).multipliedBy(1e18)),
+        new BigNumber(this.migrateAccBalance).minus(1e18),
       ).toFixed();
     },
   },
