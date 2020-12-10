@@ -259,7 +259,11 @@ export default {
       return this.getStepFromState(this.state);
     },
     maxMigrationValue() {
-      return BigNumber.min(this.ethBalance, this.migrateAccBalance).toFixed();
+      return BigNumber.min(
+        this.ethBalance,
+        // minus 1 LIKE for transaction fee
+        new BigNumber(this.migrateAccBalance).minus(new BigNumber(1).multipliedBy(1e18)),
+      ).toFixed();
     },
   },
   watch: {
