@@ -126,6 +126,7 @@ export default {
       }
     },
     async submitCosmosAddress() {
+      this.cosmosAddress = this.cosmosAddress.trim();
       this.error = '';
       if (!isValidCosmosWallet(this.cosmosAddress)) {
         this.error = this.$t('StepCosmos.message.invalidCosmosAddress');
