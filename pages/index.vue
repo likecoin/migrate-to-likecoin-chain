@@ -276,13 +276,15 @@ export default {
     },
   },
   async mounted() {
-    if (checkIsMobileClient()) {
-      this.error = this.$t('App.error.pleaseUseDesktop');
-      return;
-    }
-    if (checkIsSafari()) {
-      this.error = this.$t('App.error.dontUseSafari');
-      return;
+    if (!window.ethereum) {
+      if (checkIsMobileClient()) {
+        this.error = this.$t('App.error.pleaseUseDesktop');
+        return;
+      }
+      if (checkIsSafari()) {
+        this.error = this.$t('App.error.dontUseSafari');
+        return;
+      }
     }
     const { likerid } = this.$route.query;
     if (likerid) {
