@@ -26,34 +26,41 @@ import {
 } from '../config/config';
 import { COSMOS_PRIVATE_KEY } from '../config/secret';
 
-let wallet;
-let delegatorAddress;
-let queryClient;
-let signingClient;
-
-(() => async function createSigner() {
-  wallet = await DirectSecp256k1Wallet.fromKey(COSMOS_PRIVATE_KEY);
-  const [firstAccount] = await wallet.getAccounts();
-  delegatorAddress = firstAccount.address;
-  const tendermint34Client = await Tendermint34Client.connect(cosmosRPCEndpoint);
-  queryClient = QueryClient.withExtensions(
-    tendermint34Client,
-    setupAuthExtension,
-    setupBankExtension,
-  );
-  signingClient = await SigningStargateClient.connectWithSigner(cosmosRPCEndpoint, wallet);
+const getCosmos = (() => {
+  let cosmos;
+  return async () => {
+    if (!cosmos) {
+      const wallet = await DirectSecp256k1Wallet.fromKey(COSMOS_PRIVATE_KEY);
+      const [firstAccount] = await wallet.getAccounts();
+      const delegatorAddress = firstAccount.address;
+      const tendermint34Client = await Tendermint34Client.connect(cosmosRPCEndpoint);
+      const queryClient = QueryClient.withExtensions(
+        tendermint34Client,
+        setupAuthExtension,
+        setupBankExtension,
+      );
+      const signingClient = await SigningStargateClient.connectWithSigner(
+        cosmosRPCEndpoint, wallet,
+      );
+      cosmos = { delegatorAddress, queryClient, signingClient };
+    }
+    return cosmos;
+  };
 })();
 
-export function getCosmosDelegatorAddress() {
+export async function getCosmosDelegatorAddress() {
+  const { delegatorAddress } = await getCosmos();
   return delegatorAddress;
 }
 
 export async function getCosmosAccountLIKE(address) {
+  const { queryClient } = await getCosmos();
   const { amount } = await queryClient.bank.balance(address, COSMOS_DENOM);
   return amount;
 }
 
 async function getAccountInfo(address) {
+  const { queryClient } = await getCosmos();
   const { value } = await queryClient.auth.account(address);
   const accountInfo = BaseAccount.decode(value);
   return accountInfo;
@@ -65,6 +72,7 @@ async function sendCoins(targets) {
   let retry = false;
   let txHash;
   let signedTx;
+  const { delegatorAddress, signingClient } = await getCosmos();
   const msg = targets.map((target) => ({
     typeUrl: '/cosmos.bank.v1beta1.MsgSend',
     value: {
