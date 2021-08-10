@@ -8,6 +8,7 @@ import {
   setupBankExtension,
 } from '@cosmjs/stargate';
 import { BaseAccount } from 'cosmjs-types/cosmos/auth/v1beta1/auth';
+import { TxRaw } from '@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx';
 
 import {
   db,
@@ -21,6 +22,7 @@ import {
   COSMOS_ENDPOINT as cosmosRPCEndpoint,
   COSMOS_GAS_PRICE,
   COSMOS_DENOM,
+  COSMOS_CHAIN_ID,
 } from '../config/config';
 import { COSMOS_PRIVATE_KEY } from '../config/secret';
 
@@ -78,8 +80,7 @@ async function sendCoins(targets) {
     gas,
   };
   const memo = '';
-  const { sequence } = await getAccountInfo(delegatorAddress);
-
+  const { accountNumber, sequence } = await getAccountInfo(delegatorAddress);
   const counterRef = txLogRef.doc(`!counter_${delegatorAddress}`);
   const pendingCount = await db.runTransaction(async (t) => {
     const d = await t.get(counterRef);
@@ -92,14 +93,19 @@ async function sendCoins(targets) {
     await t.update(counterRef, { value: v });
     return v - 1;
   });
+  const signerData = {
+    accountNumber: Number(accountNumber),
+    sequence: pendingCount,
+    chainId: COSMOS_CHAIN_ID,
+  };
+  const txRaw = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
+  const txBytes = TxRaw.encode(txRaw);
 
   do {
     /* eslint-disable no-await-in-loop */
     retry = false;
     try {
-      const { transactionHash } = await signingClient.signAndBroadcast(
-        delegatorAddress, msg, fee, memo,
-      );
+      const { transactionHash } = await signingClient.broadcastTx(txBytes);
       txHash = transactionHash;
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -116,9 +122,7 @@ async function sendCoins(targets) {
   } while (retry && retryCount < RETRY_LIMIT);
   try {
     while (!txHash) {
-      const { transactionHash } = await signingClient.signAndBroadcast(
-        delegatorAddress, msg, fee, memo,
-      );
+      const { transactionHash } = await signingClient.broadcastTx(txBytes);
       txHash = transactionHash;
       if (!txHash) {
         await timeout(200);
