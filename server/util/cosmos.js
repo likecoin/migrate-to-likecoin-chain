@@ -66,10 +66,17 @@ async function getAccountInfo(address) {
   return accountInfo;
 }
 
+async function sendTransaction(signedTx) {
+  const { signingClient } = await getCosmos();
+  const txBytes = TxRaw.encode(signedTx);
+  const { transactionHash, code, rawLog } = await signingClient.broadcastTx(txBytes);
+  if (code) {
+    throw new Error(rawLog);
+  }
+  return transactionHash;
+}
+
 async function sendCoins(targets) {
-  const RETRY_LIMIT = 10;
-  let retryCount = 0;
-  let retry = false;
   let txHash;
   let signedTx;
   const { delegatorAddress, signingClient } = await getCosmos();
@@ -88,12 +95,12 @@ async function sendCoins(targets) {
     gas,
   };
   const memo = '';
-  const { accountNumber, sequence } = await getAccountInfo(delegatorAddress);
+  const { accountNumber, sequence: seq1 } = await getAccountInfo(delegatorAddress);
   const counterRef = txLogRef.doc(`!counter_${delegatorAddress}`);
-  const pendingCount = await db.runTransaction(async (t) => {
+  let pendingCount = await db.runTransaction(async (t) => {
     const d = await t.get(counterRef);
     if (!d.data()) {
-      const count = Number(sequence);
+      const count = Number(seq1);
       await t.create(counterRef, { value: count + 1 });
       return count;
     }
@@ -106,35 +113,29 @@ async function sendCoins(targets) {
     sequence: pendingCount,
     chainId: COSMOS_CHAIN_ID,
   };
-  const txRaw = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
-  const txBytes = TxRaw.encode(txRaw);
+  signedTx = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
 
-  do {
-    /* eslint-disable no-await-in-loop */
-    retry = false;
-    try {
-      const { transactionHash } = await signingClient.broadcastTx(txBytes);
-      txHash = transactionHash;
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
-      if (err.code === 3 || err.code === 4) {
-        // eslint-disable-next-line no-console
-        console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
-      } else {
-        retry = true;
-        retryCount += 1;
-        await timeout(500);
-      }
-    }
-  } while (retry && retryCount < RETRY_LIMIT);
   try {
-    while (!txHash) {
-      const { transactionHash } = await signingClient.broadcastTx(txBytes);
-      txHash = transactionHash;
-      if (!txHash) {
-        await timeout(200);
-      }
+    txHash = await sendTransaction(signedTx);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+    if (err.code === 3 || err.code === 4) {
+      // eslint-disable-next-line no-console
+      console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
+    } else {
+      await timeout(500);
+      txHash = await sendTransaction(signedTx);
+    }
+  }
+
+  try {
+    if (!txHash) {
+      const { sequence: seq2 } = await getAccountInfo(delegatorAddress);
+      pendingCount = Number(seq2);
+      signerData.accountNumber = pendingCount;
+      signedTx = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
+      txHash = await sendTransaction(signedTx);
     }
     /* eslint-enable no-await-in-loop */
     await db.runTransaction((t) => t.get(counterRef).then((d) => {
