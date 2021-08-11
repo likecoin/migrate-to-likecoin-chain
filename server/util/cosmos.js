@@ -26,10 +26,11 @@ import {
 } from '../config/config';
 import { COSMOS_PRIVATE_KEY } from '../config/secret';
 
-const getCosmos = (() => {
-  let cosmos;
-  return async () => {
-    if (!cosmos) {
+let cosmosPromise; // don't call this directly, call getCosmos() instead
+
+async function getCosmos() {
+  if (!cosmosPromise) {
+    cosmosPromise = (async () => {
       const wallet = await DirectSecp256k1Wallet.fromKey(COSMOS_PRIVATE_KEY);
       const [firstAccount] = await wallet.getAccounts();
       const delegatorAddress = firstAccount.address;
@@ -42,11 +43,11 @@ const getCosmos = (() => {
       const signingClient = await SigningStargateClient.connectWithSigner(
         cosmosRPCEndpoint, wallet,
       );
-      cosmos = { delegatorAddress, queryClient, signingClient };
-    }
-    return cosmos;
-  };
-})();
+      return { delegatorAddress, queryClient, signingClient };
+    })();
+  }
+  return cosmosPromise;
+}
 
 export async function getCosmosDelegatorAddress() {
   const { delegatorAddress } = await getCosmos();
