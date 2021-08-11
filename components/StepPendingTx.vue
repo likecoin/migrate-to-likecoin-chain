@@ -291,8 +291,8 @@ export default {
     async waitForCosmos() {
       this.state = 'cosmos';
       try {
-        const tx = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
-        this.resultValue = tx.value.msg[0].value.amount[0].amount; // TODO: parse amount
+        const msg = await cosmos.waitForTxToBeMined(this.processingCosmosTxHash);
+        this.resultValue = msg.amount[0].amount; // TODO: parse amount
         this.isDone = true;
         this.$emit('done');
       } catch (err) {
