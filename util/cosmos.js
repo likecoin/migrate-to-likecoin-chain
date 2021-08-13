@@ -6,7 +6,7 @@ import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { COSMOS_ENDPOINT } from '../server/config/config';
 import { timeout } from '../common/util/misc';
 
-export default async function waitForTxToBeMined(txHash) {
+export async function waitForTxToBeMined(txHash) {
   let msg;
   let notFoundOnce = false;
   const client = await StargateClient.connect(COSMOS_ENDPOINT);
@@ -31,3 +31,5 @@ export default async function waitForTxToBeMined(txHash) {
   }
   return msg;
 }
+
+export default waitForTxToBeMined;
