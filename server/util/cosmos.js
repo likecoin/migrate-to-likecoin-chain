@@ -8,7 +8,7 @@ import {
   setupBankExtension,
 } from '@cosmjs/stargate';
 import { BaseAccount } from 'cosmjs-types/cosmos/auth/v1beta1/auth';
-import { TxRaw } from '@cosmjs/stargate/build/codec/cosmos/tx/v1beta1/tx';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import {
   db,
@@ -69,11 +69,8 @@ async function getAccountInfo(address) {
 
 async function sendTransaction(signedTx) {
   const { signingClient } = await getCosmos();
-  const txBytes = TxRaw.encode(signedTx);
-  const { transactionHash, code, rawLog } = await signingClient.broadcastTx(txBytes);
-  if (code) {
-    throw new Error(rawLog);
-  }
+  const txBytes = TxRaw.encode(signedTx).finish();
+  const { transactionHash } = await signingClient.broadcastTx(txBytes);
   return transactionHash;
 }
 
@@ -89,7 +86,7 @@ async function sendCoins(targets) {
       amount: [target.amount],
     },
   }));
-  const gas = (45000 * targets.length).toString();
+  const gas = (80000 * targets.length).toString();
   const feeAmount = (gas * COSMOS_GAS_PRICE).toFixed(0);
   const fee = {
     amount: [{ denom: COSMOS_DENOM, amount: feeAmount }],
@@ -121,7 +118,8 @@ async function sendCoins(targets) {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(err);
-    if (err.code === 3 || err.code === 4) {
+    const { message } = err;
+    if (message && message.includes('code 32')) {
       // eslint-disable-next-line no-console
       console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
     } else {
@@ -134,7 +132,7 @@ async function sendCoins(targets) {
     if (!txHash) {
       const { sequence: seq2 } = await getAccountInfo(delegatorAddress);
       pendingCount = Number(seq2);
-      signerData.accountNumber = pendingCount;
+      signerData.sequence = pendingCount;
       signedTx = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
       txHash = await sendTransaction(signedTx);
     }
