@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import createHash from 'create-hash';
 import { Tendermint34Client } from '@cosmjs/tendermint-rpc';
 import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing';
 import {
@@ -67,11 +68,30 @@ async function getAccountInfo(address) {
   return accountInfo;
 }
 
+async function computeTransactionHash(signedTx) {
+  const tx = Uint8Array.from(TxRaw.encode(signedTx).finish());
+  const sha256 = createHash('sha256');
+  const txHash = sha256
+    .update(Buffer.from(tx.buffer))
+    .digest('hex');
+  return txHash.toUpperCase();
+}
+
 async function sendTransaction(signedTx) {
   const { signingClient } = await getCosmosAPIClients();
   const txBytes = TxRaw.encode(signedTx).finish();
-  const { transactionHash } = await signingClient.broadcastTx(txBytes);
-  return transactionHash;
+  try {
+    const { transactionHash } = await signingClient.broadcastTx(txBytes);
+    await signingClient.broadcastTx(txBytes);
+    return transactionHash;
+  } catch (err) {
+    const { message } = err;
+    if (message && message.includes('tx already exists')) {
+      const txHash = await computeTransactionHash(signedTx);
+      return txHash;
+    }
+    throw new Error(err);
+  }
 }
 
 async function sendCoins(targets) {
