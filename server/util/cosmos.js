@@ -28,7 +28,7 @@ import { COSMOS_PRIVATE_KEY } from '../config/secret';
 
 let cosmosPromise; // don't call this directly, call getCosmos() instead
 
-async function getCosmos() {
+async function getCosmosAPIClients() {
   if (!cosmosPromise) {
     cosmosPromise = (async () => {
       const wallet = await DirectSecp256k1Wallet.fromKey(COSMOS_PRIVATE_KEY);
@@ -50,25 +50,25 @@ async function getCosmos() {
 }
 
 export async function getCosmosDelegatorAddress() {
-  const { delegatorAddress } = await getCosmos();
+  const { delegatorAddress } = await getCosmosAPIClients();
   return delegatorAddress;
 }
 
 export async function getCosmosAccountLIKE(address) {
-  const { queryClient } = await getCosmos();
+  const { queryClient } = await getCosmosAPIClients();
   const { amount } = await queryClient.bank.balance(address, COSMOS_DENOM);
   return amount;
 }
 
 async function getAccountInfo(address) {
-  const { queryClient } = await getCosmos();
+  const { queryClient } = await getCosmosAPIClients();
   const { value } = await queryClient.auth.account(address);
   const accountInfo = BaseAccount.decode(value);
   return accountInfo;
 }
 
 async function sendTransaction(signedTx) {
-  const { signingClient } = await getCosmos();
+  const { signingClient } = await getCosmosAPIClients();
   const txBytes = TxRaw.encode(signedTx).finish();
   const { transactionHash } = await signingClient.broadcastTx(txBytes);
   return transactionHash;
@@ -77,7 +77,7 @@ async function sendTransaction(signedTx) {
 async function sendCoins(targets) {
   let txHash;
   let signedTx;
-  const { delegatorAddress, signingClient } = await getCosmos();
+  const { delegatorAddress, signingClient } = await getCosmosAPIClients();
   const msg = targets.map((target) => ({
     typeUrl: '/cosmos.bank.v1beta1.MsgSend',
     value: {
@@ -122,21 +122,19 @@ async function sendCoins(targets) {
     if (message && message.includes('code 32')) {
       // eslint-disable-next-line no-console
       console.log(`Nonce ${pendingCount} failed, trying refetch sequence`);
+      const { sequence: seq2 } = await getAccountInfo(delegatorAddress);
+      pendingCount = Number(seq2);
+      signerData.sequence = pendingCount;
+      signedTx = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
     } else {
-      await timeout(500);
-      txHash = await sendTransaction(signedTx);
+      await timeout(2000);
     }
   }
 
   try {
     if (!txHash) {
-      const { sequence: seq2 } = await getAccountInfo(delegatorAddress);
-      pendingCount = Number(seq2);
-      signerData.sequence = pendingCount;
-      signedTx = await signingClient.sign(delegatorAddress, msg, fee, memo, signerData);
       txHash = await sendTransaction(signedTx);
     }
-    /* eslint-enable no-await-in-loop */
     await db.runTransaction((t) => t.get(counterRef).then((d) => {
       if (pendingCount + 1 > d.data().value) {
         return t.update(counterRef, {
