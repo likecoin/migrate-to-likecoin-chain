@@ -20,7 +20,7 @@ import { PUBSUB_TOPIC_MISC } from '../constant';
 import publisher from './gcloudPub';
 
 import {
-  COSMOS_RPC_ENDPOINT,
+  COSMOS_RPC_ENDPOINT as cosmosRPCEndpoint,
   COSMOS_GAS_PRICE,
   COSMOS_DENOM,
   COSMOS_CHAIN_ID,
@@ -35,14 +35,14 @@ async function getCosmosAPIClients() {
       const wallet = await DirectSecp256k1Wallet.fromKey(COSMOS_PRIVATE_KEY);
       const [firstAccount] = await wallet.getAccounts();
       const delegatorAddress = firstAccount.address;
-      const tendermint34Client = await Tendermint34Client.connect(COSMOS_RPC_ENDPOINT);
+      const tendermint34Client = await Tendermint34Client.connect(cosmosRPCEndpoint);
       const queryClient = QueryClient.withExtensions(
         tendermint34Client,
         setupAuthExtension,
         setupBankExtension,
       );
       const signingClient = await SigningStargateClient.connectWithSigner(
-        COSMOS_RPC_ENDPOINT, wallet,
+        cosmosRPCEndpoint, wallet,
       );
       return { delegatorAddress, queryClient, signingClient };
     })();
