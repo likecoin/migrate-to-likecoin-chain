@@ -1,18 +1,22 @@
 import proxy from 'express-http-proxy';
 import { Router } from 'express';
-import { COSMOS_ENDPOINT } from '../config/config';
+import { COSMOS_RPC_ENDPOINT } from '../config/config';
 
 import migrate from './migrate';
 
 const router = Router();
 
-router.use('/proxy/cosmos/txs', proxy(COSMOS_ENDPOINT, {
-  proxyReqPathResolver: (req) => {
-    const parts = req.url.split('?');
-    const queryString = parts[1];
-    const updatedPath = `/txs${parts[0]}`;
-    return updatedPath + (queryString ? `?${queryString}` : '');
-  },
+let proxyPath = '';
+try {
+  const urlObj = new URL(COSMOS_RPC_ENDPOINT);
+  proxyPath = urlObj.pathname;
+  proxyPath = proxyPath.slice(0, proxyPath.length - 1);
+} catch (err) {
+  console.error(err);
+}
+
+router.use('/proxy/cosmos/rpc', proxy(COSMOS_RPC_ENDPOINT, {
+  proxyReqPathResolver: (req) => `${proxyPath}${req.path}`,
 }));
 router.use('/migrate', migrate);
 router.use((err, req, res, next) => {
