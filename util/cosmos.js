@@ -1,28 +1,40 @@
-import { StargateClient } from '@cosmjs/stargate';
-
-import { COSMOS_ENDPOINT } from '../server/config/config';
+import axios from 'axios';
 import { timeout } from '../common/util/misc';
 
-export default async function waitForTxToBeMined(txHash) {
+const api = axios.create({
+  baseURL: '/api/proxy/cosmos/txs',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export async function waitForTxToBeMined(txHash) {
   let tx;
   let notFoundOnce = false;
-  const client = await StargateClient.connect(COSMOS_ENDPOINT);
   while (!tx) {
     /* eslint-disable no-await-in-loop */
     await timeout(1000);
     try {
-      const data = await client.getTx(txHash);
-      if (data) {
+      const { data } = await api.get(`/${txHash}`);
+      if (data && data.height) {
         ({ tx } = data);
-        const { code } = data;
-        if (code) throw new Error(code);
+        const {
+          code,
+          logs: [{ success = false } = {}] = [],
+        } = data;
+        const isFailed = (code && code !== '0') || !success;
+        if (isFailed) throw new Error(code);
       }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
-      if (notFoundOnce) throw err;
-      notFoundOnce = true;
-      await timeout(12000); // wait for 2 block + 2s
+      if (err.response && err.response.status === 404) {
+        if (notFoundOnce) throw err;
+        notFoundOnce = true;
+        await timeout(12000); // wait for 2 block + 2s
+      } else {
+        throw err;
+      }
     }
   }
   return tx;
