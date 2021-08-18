@@ -3,15 +3,13 @@ import { StargateClient } from '@cosmjs/stargate';
 import { decodeTxRaw } from '@cosmjs/proto-signing';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 
+import { COSMOS_ENDPOINT } from '../server/config/config';
 import { timeout } from '../common/util/misc';
-import { EXTERNAL_HOSTNAME } from '../constant';
-
-const COSMOS_RPC_ENDPOINT = `${EXTERNAL_HOSTNAME}/api/proxy/cosmos/rpc`;
 
 export async function waitForTxToBeMined(txHash) {
   let msg;
   let notFoundOnce = false;
-  const client = await StargateClient.connect(COSMOS_RPC_ENDPOINT);
+  const client = await StargateClient.connect(COSMOS_ENDPOINT);
   while (!msg) {
     /* eslint-disable no-await-in-loop */
     await timeout(1000);

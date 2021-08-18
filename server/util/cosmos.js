@@ -20,7 +20,7 @@ import { PUBSUB_TOPIC_MISC } from '../constant';
 import publisher from './gcloudPub';
 
 import {
-  COSMOS_RPC_ENDPOINT as cosmosRPCEndpoint,
+  COSMOS_ENDPOINT as cosmosRPCEndpoint,
   COSMOS_GAS_PRICE,
   COSMOS_DENOM,
   COSMOS_CHAIN_ID,
