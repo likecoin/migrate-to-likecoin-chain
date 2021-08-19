@@ -13,6 +13,11 @@ router.use('/proxy/cosmos/txs', proxy(COSMOS_ENDPOINT, {
     const updatedPath = `/txs${parts[0]}`;
     return updatedPath + (queryString ? `?${queryString}` : '');
   },
+  proxyReqBodyDecorator: (bodyContent, srcReq) => {
+    // google does not like GET having body
+    if (srcReq.method === 'GET') return '';
+    return bodyContent;
+  },
 }));
 router.use('/migrate', migrate);
 router.use((err, req, res, next) => {
