@@ -61,7 +61,8 @@ router.post('/ledger', async (req, res, next) => {
       cosmosAddress,
       txHash,
     } = req.body;
-    const migrateBalance = await getCosmosAccountLIKE(getCosmosDelegatorAddress());
+    const address = await getCosmosDelegatorAddress();
+    const migrateBalance = await getCosmosAccountLIKE(address);
     const migrationLimit = new BigNumber(migrateBalance)
       .multipliedBy(1e18)
       .toFixed();

@@ -6,7 +6,7 @@ export const ETH_MIN_LIKECOIN_AMOUNT = '1000000000000000000';
 
 export const ETH_CONFIRMATION_NEEDED = IS_TESTNET ? 2 : 12;
 
-export const ETH_ENDPOINT = IS_TESTNET ? 'https://rinkeby.infura.io/v3/53c151ea15184dc69ea07b4d2041ba4e' : 'https://cloudflare-eth.com';
+export const ETH_ENDPOINT = IS_TESTNET ? 'https://rinkeby.infura.io/v3/02c1a8933b394ec0a0ae14dd0f5cf9c3' : 'https://cloudflare-eth.com';
 
 export const LIKECO_HOST = IS_TESTNET ? 'https://rinkeby.like.co' : 'https://like.co';
 
