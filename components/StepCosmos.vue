@@ -63,6 +63,28 @@
         </v-list-item-action>
       </v-list-item>
     </v-card>
+    <v-card class="ma-4">
+      <v-list-item
+        class="grey lighten-5"
+        @click="onClickUseKeplr"
+      >
+        <img
+          class="ml-n3 mr-3"
+          src="~/assets/images/keplr.svg"
+          width="108px"
+        >
+        <v-list-item-content>
+          <v-list-item-title class="primary--text font-weight-bold">
+            {{ $t('General.button.connectKeplr' ) }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action>
+          <v-icon color="secondary">
+            mdi-arrow-right
+          </v-icon>
+        </v-list-item-action>
+      </v-list-item>
+    </v-card>
   </v-card>
   <ledger-dialog
     v-else
@@ -80,6 +102,7 @@ import {
   getLedgerCosmosAddress,
 } from '../util/ledger';
 import LedgerDialog from './LedgerDialog.vue';
+import Keplr from '../util/Keplr';
 
 function isValidCosmosWallet(str) {
   return !!str.match(/^cosmos1[ac-hj-np-z02-9]{38}$/);
@@ -102,6 +125,11 @@ export default {
   methods: {
     onClickUseLedger() {
       this.showLedger = true;
+    },
+    async onClickUseKeplr() {
+      await Keplr.initKeplr();
+      this.cosmosAddress = await Keplr.getWalletAddress();
+      this.submitCosmosAddress();
     },
     onCancelLedger() {
       this.showLedger = false;

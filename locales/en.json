@@ -7,6 +7,7 @@
     "or": "Or",
     "retry": "Retry",
     "button": {
+      "connectKeplr": "Connect to Keplr",
       "connectLedger": "Connect to Ledger",
       "connectMetaMask": "Connect to MetaMask"
     }
