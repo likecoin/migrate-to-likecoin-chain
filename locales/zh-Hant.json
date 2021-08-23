@@ -8,6 +8,7 @@
         "or": "或",
         "retry": "重試",
         "button": {
+            "connectKeplr": "連接 Keplr",
             "connectLedger": "連接 Ledger",
             "connectMetaMask": "連接 MetaMask"
         }

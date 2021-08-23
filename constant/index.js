@@ -6,4 +6,6 @@ export const BIGDIPPER_HOST = IS_TESTNET ? 'https://taipei.likecoin.bigdipper.li
 
 export const LIKECOIN_API_HOST = IS_TESTNET ? 'https://api.taipei.like.co' : 'https://api.like.co';
 
+export const CHAIN_ID = IS_TESTNET ? 'iscn-dev-chain-2' : 'likecoin-mainnet-2';
+
 export * from '../common/constant';
