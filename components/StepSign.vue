@@ -70,7 +70,7 @@
 <script>
 import * as eth from '../util/eth';
 import {
-  apiPostTransferMigration,
+  apiPostBurnMigration,
 } from '../util/api';
 import {
   getLedgerWeb3Engine,
@@ -183,10 +183,10 @@ export default {
     async sendTransfer() {
       try {
         this.message = this.$t('StepSign.message.waitingForEthApp');
-        const migrationData = await eth.signTransferMigration(this.ethAddress, this.value);
+        const migrationData = await eth.signBurnMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         this.isLoading = true;
-        const { data } = await apiPostTransferMigration(migrationData);
+        const { data } = await apiPostBurnMigration(migrationData);
         this.message = '';
         this.$emit('confirm', data.txHash);
       } catch (err) {
