@@ -3,6 +3,7 @@ import { db, txCollection as dbRef } from '../firebase';
 import { getTransfersFromReceipt, getTransactionReceipt } from '../web3';
 import { sendCoin } from '../cosmos';
 import { timeout } from '../misc';
+import { isSameEthAddress } from '../../common/util/web3';
 
 import { ETH_LOCK_ADDRESS } from '../../constant';
 import { COSMOS_DENOM } from '../../config/config';
@@ -26,7 +27,7 @@ async function logCosmosTx(payload) {
 function validateTransferInReceipt(receipt, { value }) {
   const transfers = getTransfersFromReceipt(receipt);
   const tx = transfers.some(
-    (transfer) => (transfer.to.toLowerCase() === ETH_LOCK_ADDRESS.toLowerCase()
+    (transfer) => (isSameEthAddress(transfer.to, ETH_LOCK_ADDRESS)
       && toBN(value).eq(toBN(transfer.value))),
   );
   return !!tx;

@@ -4,9 +4,10 @@ import { getCosmosDelegatorAddress } from '../cosmos';
 import {
   ETH_LOCK_ADDRESS,
 } from '../../constant';
+import { isSameEthAddress } from '../../common/util/web3';
 
 export function verifyTransferMigrationData({ to, value }, migrationLimit) {
-  if (to.toLowerCase() !== ETH_LOCK_ADDRESS.toLowerCase()) {
+  if (!isSameEthAddress(to.toLowerCase(), ETH_LOCK_ADDRESS)) {
     throw new Error(`Invalid to address ${to}`);
   }
   if (toBN(value).gt(toBN(migrationLimit))) {

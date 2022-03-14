@@ -131,13 +131,12 @@ export async function signMigration(from, value) {
   };
 }
 
-export async function signTransferMigration(from, value) {
-  const to = ETH_LOCK_ADDRESS;
+export async function signBurnMigration(from, value) {
   const balance = await LikeCoin.methods.balanceOf(from).call();
   if (new BigNumber(balance).lt(value)) {
     throw new Error('NOT_ENOUGH_BALANCE');
   }
-  const methodCall = LikeCoin.methods.transfer(to, value);
+  const methodCall = LikeCoin.methods.burn(value);
   const gas = await methodCall.estimateGas({
     to: LIKE_COIN_ADDRESS,
     from,
@@ -154,7 +153,7 @@ export async function signTransferMigration(from, value) {
     throw new Error(`NOT_ENOUGH_GAS, NEED ${estimateCost.dividedBy(1e18).toFixed()}`);
   }
   const txEventEmitter = new Promise((resolve, reject) => {
-    LikeCoin.methods.transfer(to, value)
+    LikeCoin.methods.burn(value)
       .send({
         from,
         gas: Math.ceil(gasNumber.toFixed()),
@@ -171,7 +170,7 @@ export async function signTransferMigration(from, value) {
   return {
     txHash,
     from,
-    to,
+    to: ETH_LOCK_ADDRESS,
     value,
   };
 }
