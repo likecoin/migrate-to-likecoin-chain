@@ -1,6 +1,6 @@
 export const { IS_TESTNET } = process.env;
 
-export const ETH_LOCK_ADDRESS = '0x0';
+export const ETH_LOCK_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const ETH_MIN_LIKECOIN_AMOUNT = '1000000000000000000';
 
