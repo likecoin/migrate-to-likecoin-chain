@@ -182,7 +182,11 @@ export default {
     },
     async sendTransfer() {
       try {
-        this.message = this.$t('StepSign.message.waitingForEthApp');
+        if (this.useLedger) {
+          this.message = this.$t('StepSign.message.waitingForEthApp');
+        } else {
+          this.message = this.$t('StepSign.message.waitingForMetamask');
+        }
         const migrationData = await eth.signBurnMigration(this.ethAddress, this.value);
         migrationData.cosmosAddress = this.cosmosAddress;
         this.isLoading = true;

@@ -89,7 +89,7 @@
         "description": "請確保以下的資訊準確無誤。你一旦簽署並確認轉移，將無人能取消此轉移操作。若你確認可以繼續，請按「簽署」(SIGN)。",
         "message": {
             "waitingForMetamask": "正在等候 MetaMask 以太坊簽署⋯⋯",
-            "waitingForEthApp": "正在等候 MetaMask 以太坊 Ledger App ⋯⋯",
+            "waitingForEthApp": "正在等候以太坊 Ledger App 簽署⋯⋯",
             "addressNotMatch": "請用已綁定你的 Liker ID 的以太坊地址 {wallet} 來簽署",
             "loadingLedger": "正在準備以 Ledger 簽署 ",
             "signOnLedger": "請以 Ledger 簽署",
