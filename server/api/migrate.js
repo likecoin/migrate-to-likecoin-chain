@@ -6,14 +6,11 @@ import {
   findMigrationCosmosTxLog,
 } from '../util/api/migrate';
 import { getCosmosAccountLIKE, getCosmosDelegatorAddress } from '../util/cosmos';
+import { isValidLikeOrCosmosWallet } from '../common/util/cosmos';
 import {
   PUBSUB_TOPIC_MISC,
 } from '../constant';
 import publisher from '../util/gcloudPub';
-
-function isValidLikeOrCosmosWallet(str) {
-  return !!str.match(/^(cosmos|like)1[ac-hj-np-z02-9]{38}$/);
-}
 
 const router = Router();
 
