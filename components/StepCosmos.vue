@@ -13,7 +13,7 @@
             v-model="cosmosAddress"
             class="caption"
             :error-messages="error"
-            placeholder="e.g. cosmos1234567890abcdefghijklmnopqrstuvwxyz123"
+            placeholder="e.g. like1234567890abcdefghijklmnopqrstuvwxyz123"
             outlined
             solo
             flat
@@ -104,8 +104,8 @@ import {
 import LedgerDialog from './LedgerDialog.vue';
 import Keplr from '../util/Keplr';
 
-function isValidCosmosWallet(str) {
-  return !!str.match(/^cosmos1[ac-hj-np-z02-9]{38}$/);
+function isValidLikeOrCosmosWallet(str) {
+  return !!str.match(/^(cosmos|like)1[ac-hj-np-z02-9]{38}$/);
 }
 
 export default {
@@ -156,7 +156,7 @@ export default {
     async submitCosmosAddress() {
       this.cosmosAddress = this.cosmosAddress.trim();
       this.error = '';
-      if (!isValidCosmosWallet(this.cosmosAddress)) {
+      if (!isValidLikeOrCosmosWallet(this.cosmosAddress)) {
         this.error = this.$t('StepCosmos.message.invalidCosmosAddress');
       } else {
         this.$emit('confirm', this.cosmosAddress);

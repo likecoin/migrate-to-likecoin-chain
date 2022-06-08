@@ -57,12 +57,12 @@
             "manual": [
                 "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）和 Cosmos錢包。",
                 "在此過程中，您的LikeCoin ERC-20將被轉換到新的LikeCoin。請注意，您的LikeCoin ERC-20將被永久註銷。",
-                "請檢查您的Cosmos錢包地址是否正確填寫。（Cosmos錢包地址應以“ cosmos1”開頭）。若不慎將您的幣發送到不同的幣種錢包中，你的LikeCoin有可能會丟失並且無法找回。"
+                "請檢查您的Cosmos錢包地址是否正確填寫。（LikeCoin錢包地址應以“ like1”開頭）。若不慎將您的幣發送到不同的幣種錢包中，你的LikeCoin有可能會丟失並且無法找回。"
             ],
             "likerId": [
                 "期待已久的LikeCoin主鏈已正式啟用！我們現正支援最新版本的LikeCoin轉換。如果您是LikeCoin ERC-20的持有者，請按照以下的指示，準備您的ETH錢包（Metamask或Ledger）。",
                 "在此過程中，您的 LikeCoin ERC-20 將被轉換到新的 LikeCoin。請注意，您的 LikeCoin ERC-20 將被永久註銷。",
-                "透過 Liker ID 登入的用戶，新錢包資料已為你自動填上。請檢查您的 LikeCoin 錢包地址是否正確填寫（錢包地址應以 “cosmos1” 開頭）。"
+                "透過 Liker ID 登入的用戶，新錢包資料已為你自動填上。請檢查您的 LikeCoin 錢包地址是否正確填寫（錢包地址應以 “like1” 開頭）。"
             ]
         }
     },
