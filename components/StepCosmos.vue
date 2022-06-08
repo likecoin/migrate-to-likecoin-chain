@@ -103,10 +103,7 @@ import {
 } from '../util/ledger';
 import LedgerDialog from './LedgerDialog.vue';
 import Keplr from '../util/Keplr';
-
-function isValidLikeOrCosmosWallet(str) {
-  return !!str.match(/^(cosmos|like)1[ac-hj-np-z02-9]{38}$/);
-}
+import { isValidLikeOrCosmosWallet } from '../common/util/cosmos';
 
 export default {
   components: {
