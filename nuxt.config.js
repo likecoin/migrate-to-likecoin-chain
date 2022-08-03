@@ -44,6 +44,36 @@ module.exports = {
   css: [
     { src: '@likecoin/ui-vue/dist/ui-vue.css', lang: 'css' },
   ],
+  render: {
+    csp: {
+      enabled: true,
+      unsafeInlineCompatibility: true,
+      hashAlgorithm: 'sha256',
+      policies: {
+        'default-src': [
+          "'self'",
+          'data:',
+          'blob:',
+          '*',
+        ],
+        'script-src': [
+          "'self'",
+          "'unsafe-inline'", // ignored by browser with sha support
+          'www.googletagmanager.com',
+        ],
+        'connect-src': [
+          "'self'",
+          'data:',
+          '*',
+        ],
+        'style-src': [
+          "'self'",
+          "'unsafe-inline'",
+          'fonts.googleapis.com',
+        ],
+      },
+    },
+  },
   /*
   ** Plugins to load before mounting the App
   */
