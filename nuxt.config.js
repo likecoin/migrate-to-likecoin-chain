@@ -31,7 +31,6 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/png', href: '/favicon.png' },
-      { rel: 'preload', href: '/vendor/fb/pixel.js', as: 'script' },
     ],
   },
   /*
